@@ -1,5 +1,5 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -9,36 +9,32 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value;
+        getAll() {
+          return request.cookies.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
           supabaseResponse = NextResponse.next({ request });
-          supabaseResponse.cookies.set({ name, value, ...options });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
         },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: "", ...options });
-          supabaseResponse = NextResponse.next({ request });
-          supabaseResponse.cookies.set({ name, value: "", ...options });
-        }
-      }
+      },
     }
   );
 
-  // Refresh session if expired
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Redirect unauthenticated users from protected routes
-  const protectedPaths = ["/interview", "/profile"];
-  const path = request.nextUrl.pathname;
-  const isProtected = protectedPaths.some((p) => path.startsWith(p));
-
-  if (!user && isProtected) {
+  // Protect routes
+  if (
+    !user &&
+    (request.nextUrl.pathname.startsWith('/interview') ||
+      request.nextUrl.pathname.startsWith('/profile'))
+  ) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
