@@ -3,7 +3,6 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { SetupClient } from './setup-client';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
 
 export default async function SetupPage() {
   const supabase = await getSupabaseServer();
