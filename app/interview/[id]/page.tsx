@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
 
 type Step = {
   order_index: number;
