@@ -20,3 +20,6 @@ export async function getSupabaseServer() {
     }
   );
 }
+
+// Alias for older callers
+export const createClient = getSupabaseServer;
