@@ -99,16 +99,14 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 }`}
                 aria-pressed={isActive}
               >
-                <div
-                  className={`mb-6 h-40 rounded-sm border border-[#f5efe2]/10 flex items-end p-5 bg-gradient-to-br ${
-                    lvl.id === 'intern'
-                      ? 'from-[#1c2640] via-[#1a2238] to-[#d4a04a]/30'
-                      : lvl.id === 'analyst'
-                        ? 'from-[#152540] via-[#0e1c33] to-[#1f3358]'
-                        : 'from-[#070d18] via-[#0a1628] to-[#1a2540]'
-                  }`}
-                >
-                  <div className="text-[10px] tracking-[0.22em] text-[#f5efe2]/55">
+                <div className="mb-6 h-40 rounded-sm border border-[#f5efe2]/10 overflow-hidden relative">
+                  <img
+                    src={`/levels/${lvl.id}.png`}
+                    alt={`${lvl.title} interview illustration`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 p-5 text-[10px] tracking-[0.22em] text-[#f5efe2]/75">
                     {lvl.id === 'intern' ? 'MORNING ROOM' : lvl.id === 'analyst' ? 'BOARDROOM' : 'LATE NIGHT'}
                   </div>
                 </div>
