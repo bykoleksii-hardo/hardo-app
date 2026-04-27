@@ -58,7 +58,7 @@ export default function LoginClient() {
       setError(error.message);
       return;
     }
-    setInfo('We sent a 6-digit code to your email.');
+    setInfo('We sent a code to your email.');
     setMode('verify');
   }
 
@@ -66,7 +66,7 @@ export default function LoginClient() {
     e.preventDefault();
     reset();
     if (code.length !== 6) {
-      setError('Enter the 6-digit code.');
+      setError('Enter the code.');
       return;
     }
     setLoading(true);
@@ -95,7 +95,7 @@ export default function LoginClient() {
 
   return (
     <div className="min-h-screen w-full bg-[#0a1628] text-[#f5efe2] grid lg:grid-cols-2">
-      {/* LEFT — auth */}
+      {/* LEFT â auth */}
       <div className="flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-16">
         <div className="max-w-md w-full mx-auto">
           {/* Brand */}
@@ -132,8 +132,8 @@ export default function LoginClient() {
           </h1>
           <p className="text-[#f5efe2]/70 mb-10 leading-relaxed">
             {mode === 'signin' && 'Pick up where you left off.'}
-            {mode === 'signup' && 'Eight characters minimum. No SSO yet — keep it simple.'}
-            {mode === 'verify' && `We sent a 6-digit code to ${email}. Enter it below.`}
+            {mode === 'signup' && 'Eight characters minimum. No SSO yet â keep it simple.'}
+            {mode === 'verify' && `We sent a code to ${email}. Enter it below.`}
           </p>
 
           {/* SIGN IN */}
@@ -162,7 +162,7 @@ export default function LoginClient() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-transparent border border-[#f5efe2]/20 px-4 py-3 outline-none focus:border-[#d4a04a] transition placeholder:text-[#f5efe2]/30"
-                  placeholder="••••••••••"
+                  placeholder="â¢â¢â¢â¢â¢â¢â¢â¢â¢â¢"
                 />
               </Field>
 
@@ -226,17 +226,18 @@ export default function LoginClient() {
           {/* VERIFY */}
           {mode === 'verify' && (
             <form onSubmit={onVerify} className="space-y-5">
-              <Field label="6-digit code">
+              <Field label="code">
                 <input
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  maxLength={6}
+                  maxLength={10}
+              minLength={6}
                   required
                   autoFocus
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                   className="w-full bg-transparent border border-[#f5efe2]/20 px-4 py-3 text-2xl tracking-[0.5em] font-serif outline-none focus:border-[#d4a04a] transition placeholder:text-[#f5efe2]/30"
-                  placeholder="••••••"
+                  placeholder="â¢â¢â¢â¢â¢â¢"
                 />
               </Field>
 
@@ -262,7 +263,7 @@ export default function LoginClient() {
         </div>
       </div>
 
-      {/* RIGHT — pitch */}
+      {/* RIGHT â pitch */}
       <div className="hidden lg:flex flex-col justify-center bg-[#0e1e36] border-l border-[#f5efe2]/10 px-16 py-16">
         <div className="max-w-lg">
           <div className="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-[#f5efe2]/60 mb-12">
@@ -275,12 +276,12 @@ export default function LoginClient() {
           </h2>
 
           <p className="text-[#f5efe2]/70 leading-relaxed mb-12">
-            90-second answers. Unscripted follow-ups. A scorecard graded against bulge brackets and elite boutiques — not a generic rubric.
+            90-second answers. Unscripted follow-ups. A scorecard graded against bulge brackets and elite boutiques â not a generic rubric.
           </p>
 
           <ol className="space-y-6 text-sm">
-            <Step n="01" title="Pick a vertical">M&amp;A, LBO, restructuring, valuation — or random.</Step>
-            <Step n="02" title="Run the drill">Voice answers, technicals, fit. The clock doesn’t pause.</Step>
+            <Step n="01" title="Pick a vertical">M&amp;A, LBO, restructuring, valuation â or random.</Step>
+            <Step n="02" title="Run the drill">Voice answers, technicals, fit. The clock doesnât pause.</Step>
             <Step n="03" title="Read the scorecard">Specific feedback on math, structure, and what an MD would actually say.</Step>
           </ol>
         </div>
@@ -308,7 +309,7 @@ function SubmitButton({ loading, children }: { loading: boolean; children: React
       disabled={loading}
       className="w-full bg-[#d4a04a] text-[#0a1628] font-medium py-3.5 px-6 hover:bg-[#e0b15c] transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wide"
     >
-      {loading ? 'Working…' : children}
+      {loading ? 'Workingâ¦' : children}
     </button>
   );
 }
