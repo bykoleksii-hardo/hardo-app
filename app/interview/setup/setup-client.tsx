@@ -99,14 +99,14 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 }`}
                 aria-pressed={isActive}
               >
-                <div className="mb-6 h-40 rounded-sm border border-[#f5efe2]/10 overflow-hidden relative">
+                <div className="mb-6 h-80 rounded-sm border border-[#f5efe2]/10 overflow-hidden relative">
                   <img
                     src={`/levels/${lvl.id}.png`}
                     alt={`${lvl.title} interview illustration`}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover object-top"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/30 to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-5 text-[10px] tracking-[0.22em] text-[#f5efe2]/75">
+                  <div className="absolute bottom-0 left-0 right-0 p-5 text-[10px] tracking-[0.22em] text-[#f5efe2]/75">
                     {lvl.id === 'intern' ? 'MORNING ROOM' : lvl.id === 'analyst' ? 'BOARDROOM' : 'LATE NIGHT'}
                   </div>
                 </div>
