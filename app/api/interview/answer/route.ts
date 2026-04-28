@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => null) as { stepId?: number; answer?: string } | null;
+  const body = await req.json().catch(() => null) as { stepId?: string; answer?: string } | null;
   if (!body?.stepId || typeof body.answer !== 'string') {
     return NextResponse.json({ error: 'bad request' }, { status: 400 });
   }
