@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 
 type Question = { id: number; question: string; category: string; subtopic: string | null; difficulty: number };
 type StepRow = {
-  id: number;
+  id: string;
   order_index: number;
   is_follow_up: boolean;
-  parent_step_id: number | null;
+  parent_step_id: string | null;
   question_id: number | null;
   user_answer: string | null;
   answered_at: string | null;
@@ -45,22 +45,18 @@ function shortLabel(q: Question | null, idx: number) {
 export default function InterviewClient({ interviewId, level, totalQuestions, steps }: Props) {
   const router = useRouter();
 
-  // Primary steps only for the sidebar (follow-ups are nested in the main panel)
   const mainSteps = useMemo(() => steps.filter(s => !s.is_follow_up).sort((a,b)=>a.order_index-b.order_index), [steps]);
 
-  // Find the active step: first un-answered primary step (follow-ups go via inline state below)
-  const initialActiveId = useMemo(() => {
+  const initialActiveId = useMemo<string | null>(() => {
     const next = mainSteps.find(s => !s.answered_at);
     return next?.id ?? mainSteps[mainSteps.length - 1]?.id ?? null;
   }, [mainSteps]);
 
-  const [activeId, setActiveId] = useState<number | null>(initialActiveId);
+  const [activeId, setActiveId] = useState<string | null>(initialActiveId);
   const [answer, setAnswer] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [endingSession, setEndingSession] = useState(false);
-
-  // local copy of steps so we can update answered status optimistically
   const [localSteps, setLocalSteps] = useState<StepRow[]>(steps);
 
   const activeStep = localSteps.find(s => s.id === activeId) ?? null;
@@ -82,7 +78,6 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'submit failed');
 
-      // mark current step answered locally
       setLocalSteps(prev => prev.map(s => s.id === activeStep.id ? { ...s, user_answer: answer.trim(), answered_at: new Date().toISOString() } : s));
       setAnswer('');
 
@@ -90,8 +85,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
         router.push(`/interview/${interviewId}/summary`);
         return;
       }
-      // move to next step
-      const nextId = data.next?.step_id ?? null;
+      const nextId: string | null = data.next?.step_id ?? null;
       if (nextId) setActiveId(nextId);
     } catch (e) {
       setError((e as Error).message);
@@ -114,7 +108,6 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
 
   return (
     <div className="min-h-screen bg-[#0a1628] text-[#f5efe2] font-inter flex flex-col">
-      {/* Top bar */}
       <header className="flex items-center justify-between px-8 py-4 border-b border-[#f5efe2]/10">
         <div className="flex items-center gap-6">
           <span className="font-playfair text-xl tracking-wide">HARDO</span>
@@ -132,7 +125,6 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
       </header>
 
       <div className="flex flex-1 min-h-0">
-        {/* Sidebar */}
         <aside className="w-80 border-r border-[#f5efe2]/10 px-6 py-6 overflow-y-auto">
           <div className="text-[10px] tracking-[0.22em] text-[#f5efe2]/45 mb-1">THE ROOM</div>
           <div className="text-[10px] tracking-[0.22em] text-[#d4a04a] mb-6">{level.toUpperCase()} INTERVIEW</div>
@@ -144,7 +136,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
 
           <ol className="space-y-1">
             {mainSteps.map((s) => {
-              const done = !!s.answered_at;
+              const local = localSteps.find(ls => ls.id === s.id) ?? s;
+              const done = !!local.answered_at;
               const active = s.id === activeId;
               const locked = !done && !active;
               const cat = s.questions?.category ?? '';
@@ -159,8 +152,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
                     {active && !done && <span className="text-[10px] tracking-[0.18em] text-[#d4a04a]">NOW</span>}
                     {locked && <span className="text-[10px] text-[#f5efe2]/30">LOCKED</span>}
                   </div>
-                  {done && s.ai_score && (
-                    <div className="ml-4 text-[10px] tracking-[0.18em] text-[#d4a04a]/80">SCORE {s.ai_score}</div>
+                  {done && local.ai_score && (
+                    <div className="ml-4 text-[10px] tracking-[0.18em] text-[#d4a04a]/80">SCORE {local.ai_score}</div>
                   )}
                 </li>
               );
@@ -168,7 +161,6 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
           </ol>
         </aside>
 
-        {/* Center */}
         <main className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto px-12 py-10">
             <div className="max-w-3xl mx-auto">
@@ -186,7 +178,6 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
                     {activeQ.question}
                   </h2>
 
-                  {/* Follow-ups (nested under primary) */}
                   {followUps.length > 0 && (
                     <div className="mb-10 border-l border-[#d4a04a]/40 pl-5 space-y-4">
                       <div className="text-[10px] tracking-[0.22em] text-[#d4a04a]">FOLLOWING UP</div>
@@ -201,7 +192,6 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
                     </div>
                   )}
 
-                  {/* Answer composer */}
                   <div className="border border-[#f5efe2]/15 bg-[#0e1c33]/40 p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2 text-[10px] tracking-[0.22em] text-[#f5efe2]/55">
