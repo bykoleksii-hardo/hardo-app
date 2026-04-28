@@ -5,10 +5,10 @@ import InterviewClient from './interview-client';
 export const dynamic = 'force-dynamic';
 
 type StepRow = {
-  id: number;
+  id: string;
   order_index: number;
   is_follow_up: boolean;
-  parent_step_id: number | null;
+  parent_step_id: string | null;
   question_id: number | null;
   user_answer: string | null;
   answered_at: string | null;
