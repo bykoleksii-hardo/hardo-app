@@ -44,7 +44,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
         <div className="flex items-center gap-6">
           <span className="font-playfair text-xl">HARDO</span>
           <span className="text-[11px] tracking-[0.22em] text-[#f5efe2]/45">
-            SCORECARD / {interview.candidate_level.toUpperCase()}
+            {'SCORECARD / '}{interview.candidate_level.toUpperCase()}
           </span>
         </div>
         <a href="/interview/setup" className="text-[11px] tracking-[0.22em] border border-[#f5efe2]/20 px-4 py-2 hover:text-[#d4a04a]">
@@ -53,15 +53,14 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
       </header>
 
       <div className="max-w-4xl mx-auto px-8 py-12">
-        <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-3">- YOUR SCORECARD</div>
+        <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-3">{'> YOUR SCORECARD'}</div>
         <h1 className="font-playfair text-5xl leading-[1.15] mb-6">
           The interview is <span className="italic text-[#d4a04a]">done.</span>
         </h1>
         <p className="text-[#f5efe2]/65 max-w-2xl mb-12">
-          Detailed grading is being prepared. For now, here is the full transcript - your answers and where the interviewer will dig deeper next time.
+          Detailed grading is being prepared. For now, here is the full transcript: your answers and where the interviewer will dig deeper next time.
         </p>
 
-        {/* Overall score - placeholder */}
         <div className="border border-[#f5efe2]/15 bg-[#0e1c33]/40 p-8 mb-12 grid grid-cols-3 gap-8">
           <div>
             <div className="text-[11px] tracking-[0.22em] text-[#f5efe2]/45 mb-2">OVERALL</div>
@@ -89,13 +88,13 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
             return (
               <li key={s.id} className="border border-[#f5efe2]/10 bg-[#0e1c33]/30 p-6">
                 <div className="flex items-center justify-between text-[11px] tracking-[0.22em] text-[#f5efe2]/55 mb-3">
-                  <span>Q{String(s.order_index).padStart(2,'0')}  -  {(s.questions?.category ?? '').toUpperCase()}</span>
+                  <span>Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}</span>
                   <span className="text-[#d4a04a]">{s.ai_score ?? 'TBD'}</span>
                 </div>
                 <p className="font-playfair text-lg leading-[1.5] mb-4">{s.questions?.question}</p>
                 <div className="text-[11px] tracking-[0.22em] text-[#f5efe2]/45 mb-2">YOUR ANSWER</div>
                 <p className="text-[#f5efe2]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
-                  {s.user_answer ?? <span className="text-[#f5efe2]/35 italic">- not answered -</span>}
+                  {s.user_answer ?? <span className="text-[#f5efe2]/35 italic">not answered</span>}
                 </p>
                 {s.ai_feedback && (
                   <>
@@ -121,7 +120,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         <div className="mt-12 text-center">
           <a href="/interview/setup" className="inline-block bg-[#d4a04a] text-[#0a1628] tracking-wide px-8 py-3 font-medium hover:bg-[#e0ae54]">
-            Run another interview ->
+            Run another interview {'→'}
           </a>
         </div>
       </div>
