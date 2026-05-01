@@ -358,7 +358,9 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
                     </div>
                     <div className="flex gap-1">
                       <button className="text-[10px] tracking-[0.22em] px-3 py-1.5 bg-[#f5efe2]/10 text-[#f5efe2]">TYPE</button>
-                      <button disabled className="text-[10px] tracking-[0.22em] px-3 py-1.5 text-[#f5efe2]/35 border border-[#f5efe2]/15" title="Coming in v2">VOICE</button>
+                      <button disabled className="text-[10px] tracking-[0.22em] px-3 py-1.5 text-[#f5efe2]/35 border border-[#f5efe2]/15 cursor-not-allowed" title="Voice mode is coming in v2">
+                        VOICE <span className="ml-1.5 text-[#d4a04a]/60 tracking-normal normal-case">v2 coming soon</span>
+                      </button>
                     </div>
                   </div>
                   <textarea
