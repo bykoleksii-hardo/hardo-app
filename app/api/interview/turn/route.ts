@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { chatJSON } from '@/lib/openai';
+import { chatJSON, OpenAIError } from '@/lib/openai';
 import {
   TURN_SYSTEM_PROMPT,
   TURN_SCHEMA,
@@ -160,8 +160,12 @@ export async function POST(req: Request) {
     });
     ai = out.data;
   } catch (e) {
-    console.error('[turn] openai error', e);
-    return NextResponse.json({ error: (e as Error).message }, { status: 502 });
+    if (e instanceof OpenAIError) {
+      console.error('[turn] openai error', { status: e.status, code: e.code, type: e.type, message: e.message, raw: e.rawBody });
+      return NextResponse.json({ error: e.message, code: e.code, friendly: e.friendly }, { status: 502 });
+    }
+    console.error('[turn] openai error (unknown)', e);
+    return NextResponse.json({ error: (e as Error).message, friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
   // 6. Persist the candidate's message.
