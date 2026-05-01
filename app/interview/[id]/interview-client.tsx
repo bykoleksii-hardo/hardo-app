@@ -189,11 +189,22 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
         if (data.is_last) {
           // Trigger finalize and route to summary.
           setFinalizing(true);
-          await fetch('/api/interview/finalize', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ interviewId }),
-          }).catch(() => {});
+          try {
+            const fr = await fetch('/api/interview/finalize', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ interviewId }),
+            });
+            if (!fr.ok) {
+              const errBody = await fr.json().catch(() => ({}));
+              throw new Error(errBody.friendly || errBody.error || 'Failed to finalize the interview. Please try again.');
+            }
+          } catch (e) {
+            setFinalizing(false);
+            setError((e as Error).message);
+            return;
+          }
+          setFinalizing(false);
           router.push(`/interview/${interviewId}/summary`);
           return;
         }
