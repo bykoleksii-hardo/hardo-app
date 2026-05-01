@@ -104,6 +104,7 @@ export async function POST(req: Request) {
       overall_strengths: ai.overall_strengths,
       overall_weaknesses: ai.overall_weaknesses,
       final_feedback: ai.final_feedback,
+      hire_recommendation: ai.hire_recommendation,
       tokens_used: tokens,
     })
     .select('id')
