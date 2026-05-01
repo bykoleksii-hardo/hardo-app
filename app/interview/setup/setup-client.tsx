@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/browser';
 
 type Level = 'intern' | 'analyst' | 'associate';
 
@@ -39,6 +40,11 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
   const router = useRouter();
   const [selected, setSelected] = useState<Level>('analyst');
   const [loading, setLoading] = useState(false);
+  const signOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
   const [error, setError] = useState<string | null>(null);
 
   const active = LEVELS.find((l) => l.id === selected)!;
@@ -69,7 +75,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
           <div className="w-9 h-9 border border-[#f5efe2]/40 flex items-center justify-center font-playfair text-lg italic">H</div>
           <span className="tracking-[0.18em] text-sm">HARDO</span>
         </div>
-        <div className="text-xs tracking-[0.18em] text-[#f5efe2]/55">{userEmail.toUpperCase()}</div>
+        <div className="flex items-center gap-4 text-xs tracking-[0.18em] text-[#f5efe2]/55"><span>{userEmail.toUpperCase()}</span><button onClick={signOut} className="text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">SIGN OUT</button></div>
       </div>
 
       <main className="max-w-[1320px] mx-auto px-12 py-16">
@@ -145,8 +151,8 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             </div>
             <p className="font-playfair text-lg leading-[1.5] text-[#f5efe2]/95">{active.sample.q}</p>
             <div className="flex items-center justify-between mt-6 pt-5 border-t border-[#f5efe2]/10 text-[11px] tracking-[0.18em] text-[#f5efe2]/55">
-              <span>Q?? / 12 - {active.sample.phase.toUpperCase()}</span>
-              <span>GRADED VS. {active.sample.grade}</span>
+              <span>SAMPLE - {active.sample.phase.toUpperCase()}</span>
+              <span>BENCHMARK: {active.sample.grade}</span>
             </div>
           </div>
         </div>
@@ -154,7 +160,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         {/* CTA */}
         <div className="mt-14 flex items-center justify-between">
           <div className="text-xs tracking-[0.18em] text-[#f5efe2]/55">
-            THE CLOCK STARTS WHEN YOU HIT START. NO PAUSES BETWEEN QUESTIONS.
+            START WHEN READY. THE INTERVIEWER WON'T HOLD BACK.
           </div>
           <button
             onClick={start}
