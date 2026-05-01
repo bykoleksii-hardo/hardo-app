@@ -174,7 +174,13 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
         body: JSON.stringify({ stepId: activeBase.id, message: text }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'turn failed');
+      if (!r.ok) {
+        const friendly = data.friendly || data.error || 'The interviewer is unavailable right now. Please try again later.';
+        const err = new Error(friendly);
+        // attach raw for debugging
+        (err as any).raw = data.error;
+        throw err;
+      }
 
       // Re-fetch fresh steps + answers via a tiny refresh call (simpler than mutating in place).
       await refreshState();
