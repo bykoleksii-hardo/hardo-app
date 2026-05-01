@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { chatJSON } from '@/lib/openai';
+import { chatJSON, OpenAIError } from '@/lib/openai';
 import {
   FINALIZE_SYSTEM_PROMPT,
   FINALIZE_SCHEMA,
@@ -86,8 +86,12 @@ export async function POST(req: Request) {
     ai = out.data;
     tokens = out.tokens;
   } catch (e) {
-    console.error('[finalize] openai error', e);
-    return NextResponse.json({ error: (e as Error).message }, { status: 502 });
+    if (e instanceof OpenAIError) {
+      console.error('[finalize] openai error', { status: e.status, code: e.code, type: e.type, message: e.message, raw: e.rawBody });
+      return NextResponse.json({ error: e.message, code: e.code, friendly: e.friendly }, { status: 502 });
+    }
+    console.error('[finalize] openai error (unknown)', e);
+    return NextResponse.json({ error: (e as Error).message, friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
   const score = Math.max(0, Math.min(100, Math.round(ai.overall_score)));
