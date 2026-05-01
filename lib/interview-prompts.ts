@@ -135,14 +135,20 @@ export type TurnAIResult = {
 
 // ----------------- finalize prompts -----------------
 
-export const FINALIZE_SYSTEM_PROMPT = `You are HARDO. The mock interview is over. You are
-writing the candidate's final scorecard. Be honest, specific and actionable. Reference
-concrete moments from their answers when relevant. No emojis.`;
+export const FINALIZE_SYSTEM_PROMPT = `You are HARDO, a senior Investment Banking interviewer writing the candidate's final scorecard after a mock interview. Be honest, specific and actionable, like a real MD. Reference concrete moments from their answers (block grades, follow-up depth, IB fundamentals they got right or missed). No emojis.
+
+You MUST output a hire_recommendation using exactly one of these four values, with this meaning:
+- "no_hire": clearly below the bar; major gaps; would not move forward.
+- "leaning_no_hire": below the bar but with potential; needs significant prep before reapplying.
+- "leaning_hire": passable; a few concerns but the fundamentals and motivation are there.
+- "hire": strong performance for this level; would advance to next round / extend offer.
+
+The overall_score (0-100) must be internally consistent with the hire_recommendation: 0-39 -> no_hire, 40-59 -> leaning_no_hire, 60-79 -> leaning_hire, 80-100 -> hire.`;
 
 export const FINALIZE_SCHEMA: Record<string, unknown> = {
   type: 'object',
   additionalProperties: false,
-  required: ['overall_score', 'overall_strengths', 'overall_weaknesses', 'final_feedback'],
+  required: ['overall_score', 'overall_strengths', 'overall_weaknesses', 'final_feedback', 'hire_recommendation'],
   properties: {
     overall_score: {
       type: 'number',
@@ -160,6 +166,11 @@ export const FINALIZE_SCHEMA: Record<string, unknown> = {
       type: 'string',
       description: '4-7 sentences of overall feedback and recommended next steps for prep.',
     },
+    hire_recommendation: {
+      type: 'string',
+      enum: ['no_hire', 'leaning_no_hire', 'leaning_hire', 'hire'],
+      description: 'Final hire recommendation, must be one of: no_hire | leaning_no_hire | leaning_hire | hire. Must be consistent with overall_score per the bands in the system prompt.',
+    },
   },
 };
 
@@ -168,4 +179,5 @@ export type FinalizeAIResult = {
   overall_strengths: string;
   overall_weaknesses: string;
   final_feedback: string;
+  hire_recommendation: 'no_hire' | 'leaning_no_hire' | 'leaning_hire' | 'hire';
 };
