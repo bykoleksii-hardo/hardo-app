@@ -10,17 +10,27 @@ type StepRow = {
   is_follow_up: boolean;
   parent_step_id: string | null;
   question_id: number | null;
+  custom_question: string | null;
   user_answer: string | null;
   answered_at: string | null;
-  ai_score: string | null;
+  ai_status: string | null;
+  ai_grade: string | null;
   ai_feedback: string | null;
   questions: {
     id: number;
     question: string;
     category: string;
     subtopic: string | null;
-    difficulty: number;
+    difficulty: number | null;
   } | null;
+};
+
+type AnswerRow = {
+  id: string;
+  interview_step_id: string;
+  user_answer: string;
+  answer_type: string;
+  created_at: string;
 };
 
 export default async function InterviewPage({ params }: { params: Promise<{ id: string }> }) {
@@ -52,11 +62,21 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
 
   const { data: stepsRaw } = await supabase
     .from('interview_steps')
-    .select('id, order_index, is_follow_up, parent_step_id, question_id, user_answer, answered_at, ai_score, ai_feedback, questions(id, question, category, subtopic, difficulty)')
+    .select('id, order_index, is_follow_up, parent_step_id, question_id, custom_question, user_answer, answered_at, ai_status, ai_grade, ai_feedback, questions(id, question, category, subtopic, difficulty)')
     .eq('interview_id', id)
     .order('order_index', { ascending: true });
-
   const steps = (stepsRaw ?? []) as unknown as StepRow[];
+
+  const stepIds = steps.map(s => s.id);
+  let answers: AnswerRow[] = [];
+  if (stepIds.length > 0) {
+    const { data: answerRows } = await supabase
+      .from('answers')
+      .select('id, interview_step_id, user_answer, answer_type, created_at')
+      .in('interview_step_id', stepIds)
+      .order('created_at', { ascending: true });
+    answers = (answerRows ?? []) as AnswerRow[];
+  }
 
   return (
     <InterviewClient
@@ -64,6 +84,7 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
       level={interview.candidate_level}
       totalQuestions={interview.total_questions ?? 12}
       steps={steps}
+      answers={answers}
     />
   );
 }
