@@ -129,6 +129,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
   const [finalizing, setFinalizing] = useState(false);
 
   const activeBase = baseSteps.find(s => s.id === activeBaseId) ?? null;
+  const firstPendingId = baseSteps.find(s => s.ai_status !== 'done')?.id ?? null;
   const activeQ = activeBase?.questions ?? null;
   const blockClosed = activeBase?.ai_status === 'done';
 
@@ -274,12 +275,12 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
             {baseSteps.map((s) => {
               const done = s.ai_status === 'done';
               const active = s.id === activeBaseId;
-              const locked = !done && !active;
+              const locked = !done && !active && s.id !== firstPendingId;
               const cat = s.questions?.category ?? '';
               return (
                 <li key={s.id}>
                   <button
-                    onClick={() => done || active ? setActiveBaseId(s.id) : null}
+                    onClick={() => (done || active || s.id === firstPendingId) ? setActiveBaseId(s.id) : null}
                     disabled={locked}
                     className={`w-full text-left flex items-center gap-2 px-2 py-2 text-[12px] ${active ? 'bg-[#d4a04a]/10 border-l-2 border-[#d4a04a]' : ''}`}
                   >
@@ -387,7 +388,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
                   {error && <div className="text-[12px] text-[#d47a7a] mt-2">{error}</div>}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#f5efe2]/10">
                     <span className="text-[11px] tracking-[0.18em] text-[#f5efe2]/45">
-                      {draft.trim().split(/\s+/).filter(Boolean).length} WORDS — Cmd/Ctrl+Enter to send
+                      {draft.trim().split(/\s+/).filter(Boolean).length} WORDS â Cmd/Ctrl+Enter to send
                     </span>
                     <button
                       onClick={handleSubmit}
