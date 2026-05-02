@@ -90,6 +90,7 @@ type Props = {
   interviewId: string;
   level: string;
   totalQuestions: number;
+  inputMode: 'text' | 'voice';
   steps: StepRow[];
   answers: AnswerRow[];
 };
@@ -150,7 +151,7 @@ function buildBlockTranscript(baseStep: StepRow, allSteps: StepRow[], allAnswers
   return out;
 }
 
-export default function InterviewClient({ interviewId, level, totalQuestions, steps, answers }: Props) {
+export default function InterviewClient({ interviewId, level, totalQuestions, inputMode, steps, answers }: Props) {
   const router = useRouter();
 
   const [localSteps, setLocalSteps] = useState<StepRow[]>(steps);
@@ -173,8 +174,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
   const [endingSession, setEndingSession] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
 
-  // Voice / STT state
-  const [inputMode, setInputMode] = useState<'type' | 'voice'>('type');
+  // Voice / STT state (mode is fixed at interview start; user cannot toggle mid-interview)
   const [recState, setRecState] = useState<'idle' | 'recording' | 'transcribing'>('idle');
   const [recError, setRecError] = useState<string | null>(null);
   const [recElapsedSec, setRecElapsedSec] = useState(0);
@@ -279,11 +279,13 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
     const isFU = !!lastUnanswered;
     const cat = activeBase.questions?.category ?? '';
     const isCase = cat.toLowerCase() === 'case study';
+    // Voice mode: 60s default / 120s case base. Text mode: 120s default / 180s case base. Follow-ups same as default.
+    const fallbackLimit = inputMode === 'voice' ? (!isFU && isCase ? 120 : 60) : (!isFU && isCase ? 180 : 120);
     const limit = (target.time_limit_seconds && target.time_limit_seconds > 0)
       ? target.time_limit_seconds
-      : (!isFU && isCase ? 120 : 60);
+      : fallbackLimit;
     return { startedAt: target.created_at, limitSeconds: limit };
-  }, [activeBase, localSteps]);
+  }, [activeBase, localSteps, inputMode]);
 
   const transcript = useMemo<ChatMsg[]>(() => {
     if (!activeBase) return [];
@@ -520,19 +522,10 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
                       <span className="w-1.5 h-1.5 rounded-full bg-[#d4a04a] animate-pulse" />
                       <span>YOUR REPLY</span>
                     </div>
-                    <div className="flex gap-1">
-                      <button
-                        type="button"
-                        onClick={() => { if (recState === 'recording') return; setInputMode('type'); }}
-                        disabled={recState === 'recording' || recState === 'transcribing'}
-                        className={`text-[10px] tracking-[0.22em] px-3 py-1.5 ${inputMode === 'type' ? 'bg-[#f5efe2]/10 text-[#f5efe2]' : 'text-[#f5efe2]/55 border border-[#f5efe2]/15'}`}
-                      >TYPE</button>
-                      <button
-                        type="button"
-                        onClick={() => { if (recState === 'transcribing') return; setInputMode('voice'); }}
-                        disabled={recState === 'transcribing'}
-                        className={`text-[10px] tracking-[0.22em] px-3 py-1.5 ${inputMode === 'voice' ? 'bg-[#d4a04a]/15 text-[#d4a04a] border border-[#d4a04a]/40' : 'text-[#f5efe2]/55 border border-[#f5efe2]/15'}`}
-                      >VOICE</button>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] tracking-[0.22em] px-3 py-1.5 border ${inputMode === 'voice' ? 'border-[#d4a04a]/40 text-[#d4a04a] bg-[#d4a04a]/10' : 'border-[#f5efe2]/15 text-[#f5efe2]/85 bg-[#f5efe2]/10'}`}>
+                        {inputMode === 'voice' ? 'VOICE MODE' : 'TEXT MODE'}
+                      </span>
                     </div>
                   </div>
                   {timerInfo && (

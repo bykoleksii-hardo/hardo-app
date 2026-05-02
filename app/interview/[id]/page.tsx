@@ -44,7 +44,7 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
 
   const { data: interview } = await supabase
     .from('interviews')
-    .select('id, candidate_level, total_questions, status, started_at, finished_at')
+    .select('id, candidate_level, total_questions, status, started_at, finished_at, input_mode')
     .eq('id', id)
     .maybeSingle();
 
@@ -101,6 +101,7 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
       interviewId={id}
       level={interview.candidate_level}
       totalQuestions={interview.total_questions ?? 12}
+      inputMode={(interview as { input_mode?: string }).input_mode === 'voice' ? 'voice' : 'text'}
       steps={steps}
       answers={answers}
     />

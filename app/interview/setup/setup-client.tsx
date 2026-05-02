@@ -5,6 +5,22 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 
 type Level = 'intern' | 'analyst' | 'associate';
+type InputMode = 'text' | 'voice';
+
+const INPUT_MODES: Array<{ id: InputMode; title: string; tagline: string; bullets: string[] }> = [
+  {
+    id: 'text',
+    title: 'Type your answers',
+    tagline: 'Quiet rooms, late-night practice, or when you want to think on the page.',
+    bullets: ['2 minutes per question', '3 minutes for the case study', 'Edit before you send'],
+  },
+  {
+    id: 'voice',
+    title: 'Speak your answers',
+    tagline: 'Closer to the real superday: think out loud, sound natural, hit the timer.',
+    bullets: ['1 minute per question', '2 minutes for the case study', 'Microphone required - transcript is editable'],
+  },
+];
 
 type Quota = {
   plan: 'free' | 'paid';
@@ -51,6 +67,8 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
   const [quota, setQuota] = useState<Quota | null>(null);
   const [quotaLoading, setQuotaLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stage, setStage] = useState<'level' | 'mode'>('level');
+  const [inputMode, setInputMode] = useState<InputMode>('text');
 
   useEffect(() => {
     let cancelled = false;
@@ -94,7 +112,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
       const res = await fetch('/api/interview/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level: selected }),
+        body: JSON.stringify({ level: selected, input_mode: inputMode }),
       });
       const j = await res.json();
       if (res.status === 403 && (j.reason === 'free_limit_reached' || j.reason === 'level_locked')) {
@@ -213,6 +231,46 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
           </div>
         </div>
 
+        {/* MODE PICKER (revealed after level is confirmed) */}
+        {stage === 'mode' && (
+          <div className="mt-14">
+            <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-4">- HOW WILL YOU ANSWER?</div>
+            <h2 className="font-playfair text-3xl leading-[1.1] mb-2">
+              Pick your <span className="italic text-[#d4a04a]">delivery</span> for this round.
+            </h2>
+            <p className="text-[#f5efe2]/60 text-sm max-w-xl mb-8">
+              You can’t switch mid-interview - choose the one closest to how you want to drill today.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {INPUT_MODES.map((m) => {
+                const isActive = m.id === inputMode;
+                return (
+                  <button
+                    key={m.id}
+                    onClick={() => setInputMode(m.id)}
+                    className={`text-left rounded-sm border p-7 transition-all ${isActive ? 'border-[#d4a04a] bg-[#0e1c33]' : 'border-[#f5efe2]/15 hover:border-[#f5efe2]/35 bg-transparent'}`}
+                    aria-pressed={isActive}
+                  >
+                    <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
+                      <span className={isActive ? 'text-[#d4a04a]' : 'text-[#f5efe2]/55'}>
+                        {m.id === 'voice' ? '- VOICE' : '- TEXT'}
+                      </span>
+                      {isActive && <span className="text-[#d4a04a]">SELECTED</span>}
+                    </div>
+                    <h3 className="font-playfair text-2xl mb-2">{m.title}</h3>
+                    <p className="text-sm text-[#f5efe2]/70 mb-5 leading-relaxed">{m.tagline}</p>
+                    <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-[#f5efe2]/65">
+                      {m.bullets.map((b) => (
+                        <li key={b}>- {b.toUpperCase()}</li>
+                      ))}
+                    </ul>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* CTA */}
         <div className="mt-14 flex items-center justify-between flex-wrap gap-6">
           <div className="text-xs tracking-[0.18em] text-[#f5efe2]/55">
@@ -220,15 +278,37 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
               ? 'YOUR FREE INTERVIEW IS USED. UPGRADE TO KEEP DRILLING.'
               : isLevelLocked(selected)
               ? 'THIS LEVEL UNLOCKS WITH THE PAID PLAN.'
+              : stage === 'level'
+              ? 'LOCK IN THE LEVEL FIRST. NEXT STEP: PICK TEXT OR VOICE.'
               : "START WHEN READY. THE INTERVIEWER WON'T HOLD BACK."}
           </div>
-          <button
-            onClick={start}
-            disabled={ctaDisabled}
-            className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#c8923a] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {ctaLabel}
-          </button>
+          <div className="flex items-center gap-3">
+            {stage === 'mode' && (
+              <button
+                onClick={() => setStage('level')}
+                className="text-[#f5efe2]/65 hover:text-[#d4a04a] tracking-[0.05em] px-5 py-4"
+                type="button"
+              >
+                Back
+              </button>
+            )}
+            <button
+              onClick={() => {
+                if (stage === 'level') {
+                  if (isLevelLocked(selected) || blockedByLimit) { router.push('/upgrade'); return; }
+                  setStage('mode');
+                } else {
+                  start();
+                }
+              }}
+              disabled={ctaDisabled}
+              className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#c8923a] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {stage === 'level'
+                ? (isLevelLocked(selected) || blockedByLimit ? ctaLabel : 'Continue \u2192')
+                : ctaLabel}
+            </button>
+          </div>
         </div>
 
         {error && (

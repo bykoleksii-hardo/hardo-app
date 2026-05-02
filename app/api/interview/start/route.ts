@@ -3,10 +3,11 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
-    const { level } = await req.json();
+    const { level, input_mode: inputModeRaw } = await req.json();
     if (!['intern', 'analyst', 'associate'].includes(level)) {
       return NextResponse.json({ error: 'Invalid level' }, { status: 400 });
     }
+    const inputMode: 'text' | 'voice' = inputModeRaw === 'voice' ? 'voice' : 'text';
 
     const supabase = await getSupabaseServer();
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
@@ -53,7 +54,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ interview_id: data });
+    // Persist input_mode (default 'text'). RLS allows the owner to update their own interview row.
+    if (inputMode !== 'text' && typeof data === 'string') {
+      const { error: modeErr } = await supabase
+        .from('interviews')
+        .update({ input_mode: inputMode })
+        .eq('id', data);
+      if (modeErr) console.error('start: failed to set input_mode', modeErr);
+    }
+
+    return NextResponse.json({ interview_id: data, input_mode: inputMode });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? 'Unknown error' }, { status: 500 });
   }

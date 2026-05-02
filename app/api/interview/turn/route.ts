@@ -31,7 +31,7 @@ type StepRow = {
     subtopic: string | null;
     difficulty: number | null;
   } | null;
-  interviews: { candidate_level: string; total_questions: number | null } | null;
+  interviews: { candidate_level: string; total_questions: number | null; input_mode: string | null } | null;
 };
 
 type AnswerRow = {
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
   //    If it is itself a follow-up, walk up to its parent so we always grade at the block root.
   const { data: rawStep, error: stepErr } = await supabase
     .from('interview_steps')
-    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions)')
+    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode)')
     .eq('id', body.stepId)
     .maybeSingle();
   if (stepErr || !rawStep) {
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
   if (step.is_follow_up && step.parent_step_id) {
     const { data: parent } = await supabase
       .from('interview_steps')
-      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions)')
+      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode)')
       .eq('id', step.parent_step_id)
       .maybeSingle();
     if (parent) step = parent as unknown as StepRow;
@@ -206,7 +206,7 @@ export async function POST(req: Request) {
       if (cs && cs.created_at) stepCreatedAt = cs.created_at;
       stepIsFollowUp = true;
     }
-    const limitSec = getTimeLimitSeconds({ category: stepCategory, isFollowUp: stepIsFollowUp });
+    const limitSec = getTimeLimitSeconds({ category: stepCategory, isFollowUp: stepIsFollowUp, inputMode: (step.interviews?.input_mode === 'voice' ? 'voice' : 'text') });
     let elapsedSec: number | null = null;
     if (stepCreatedAt) {
       const startMs = new Date(stepCreatedAt).getTime();
