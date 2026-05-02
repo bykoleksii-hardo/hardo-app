@@ -178,10 +178,41 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   const [recState, setRecState] = useState<'idle' | 'recording' | 'transcribing'>('idle');
   const [recError, setRecError] = useState<string | null>(null);
   const [recElapsedSec, setRecElapsedSec] = useState(0);
+  const [micPermission, setMicPermission] = useState<'unknown' | 'granted' | 'denied'>('unknown');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<BlobPart[]>([]);
   const recStartRef = useRef<number>(0);
   const recTickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Persistent mic stream so we don't re-prompt every round.
+  const persistentStreamRef = useRef<MediaStream | null>(null);
+  // Round phases: 'answering' (timer running), 'review' (timer frozen, 10s edit), 'locked' (read-only, Send only).
+  const [roundPhase, setRoundPhase] = useState<Record<string, 'answering' | 'review' | 'locked'>>({});
+  const [reviewStartedAt, setReviewStartedAt] = useState<Record<string, number>>({});
+  const REVIEW_SECONDS = 10;
+  const autoStopArmedRef = useRef<Record<string, boolean>>({});
+  const autoRecordArmedRef = useRef<Record<string, boolean>>({});
+
+  // Ask for mic permission once at interview start (voice mode only).
+  useEffect(() => {
+    if (inputMode !== 'voice') return;
+    if (micPermission !== 'unknown') return;
+    let cancelled = false;
+    (async () => {
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          if (!cancelled) setMicPermission('denied');
+          return;
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+        if (cancelled) { stream.getTracks().forEach(t => t.stop()); return; }
+        persistentStreamRef.current = stream;
+        setMicPermission('granted');
+      } catch {
+        if (!cancelled) setMicPermission('denied');
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [inputMode, micPermission]);
 
   useEffect(() => {
     return () => {
@@ -189,19 +220,44 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
       const mr = mediaRecorderRef.current;
       if (mr && mr.state !== 'inactive') {
         try { mr.stop(); } catch {}
-        mr.stream.getTracks().forEach(t => t.stop());
       }
+      const ps = persistentStreamRef.current;
+      if (ps) ps.getTracks().forEach(t => t.stop());
+      persistentStreamRef.current = null;
     };
   }, []);
 
+  async function ensureStream(): Promise<MediaStream | null> {
+    if (persistentStreamRef.current) {
+      // Verify tracks are still live
+      const tracks = persistentStreamRef.current.getTracks();
+      if (tracks.length > 0 && tracks.every(t => t.readyState === 'live')) {
+        return persistentStreamRef.current;
+      }
+      // Tracks died, drop and re-acquire
+      tracks.forEach(t => t.stop());
+      persistentStreamRef.current = null;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return null;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      persistentStreamRef.current = stream;
+      setMicPermission('granted');
+      return stream;
+    } catch {
+      setMicPermission('denied');
+      return null;
+    }
+  }
+
   async function startRecording() {
     setRecError(null);
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setRecError('Your browser does not support voice recording. Please type instead.');
+    const stream = await ensureStream();
+    if (!stream) {
+      setRecError('Microphone access denied. Allow it in your browser settings, or refresh and try again.');
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
       const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
       const mr = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
       mediaRecorderRef.current = mr;
@@ -219,13 +275,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         if (sec >= 300) stopRecording();
       }, 250);
       setRecState('recording');
-    } catch (e) {
-      const name = (e as { name?: string })?.name ?? '';
-      if (name === 'NotAllowedError' || name === 'SecurityError') {
-        setRecError('Microphone access denied. Allow it in your browser settings and try again, or type your answer.');
-      } else {
-        setRecError('Could not start recording. Please type your answer.');
-      }
+    } catch {
+      setRecError('Could not start recording. Please refresh and try again.');
     }
   }
 
@@ -233,13 +284,18 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     const mr = mediaRecorderRef.current;
     if (!mr || mr.state === 'inactive') return;
     if (recTickRef.current) { clearInterval(recTickRef.current); recTickRef.current = null; }
+    // Pressing STOP recording = lock answer: freeze main timer immediately, enter REVIEW phase.
+    if (roundKey) {
+      setRoundPhase(prev => prev[roundKey] === 'review' || prev[roundKey] === 'locked' ? prev : { ...prev, [roundKey]: 'review' });
+      setReviewStartedAt(prev => prev[roundKey] ? prev : { ...prev, [roundKey]: Date.now() });
+    }
     mr.onstop = async () => {
-      mr.stream.getTracks().forEach(t => t.stop());
+      // Don't stop the underlying mic stream; we keep it for the next round.
       const blob = new Blob(audioChunksRef.current, { type: mr.mimeType || 'audio/webm' });
       audioChunksRef.current = [];
       if (blob.size === 0) {
         setRecState('idle');
-        setRecError('Empty recording. Please try again.');
+        setRecError('Empty recording. Please re-record.');
         return;
       }
       setRecState('transcribing');
@@ -253,9 +309,12 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         if (!r.ok) {
           throw new Error(data.friendly || data.error || 'Voice transcription failed.');
         }
-        // Append (don't overwrite) so users can stitch multiple takes.
         const newPiece = String(data.text || '').trim();
         setDraft(prev => prev ? (prev.replace(/\s+$/, '') + ' ' + newPiece) : newPiece);
+        // Reset 10s review window so user has the full 10s starting NOW (when text actually appears).
+        if (roundKey) {
+          setReviewStartedAt(prev => ({ ...prev, [roundKey]: Date.now() }));
+        }
         setRecState('idle');
       } catch (e) {
         setRecError((e as Error).message);
@@ -336,6 +395,77 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     }
   }, [roundKey, nowMs, prepDoneAt]);
 
+  // Auto-start recording in voice mode the moment prep ends (mic permission permitting).
+  useEffect(() => {
+    if (inputMode !== 'voice') return;
+    if (!roundKey) return;
+    if (prepActive) return;
+    if (recState !== 'idle') return;
+    const phase = roundPhase[roundKey] ?? 'answering';
+    if (phase !== 'answering') return;
+    if (autoRecordArmedRef.current[roundKey]) return;
+    autoRecordArmedRef.current[roundKey] = true;
+    void startRecording();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roundKey, prepActive, recState, roundPhase, inputMode]);
+
+  // Lock answer (text mode "Done" button or auto-stop at hard timer overrun).
+  function lockAnswerForReview() {
+    if (!roundKey) return;
+    setRoundPhase(prev => prev[roundKey] === 'review' || prev[roundKey] === 'locked' ? prev : { ...prev, [roundKey]: 'review' });
+    setReviewStartedAt(prev => prev[roundKey] ? prev : { ...prev, [roundKey]: Date.now() });
+  }
+
+  // Review countdown: tick + auto-promote to 'locked' after REVIEW_SECONDS.
+  const reviewActive = !!(roundKey && roundPhase[roundKey] === 'review');
+  const reviewRemainSec = useMemo(() => {
+    if (!reviewActive || !roundKey) return 0;
+    const startedAt = reviewStartedAt[roundKey];
+    if (!startedAt) return REVIEW_SECONDS;
+    const elapsed = (nowMs - startedAt) / 1000;
+    // While transcription is still pending, freeze the visible countdown at REVIEW_SECONDS.
+    if (recState === 'transcribing') return REVIEW_SECONDS;
+    return Math.max(0, Math.ceil(REVIEW_SECONDS - elapsed));
+  }, [reviewActive, roundKey, reviewStartedAt, nowMs, recState]);
+
+  useEffect(() => {
+    if (!reviewActive) return;
+    const id = setInterval(() => setNowMs(Date.now()), 250);
+    return () => clearInterval(id);
+  }, [reviewActive]);
+
+  useEffect(() => {
+    if (!reviewActive || !roundKey) return;
+    if (recState === 'transcribing') return;
+    const startedAt = reviewStartedAt[roundKey];
+    if (!startedAt) return;
+    if ((nowMs - startedAt) / 1000 >= REVIEW_SECONDS) {
+      setRoundPhase(prev => prev[roundKey] === 'locked' ? prev : { ...prev, [roundKey]: 'locked' });
+    }
+  }, [reviewActive, roundKey, reviewStartedAt, nowMs, recState]);
+
+  // Hard safety: if main timer goes 30s into overtime and user hasn't stopped, auto-lock.
+  useEffect(() => {
+    if (!roundKey) return;
+    if (prepActive) return;
+    const phase = roundPhase[roundKey] ?? 'answering';
+    if (phase !== 'answering') return;
+    if (autoStopArmedRef.current[roundKey]) return;
+    if (!timerInfo || !timerInfo.startedAt) return;
+    const startMs = new Date(timerInfo.startedAt).getTime();
+    if (!Number.isFinite(startMs)) return;
+    const elapsedSec = (nowMs - startMs) / 1000;
+    if (elapsedSec > timerInfo.limitSeconds + 30) {
+      autoStopArmedRef.current[roundKey] = true;
+      if (inputMode === 'voice' && recState === 'recording') {
+        stopRecording();
+      } else {
+        lockAnswerForReview();
+      }
+    }
+  }, [roundKey, prepActive, roundPhase, timerInfo, nowMs, inputMode, recState]);
+
+  // Timer info (server start vs prep-done start: whichever is later).
   // Timer info (server start vs prep-done start: whichever is later).
   const timerInfo = useMemo<{ startedAt: string | null; limitSeconds: number } | null>(() => {
     if (!roundTarget) return null;
@@ -399,6 +529,14 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
 
       // Re-fetch fresh steps + answers via a tiny refresh call (simpler than mutating in place).
       await refreshState();
+
+      // If the model just clarified (no advance), unlock the same round so the candidate can answer.
+      if (data.kind === 'clarification_response' && roundKey) {
+        setRoundPhase(prev => ({ ...prev, [roundKey]: 'answering' }));
+        setReviewStartedAt(prev => { const next = { ...prev }; delete next[roundKey]; return next; });
+        autoRecordArmedRef.current[roundKey] = false;
+        autoStopArmedRef.current[roundKey] = false;
+      }
 
       if (data.kind === 'close_block') {
         if (data.is_last) {
@@ -599,18 +737,36 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         <div style={{ width: ((PREP_SECONDS - prepRemainSec) / PREP_SECONDS) * 100 + '%', height: '100%', background: '#d4a04a', transition: 'width 250ms linear' }} />
                       </div>
                     </div>
+                  ) : reviewActive ? (
+                    <div className="mb-3 -mt-2 flex items-center gap-3 text-[11px] tracking-[0.22em]" style={{ color: '#9ab87a' }}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#9ab87a] animate-pulse" />
+                      <span>REVIEW</span>
+                      <span className="font-mono text-[14px] tracking-normal text-[#9ab87a]">00:{String(reviewRemainSec).padStart(2, '0')}</span>
+                      <span className="text-[#f5efe2]/30">|</span>
+                      <span className="text-[#f5efe2]/45 tracking-normal text-[10px]">{recState === 'transcribing' ? 'transcribing your answer...' : 'edit, then it locks'}</span>
+                      <div className="flex-1 h-[2px] bg-[#f5efe2]/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
+                        <div style={{ width: ((REVIEW_SECONDS - reviewRemainSec) / REVIEW_SECONDS) * 100 + '%', height: '100%', background: '#9ab87a', transition: 'width 250ms linear' }} />
+                      </div>
+                    </div>
+                  ) : (roundKey && roundPhase[roundKey] === 'locked') ? (
+                    <div className="mb-3 -mt-2 flex items-center gap-3 text-[11px] tracking-[0.22em] text-[#f5efe2]/55">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#f5efe2]/55" />
+                      <span>LOCKED</span>
+                      <span className="text-[#f5efe2]/30">|</span>
+                      <span className="text-[#f5efe2]/45 tracking-normal text-[10px]">answer is final - hit Send when ready</span>
+                    </div>
                   ) : timerInfo && (
                     <div className="mb-3 -mt-2">
-                      <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing} />
+                      <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing || reviewActive} />
                     </div>
                   )}
-                  {inputMode === 'voice' && (
+                  {inputMode === 'voice' && !(roundKey && roundPhase[roundKey] === 'locked') && (
                     <div className="mb-3 flex items-center gap-3 px-3 py-2 border border-[#d4a04a]/25 bg-[#d4a04a]/5">
                       {recState === 'idle' && (
                         <button
                           type="button"
                           onClick={startRecording}
-                          disabled={submitting || finalizing || blockClosed || prepActive}
+                          disabled={submitting || finalizing || blockClosed || prepActive || (!!roundKey && roundPhase[roundKey] !== 'answering')}
                           className="flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#d4a04a] hover:text-[#e0ae54] disabled:opacity-40"
                           title={prepActive ? 'Wait for the prep timer to finish' : ''}
                         >
@@ -651,27 +807,65 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                   <textarea
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
-                    readOnly={prepActive}
-                    placeholder={prepActive ? 'Read the question. Typing unlocks once prep ends.' : 'Answer, or ask the interviewer to clarify...'}
+                    readOnly={prepActive || (!!roundKey && roundPhase[roundKey] === 'locked')}
+                    placeholder={prepActive ? 'Read the question. Typing unlocks once prep ends.' : ((!!roundKey && roundPhase[roundKey] === 'locked') ? 'Answer is locked. Hit Send.' : (reviewActive ? 'Final 10 seconds to edit your answer.' : 'Answer, or ask the interviewer to clarify...'))}
                     rows={6}
-                    className={'w-full bg-transparent border-0 outline-none resize-none text-[#f5efe2] placeholder:text-[#f5efe2]/30 font-inter text-[15px] leading-[1.6] ' + (prepActive ? 'opacity-50 cursor-not-allowed' : '')}
+                    className={'w-full bg-transparent border-0 outline-none resize-none text-[#f5efe2] placeholder:text-[#f5efe2]/30 font-inter text-[15px] leading-[1.6] ' + ((prepActive || (!!roundKey && roundPhase[roundKey] === 'locked')) ? 'opacity-50 cursor-not-allowed' : '')}
                     onKeyDown={(e) => {
-                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !prepActive) handleSubmit();
+                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !prepActive && !!roundKey && roundPhase[roundKey] === 'locked') handleSubmit();
                     }}
                   />
                   {error && <div className="text-[12px] text-[#d47a7a] mt-2">{error}</div>}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#f5efe2]/10">
                     <span className="text-[11px] tracking-[0.18em] text-[#f5efe2]/45">
-                      {draft.trim().split(/\s+/).filter(Boolean).length} WORDS â Cmd/Ctrl+Enter to send
+                      {draft.trim().split(/\s+/).filter(Boolean).length} WORDS{(roundKey && roundPhase[roundKey] === 'locked') ? ' - Cmd/Ctrl+Enter to send' : ''}
                     </span>
-                    <button
-                      onClick={handleSubmit}
-                      disabled={submitting || finalizing || prepActive || draft.trim().length < 1}
-                      className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-[#e0ae54]"
-                      title={prepActive ? 'Wait for the prep timer to finish' : ''}
-                    >
-                      {prepActive ? 'Get ready...' : submitting ? 'Thinking...' : finalizing ? 'Finalizing...' : 'Send'}
-                    </button>
+                    {(() => {
+                      const phase: 'answering' | 'review' | 'locked' = roundKey ? (roundPhase[roundKey] ?? 'answering') : 'answering';
+                      if (prepActive) {
+                        return (
+                          <button disabled className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-wide px-6 py-2.5 opacity-40">Get ready...</button>
+                        );
+                      }
+                      if (submitting || finalizing) {
+                        return (
+                          <button disabled className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-wide px-6 py-2.5 opacity-40">{submitting ? 'Thinking...' : 'Finalizing...'}</button>
+                        );
+                      }
+                      if (phase === 'review') {
+                        return (
+                          <button disabled className="bg-[#9ab87a] text-[#0a1628] font-medium tracking-wide px-6 py-2.5 opacity-60">
+                            {recState === 'transcribing' ? 'Transcribing...' : 'Reviewing 00:' + String(reviewRemainSec).padStart(2, '0')}
+                          </button>
+                        );
+                      }
+                      if (phase === 'locked') {
+                        return (
+                          <button
+                            onClick={handleSubmit}
+                            disabled={draft.trim().length < 1}
+                            className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-[#e0ae54]"
+                          >
+                            Send
+                          </button>
+                        );
+                      }
+                      if (inputMode === 'voice') {
+                        return (
+                          <span className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55">Tap STOP above to lock your answer</span>
+                        );
+                      }
+                      return (
+                        <button
+                          onClick={lockAnswerForReview}
+                          disabled={draft.trim().length < 1}
+                          className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-[#e0ae54]"
+                          title="Lock your answer and start a 10-second review window"
+                        >
+                          Done
+                        </button>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
