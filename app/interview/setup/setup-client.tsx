@@ -1,10 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 
 type Level = 'intern' | 'analyst' | 'associate';
+
+type Quota = {
+  plan: 'free' | 'paid';
+  interviews_used: number;
+  free_limit: number;
+  allowed_levels: Level[];
+  can_start: boolean;
+};
 
 const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; tags: string[]; sample: { q: string; phase: string; grade: string }; tone: string }> = [
   {
@@ -19,37 +27,67 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
   {
     id: 'analyst',
     title: 'Analyst',
-    tagline: 'Where the offer gets won. Live deal walks, technicals, and the curveballs.',
-    pitch: "Live deal walk-throughs, sharper technicals, and the kind of follow-ups that decide whether you get the offer. Most popular bucket.",
-    tags: ['Walk me through a deal', 'LBO mechanics', 'M&A accretion', 'Industry view'],
-    sample: { q: "Walk me through your most recent LBO. Why this capital structure, and what's the exit multiple assumption you're least comfortable with?", phase: 'Private Equity / LBO', grade: 'A-' },
-    tone: 'deal-walks',
+    tagline: 'Day-one analyst seat. Quick, technical, no excuses.',
+    pitch: 'Modeling instincts, deal mechanics, and a real fit pressure-check. Expect crisp follow-ups and at least one curveball where the right answer is "I don\u2019t know, but here\u2019s how I\u2019d figure it out."',
+    tags: ['LBO mechanics', 'Accretion / dilution', 'Deal walk-through', 'Curveball'],
+    sample: { q: "You're modeling an LBO of a $200M EBITDA company at 9.0x entry, 5.5x leverage, exit at 9.5x in year 5. Walk me through how you'd ballpark the IRR in your head.", phase: 'Case', grade: 'B' },
+    tone: 'execution',
   },
   {
     id: 'associate',
     title: 'Associate',
-    tagline: 'Lateral, post-MBA, or just mean. Adversarial follow-ups and tight defenses.',
-    pitch: "Adversarial follow-ups. Industry-level pattern recognition. The interviewer who interrupts your DCF to ask why you picked a 9% WACC.",
-    tags: ['Sector pattern recognition', 'Negotiation posture', 'Process management', 'Hard valuation'],
-    sample: { q: "I don't buy your DCF terminal value. Defend the 2.5% growth rate against the consensus sector outlook - and tell me which assumption you'd flex first if the senior banker pushed back.", phase: 'Valuation', grade: 'B' },
-    tone: 'under-fire',
+    tagline: 'You sit between the MD and the model. The room expects judgment.',
+    pitch: "Sector reads, capital structure trade-offs, and how you'd shape a process. Follow-ups dig: why this advisor, why now, what you'd push back on.",
+    tags: ['Capital structure', 'Process strategy', 'Sector view', 'Negotiation read'],
+    sample: { q: "A sponsor asks you whether to take their $300M EBITDA portco public at 10x or sell to a strategic at 11.5x. They want one number, then your reasoning. Go.", phase: 'Case', grade: 'B+' },
+    tone: 'judgment',
   },
 ];
 
-export function SetupClient({ userEmail }: { userEmail: string }) {
+export default function SetupClient({ userEmail }: { userEmail: string }) {
   const router = useRouter();
-  const [selected, setSelected] = useState<Level>('analyst');
+  const [selected, setSelected] = useState<Level>('intern');
   const [loading, setLoading] = useState(false);
+  const [quota, setQuota] = useState<Quota | null>(null);
+  const [quotaLoading, setQuotaLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch('/api/quota', { cache: 'no-store' });
+        const j = await r.json();
+        if (!cancelled && r.ok) setQuota(j);
+      } catch {}
+      finally { if (!cancelled) setQuotaLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const signOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push('/login');
   };
-  const [error, setError] = useState<string | null>(null);
 
   const active = LEVELS.find((l) => l.id === selected)!;
+  const isLevelLocked = (lvl: Level) => quota ? !quota.allowed_levels.includes(lvl) : false;
+  const blockedByLimit = quota ? !quota.can_start : false;
+  const ctaDisabled = loading || quotaLoading || isLevelLocked(selected) || blockedByLimit;
+  const ctaLabel = (() => {
+    if (loading) return 'Preparing your room...';
+    if (quotaLoading) return 'Checking access...';
+    if (isLevelLocked(selected)) return 'Upgrade to unlock';
+    if (blockedByLimit) return 'Upgrade to continue';
+    return `Start ${active.title} interview \u2192`;
+  })();
 
   async function start() {
+    if (isLevelLocked(selected) || blockedByLimit) {
+      router.push('/upgrade');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -59,10 +97,14 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         body: JSON.stringify({ level: selected }),
       });
       const j = await res.json();
+      if (res.status === 403 && (j.reason === 'free_limit_reached' || j.reason === 'level_locked')) {
+        router.push('/upgrade');
+        return;
+      }
       if (!res.ok || !j.interview_id) throw new Error(j.error || 'Failed to start interview');
       router.push(`/interview/${j.interview_id}`);
     } catch (e: any) {
-      setError(e.message ?? 'Something went wrong');
+      setError(e?.message ?? 'Something went wrong');
       setLoading(false);
     }
   }
@@ -75,7 +117,15 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
           <div className="w-9 h-9 border border-[#f5efe2]/40 flex items-center justify-center font-playfair text-lg italic">H</div>
           <span className="tracking-[0.18em] text-sm">HARDO</span>
         </div>
-        <div className="flex items-center gap-4 text-xs tracking-[0.18em] text-[#f5efe2]/55"><span>{userEmail.toUpperCase()}</span><button onClick={signOut} className="text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">SIGN OUT</button></div>
+        <div className="flex items-center gap-4 text-xs tracking-[0.18em] text-[#f5efe2]/55">
+          {quota && (
+            <span className={quota.plan === 'paid' ? 'text-[#d4a04a]' : 'text-[#f5efe2]/55'}>
+              {quota.plan === 'paid' ? 'PAID' : `FREE \u00b7 ${Math.max(0, quota.free_limit - quota.interviews_used)}/${quota.free_limit} LEFT`}
+            </span>
+          )}
+          <span>{userEmail.toUpperCase()}</span>
+          <button onClick={signOut} className="text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">SIGN OUT</button>
+        </div>
       </div>
 
       <main className="max-w-[1320px] mx-auto px-12 py-16">
@@ -85,7 +135,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             Choose the <span className="italic text-[#d4a04a]">level</span> that matches today.
           </h1>
           <p className="mt-4 text-[#f5efe2]/65 max-w-xl text-lg">
-            Twelve questions either way. Same generic IB superday flow - fit, technicals, deal walks, a curveball.
+            Twelve questions. Same superday flow - fit, technicals, deal walks, a curveball.
             What changes is how hard the room hits back.
           </p>
         </div>
@@ -94,17 +144,23 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {LEVELS.map((lvl) => {
             const isActive = lvl.id === selected;
+            const locked = isLevelLocked(lvl.id);
             return (
               <button
                 key={lvl.id}
                 onClick={() => setSelected(lvl.id)}
-                className={`text-left rounded-sm border transition-all p-7 flex flex-col ${
+                className={`text-left rounded-sm border transition-all p-7 flex flex-col relative ${
                   isActive
                     ? 'border-[#d4a04a] bg-[#0e1c33]'
                     : 'border-[#f5efe2]/15 hover:border-[#f5efe2]/35 bg-transparent'
-                }`}
+                } ${locked ? 'opacity-75' : ''}`}
                 aria-pressed={isActive}
               >
+                {locked && (
+                  <div className="absolute top-4 right-4 z-10 text-[10px] tracking-[0.22em] text-[#d4a04a] border border-[#d4a04a]/60 px-2.5 py-1 bg-[#0a1628]/80">
+                    PAID
+                  </div>
+                )}
                 <div className="mb-6 h-80 rounded-sm border border-[#f5efe2]/10 overflow-hidden relative">
                   <img
                     src={`/levels/${lvl.id}.png`}
@@ -158,16 +214,20 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         </div>
 
         {/* CTA */}
-        <div className="mt-14 flex items-center justify-between">
+        <div className="mt-14 flex items-center justify-between flex-wrap gap-6">
           <div className="text-xs tracking-[0.18em] text-[#f5efe2]/55">
-            START WHEN READY. THE INTERVIEWER WON'T HOLD BACK.
+            {blockedByLimit && !isLevelLocked(selected)
+              ? 'YOUR FREE INTERVIEW IS USED. UPGRADE TO KEEP DRILLING.'
+              : isLevelLocked(selected)
+              ? 'THIS LEVEL UNLOCKS WITH THE PAID PLAN.'
+              : "START WHEN READY. THE INTERVIEWER WON'T HOLD BACK."}
           </div>
           <button
             onClick={start}
-            disabled={loading}
-            className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#c8923a] transition-colors disabled:opacity-60"
+            disabled={ctaDisabled}
+            className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#c8923a] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? 'Preparing your room...' : `Start ${active.title} interview ->`}
+            {ctaLabel}
           </button>
         </div>
 
