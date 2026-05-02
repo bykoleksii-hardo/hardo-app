@@ -444,6 +444,18 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     }
   }, [reviewActive, roundKey, reviewStartedAt, nowMs, recState]);
 
+  // Timer info (server start vs prep-done start: whichever is later).
+  // Timer info (server start vs prep-done start: whichever is later).
+  const timerInfo = useMemo<{ startedAt: string | null; limitSeconds: number } | null>(() => {
+    if (!roundTarget) return null;
+    const serverStart = roundTarget.startedAt ? new Date(roundTarget.startedAt).getTime() : 0;
+    const prepEnd = prepDoneAt[roundTarget.stepId];
+    let effectiveMs = serverStart;
+    if (prepEnd && prepEnd > serverStart) effectiveMs = prepEnd;
+    const startedAtIso = effectiveMs ? new Date(effectiveMs).toISOString() : roundTarget.startedAt;
+    return { startedAt: startedAtIso, limitSeconds: roundTarget.limitSeconds };
+  }, [roundTarget, prepDoneAt]);
+
   // Hard safety: if main timer goes 30s into overtime and user hasn't stopped, auto-lock.
   useEffect(() => {
     if (!roundKey) return;
@@ -464,18 +476,6 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
       }
     }
   }, [roundKey, prepActive, roundPhase, timerInfo, nowMs, inputMode, recState]);
-
-  // Timer info (server start vs prep-done start: whichever is later).
-  // Timer info (server start vs prep-done start: whichever is later).
-  const timerInfo = useMemo<{ startedAt: string | null; limitSeconds: number } | null>(() => {
-    if (!roundTarget) return null;
-    const serverStart = roundTarget.startedAt ? new Date(roundTarget.startedAt).getTime() : 0;
-    const prepEnd = prepDoneAt[roundTarget.stepId];
-    let effectiveMs = serverStart;
-    if (prepEnd && prepEnd > serverStart) effectiveMs = prepEnd;
-    const startedAtIso = effectiveMs ? new Date(effectiveMs).toISOString() : roundTarget.startedAt;
-    return { startedAt: startedAtIso, limitSeconds: roundTarget.limitSeconds };
-  }, [roundTarget, prepDoneAt]);
 
   const transcript = useMemo<ChatMsg[]>(() => {
     if (!activeBase) return [];
