@@ -172,11 +172,30 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
             const grade = s.ai_grade ?? s.ai_score;
             return (
               <li key={s.id} className="border border-[#f5efe2]/10 bg-[#0e1c33]/30 p-6">
-                <div className="flex items-center justify-between text-[11px] tracking-[0.22em] text-[#f5efe2]/55 mb-3">
-                  <span>Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}</span>
-                  <span className="text-[#d4a04a]">{isCompleted ? (grade ?? 'N/A') : '—'}</span>
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div>
+                    <div className="text-[11px] tracking-[0.22em] text-[#f5efe2]/55 mb-2">
+                      Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}
+                    </div>
+                    <p className="font-playfair text-lg leading-[1.5]">{s.questions?.question}</p>
+                  </div>
+                  {isCompleted && (() => {
+                    const g = (grade ?? '').toString().trim();
+                    const tone = !g ? 'border-[#f5efe2]/20 text-[#f5efe2]/55'
+                      : g.startsWith('A') ? 'border-emerald-400/50 text-emerald-300 bg-emerald-400/10'
+                      : g.startsWith('B') ? 'border-emerald-300/40 text-emerald-200/90 bg-emerald-400/5'
+                      : g.startsWith('C') ? 'border-amber-300/50 text-amber-300 bg-amber-400/10'
+                      : g === 'D' ? 'border-rose-300/50 text-rose-300 bg-rose-400/10'
+                      : g === 'F' ? 'border-rose-400/60 text-rose-200 bg-rose-500/15'
+                      : 'border-[#f5efe2]/20 text-[#f5efe2]/55';
+                    return (
+                      <div className={`shrink-0 border ${tone} px-4 py-2 text-center min-w-[60px]`}>
+                        <div className="font-playfair text-2xl leading-none">{g || 'N/A'}</div>
+                        <div className="text-[9px] tracking-[0.22em] mt-1 opacity-75">GRADE</div>
+                      </div>
+                    );
+                  })()}
                 </div>
-                <p className="font-playfair text-lg leading-[1.5] mb-4">{s.questions?.question}</p>
                 <div className="text-[11px] tracking-[0.22em] text-[#f5efe2]/45 mb-2">YOUR ANSWER</div>
                 <p className="text-[#f5efe2]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
                   {s.user_answer ?? <span className="text-[#f5efe2]/35 italic">not answered</span>}
