@@ -81,6 +81,21 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
     answers = (answerRows ?? []) as AnswerRow[];
   }
 
+  // Timer hygiene: if the first unanswered base step's clock is more than 60s stale (because the
+  // candidate left and came back, or because it was created at interview start), reset it to now so
+  // the timer starts fresh from this visit.
+  try {
+    const firstPending = steps.find(s => !s.is_follow_up && !s.user_answer);
+    if (firstPending && firstPending.created_at) {
+      const ageMs = Date.now() - new Date(firstPending.created_at).getTime();
+      if (ageMs > 60_000) {
+        const nowIso = new Date().toISOString();
+        await supabase.from('interview_steps').update({ created_at: nowIso }).eq('id', firstPending.id);
+        firstPending.created_at = nowIso;
+      }
+    }
+  } catch {}
+
   return (
     <InterviewClient
       interviewId={id}

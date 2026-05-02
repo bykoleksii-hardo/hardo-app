@@ -318,6 +318,14 @@ export async function POST(req: Request) {
   const nextBase = currentIdx >= 0 ? baseSteps[currentIdx + 1] ?? null : null;
   const isLast = !nextBase;
 
+  // Reset timer for the next base step: bump its created_at to now so the candidate sees a fresh clock.
+  if (nextBase?.id) {
+    await supabase
+      .from('interview_steps')
+      .update({ created_at: new Date().toISOString() })
+      .eq('id', nextBase.id);
+  }
+
   return NextResponse.json({
     ok: true,
     kind: 'close_block',
