@@ -160,6 +160,21 @@ export async function POST(req: Request) {
     });
     ai = out.data;
     console.log('[turn] ai received', { kind: ai.kind, message_type: ai.message_type, grade: ai.grade, followUpsSoFar, maxFollowUps });
+    // Consistency guard: kind=clarification_response REQUIRES message_type=clarification.
+    // If the model returns kind=clarification_response with message_type=answer, the model is
+    // confused about whether the candidate answered or asked. Trust the kind (model crafted a
+    // clarifying reply) and downgrade message_type to 'clarification' so we do not advance.
+    if (ai.kind === 'clarification_response' && ai.message_type === 'answer') {
+      console.warn('[turn] inconsistent ai output: kind=clarification_response + message_type=answer; forcing message_type=clarification', { reply: ai.reply });
+      ai.message_type = 'clarification';
+    }
+    // Symmetric guard: kind=close_block or follow_up REQUIRE message_type=answer (the candidate
+    // gave a real answer). If model says message_type=clarification with these kinds, that's also
+    // inconsistent - trust the kind (the model is grading or pushing) and force answer.
+    if ((ai.kind === 'close_block' || ai.kind === 'follow_up') && ai.message_type === 'clarification') {
+      console.warn('[turn] inconsistent ai output: kind=' + ai.kind + ' + message_type=clarification; forcing message_type=answer');
+      ai.message_type = 'answer';
+    }
   } catch (e) {
     if (e instanceof OpenAIError) {
       console.error('[turn] openai error', { status: e.status, code: e.code, type: e.type, message: e.message, raw: e.rawBody });
