@@ -173,6 +173,98 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
   const [endingSession, setEndingSession] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
 
+  // Voice / STT state
+  const [inputMode, setInputMode] = useState<'type' | 'voice'>('type');
+  const [recState, setRecState] = useState<'idle' | 'recording' | 'transcribing'>('idle');
+  const [recError, setRecError] = useState<string | null>(null);
+  const [recElapsedSec, setRecElapsedSec] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<BlobPart[]>([]);
+  const recStartRef = useRef<number>(0);
+  const recTickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (recTickRef.current) clearInterval(recTickRef.current);
+      const mr = mediaRecorderRef.current;
+      if (mr && mr.state !== 'inactive') {
+        try { mr.stop(); } catch {}
+        mr.stream.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, []);
+
+  async function startRecording() {
+    setRecError(null);
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setRecError('Your browser does not support voice recording. Please type instead.');
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
+      const mr = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+      mediaRecorderRef.current = mr;
+      audioChunksRef.current = [];
+      mr.ondataavailable = (e) => { if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data); };
+      mr.onerror = () => { setRecError('Recording error. Please try again.'); };
+      mr.start();
+      recStartRef.current = Date.now();
+      setRecElapsedSec(0);
+      if (recTickRef.current) clearInterval(recTickRef.current);
+      recTickRef.current = setInterval(() => {
+        const sec = Math.floor((Date.now() - recStartRef.current) / 1000);
+        setRecElapsedSec(sec);
+        // Hard safety: auto-stop at 5 minutes to avoid huge uploads.
+        if (sec >= 300) stopRecording();
+      }, 250);
+      setRecState('recording');
+    } catch (e) {
+      const name = (e as { name?: string })?.name ?? '';
+      if (name === 'NotAllowedError' || name === 'SecurityError') {
+        setRecError('Microphone access denied. Allow it in your browser settings and try again, or type your answer.');
+      } else {
+        setRecError('Could not start recording. Please type your answer.');
+      }
+    }
+  }
+
+  function stopRecording() {
+    const mr = mediaRecorderRef.current;
+    if (!mr || mr.state === 'inactive') return;
+    if (recTickRef.current) { clearInterval(recTickRef.current); recTickRef.current = null; }
+    mr.onstop = async () => {
+      mr.stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(audioChunksRef.current, { type: mr.mimeType || 'audio/webm' });
+      audioChunksRef.current = [];
+      if (blob.size === 0) {
+        setRecState('idle');
+        setRecError('Empty recording. Please try again.');
+        return;
+      }
+      setRecState('transcribing');
+      try {
+        if (!activeBase) throw new Error('No active question.');
+        const fd = new FormData();
+        fd.append('audio', blob, 'audio.webm');
+        fd.append('stepId', activeBase.id);
+        const r = await fetch('/api/transcribe', { method: 'POST', body: fd });
+        const data = await r.json();
+        if (!r.ok) {
+          throw new Error(data.friendly || data.error || 'Voice transcription failed.');
+        }
+        // Append (don't overwrite) so users can stitch multiple takes.
+        const newPiece = String(data.text || '').trim();
+        setDraft(prev => prev ? (prev.replace(/\s+$/, '') + ' ' + newPiece) : newPiece);
+        setRecState('idle');
+      } catch (e) {
+        setRecError((e as Error).message);
+        setRecState('idle');
+      }
+    };
+    try { mr.stop(); } catch { /* ignore */ }
+  }
+
   const activeBase = baseSteps.find(s => s.id === activeBaseId) ?? null;
   const firstPendingId = baseSteps.find(s => s.ai_status !== 'done')?.id ?? null;
   const activeQ = activeBase?.questions ?? null;
@@ -429,15 +521,66 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
                       <span>YOUR REPLY</span>
                     </div>
                     <div className="flex gap-1">
-                      <button className="text-[10px] tracking-[0.22em] px-3 py-1.5 bg-[#f5efe2]/10 text-[#f5efe2]">TYPE</button>
-                      <button disabled className="text-[10px] tracking-[0.22em] px-3 py-1.5 text-[#f5efe2]/35 border border-[#f5efe2]/15 cursor-not-allowed" title="Voice mode is coming in v2">
-                        VOICE <span className="ml-1.5 text-[#d4a04a]/60 tracking-normal normal-case">v2 coming soon</span>
-                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { if (recState === 'recording') return; setInputMode('type'); }}
+                        disabled={recState === 'recording' || recState === 'transcribing'}
+                        className={`text-[10px] tracking-[0.22em] px-3 py-1.5 ${inputMode === 'type' ? 'bg-[#f5efe2]/10 text-[#f5efe2]' : 'text-[#f5efe2]/55 border border-[#f5efe2]/15'}`}
+                      >TYPE</button>
+                      <button
+                        type="button"
+                        onClick={() => { if (recState === 'transcribing') return; setInputMode('voice'); }}
+                        disabled={recState === 'transcribing'}
+                        className={`text-[10px] tracking-[0.22em] px-3 py-1.5 ${inputMode === 'voice' ? 'bg-[#d4a04a]/15 text-[#d4a04a] border border-[#d4a04a]/40' : 'text-[#f5efe2]/55 border border-[#f5efe2]/15'}`}
+                      >VOICE</button>
                     </div>
                   </div>
                   {timerInfo && (
                     <div className="mb-3 -mt-2">
                       <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing} />
+                    </div>
+                  )}
+                  {inputMode === 'voice' && (
+                    <div className="mb-3 flex items-center gap-3 px-3 py-2 border border-[#d4a04a]/25 bg-[#d4a04a]/5">
+                      {recState === 'idle' && (
+                        <button
+                          type="button"
+                          onClick={startRecording}
+                          disabled={submitting || finalizing || blockClosed}
+                          className="flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#d4a04a] hover:text-[#e0ae54] disabled:opacity-40"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-[#d4a04a]" />
+                          <span>RECORD</span>
+                        </button>
+                      )}
+                      {recState === 'recording' && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={stopRecording}
+                            className="flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#d47a7a]"
+                          >
+                            <span className="w-2 h-2 rounded-sm bg-[#d47a7a] animate-pulse" />
+                            <span>STOP</span>
+                          </button>
+                          <span className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55 font-mono">
+                            {String(Math.floor(recElapsedSec / 60)).padStart(2, '0')}:{String(recElapsedSec % 60).padStart(2, '0')}
+                          </span>
+                          <span className="text-[10px] tracking-[0.18em] text-[#f5efe2]/35">RECORDING - tap STOP when done</span>
+                        </>
+                      )}
+                      {recState === 'transcribing' && (
+                        <span className="flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#d4a04a]/80">
+                          <span className="w-2 h-2 rounded-full bg-[#d4a04a]/60 animate-pulse" />
+                          <span>TRANSCRIBING...</span>
+                        </span>
+                      )}
+                      {recError && (
+                        <span className="ml-auto text-[11px] text-[#d47a7a]">{recError}</span>
+                      )}
+                      {recState === 'idle' && !recError && (
+                        <span className="ml-auto text-[10px] tracking-[0.18em] text-[#f5efe2]/35">Edit the transcript before sending.</span>
+                      )}
                     </div>
                   )}
                   <textarea
