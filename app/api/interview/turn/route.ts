@@ -171,11 +171,12 @@ export async function POST(req: Request) {
 
   // 6. Persist the candidate's message.
   const candidateAnswerType = ai.message_type === 'clarification' ? 'clarification' : 'answer';
-  await supabase.from('answers').insert({
+  const { error: candAnsErr } = await supabase.from('answers').insert({
     interview_step_id: currentStepId,
     user_answer: message,
     answer_type: candidateAnswerType,
   });
+  if (candAnsErr) console.error('[turn] failed to insert candidate answer', candAnsErr);
   // For real answers also mark the step's user_answer/answered_at via submit_answer-equivalent update.
   if (candidateAnswerType === 'answer') {
     await supabase
@@ -187,11 +188,12 @@ export async function POST(req: Request) {
   // 7. Branch on AI decision.
   if (ai.kind === 'clarification_response') {
     // Save the AI clarification reply as a separate "answer" row tagged differently.
-    await supabase.from('answers').insert({
+    const { error: clarRepErr } = await supabase.from('answers').insert({
       interview_step_id: currentStepId,
       user_answer: ai.reply,
       answer_type: 'clarification_response',
     });
+    if (clarRepErr) console.error('[turn] failed to insert clarification reply', clarRepErr);
     return NextResponse.json({
       ok: true,
       kind: 'clarification_response',
@@ -208,7 +210,7 @@ export async function POST(req: Request) {
     if (followUpsSoFar >= maxFollowUps) {
       ai.kind = 'close_block';
       ai.grade = ai.grade || 'B';
-      ai.feedback = ai.feedback || 'Closing the block â follow-up limit reached.';
+      ai.feedback = ai.feedback || 'Closing the block Ã¢ÂÂ follow-up limit reached.';
     } else {
       const { data: insertResult, error: insertErr } = await supabase.rpc('insert_followup_step', {
         p_interview_id: interviewId,
