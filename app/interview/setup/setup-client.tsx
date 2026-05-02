@@ -44,7 +44,7 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
   },
 ];
 
-export default function SetupClient({ userEmail }: { userEmail: string }) {
+export function SetupClient({ userEmail }: { userEmail: string }) {
   const router = useRouter();
   const [selected, setSelected] = useState<Level>('intern');
   const [loading, setLoading] = useState(false);
