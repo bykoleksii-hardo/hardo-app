@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { transcribeAudio, GroqError } from '@/lib/groq-client';
 
-export const runtime = 'edge';
-
 // Soft monthly cap: ~30 hours of recorded audio per user.
 const MONTHLY_AUDIO_CAP_SEC = 30 * 60 * 60; // 108000s
 const PERIOD_DAYS = 30;
