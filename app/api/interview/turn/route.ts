@@ -159,6 +159,7 @@ export async function POST(req: Request) {
       ],
     });
     ai = out.data;
+    console.log('[turn] ai received', { kind: ai.kind, message_type: ai.message_type, grade: ai.grade, followUpsSoFar, maxFollowUps });
   } catch (e) {
     if (e instanceof OpenAIError) {
       console.error('[turn] openai error', { status: e.status, code: e.code, type: e.type, message: e.message, raw: e.rawBody });
@@ -207,7 +208,7 @@ export async function POST(req: Request) {
     if (followUpsSoFar >= maxFollowUps) {
       ai.kind = 'close_block';
       ai.grade = ai.grade || 'B';
-      ai.feedback = ai.feedback || 'Closing the block — follow-up limit reached.';
+      ai.feedback = ai.feedback || 'Closing the block â follow-up limit reached.';
     } else {
       const { data: insertResult, error: insertErr } = await supabase.rpc('insert_followup_step', {
         p_interview_id: interviewId,
@@ -215,8 +216,12 @@ export async function POST(req: Request) {
         p_question: ai.follow_up_question,
       });
       if (insertErr) {
-        console.error('[turn] insert_followup_step error', insertErr);
+        console.error('[turn] insert_followup_step transport error', insertErr);
         return NextResponse.json({ error: insertErr.message }, { status: 500 });
+      }
+      if (insertResult && (insertResult as { ok?: boolean }).ok === false) {
+        console.error('[turn] insert_followup_step business error', { insertResult, baseStepId });
+        return NextResponse.json({ error: 'insert_followup_step rejected', detail: insertResult }, { status: 500 });
       }
       const newStepId = (insertResult as { step_id?: string } | null)?.step_id ?? null;
       return NextResponse.json({
@@ -239,14 +244,18 @@ export async function POST(req: Request) {
     strengths: ai.strengths,
     weaknesses: ai.weaknesses,
   });
-  const { error: gradeErr } = await supabase.rpc('apply_ai_grade', {
+  const { data: gradeResult, error: gradeErr } = await supabase.rpc('apply_ai_grade', {
     p_step_id: baseStepId,
     p_grade: grade,
     p_feedback: feedbackPayload,
   });
   if (gradeErr) {
-    console.error('[turn] apply_ai_grade error', gradeErr);
+    console.error('[turn] apply_ai_grade transport error', gradeErr);
     return NextResponse.json({ error: gradeErr.message }, { status: 500 });
+  }
+  if (gradeResult && (gradeResult as { ok?: boolean }).ok === false) {
+    console.error('[turn] apply_ai_grade business error', { gradeResult, grade, baseStepId });
+    return NextResponse.json({ error: 'apply_ai_grade rejected', detail: gradeResult }, { status: 500 });
   }
 
   // Determine the next base step (next non-follow-up question by order_index).
