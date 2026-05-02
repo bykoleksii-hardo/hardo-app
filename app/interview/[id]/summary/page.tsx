@@ -14,6 +14,10 @@ type StepRow = {
   ai_score: string | null;
   ai_feedback: string | null;
   ai_status: string | null;
+  created_at: string | null;
+  answered_at: string | null;
+  time_limit_seconds: number | null;
+  was_overtime: boolean | null;
   questions: { question: string; category: string; subtopic: string | null } | null;
 };
 
@@ -30,6 +34,22 @@ type ParsedFeedback = {
   strengths?: string[];
   weaknesses?: string[];
 };
+
+function formatPace(step: { created_at: string | null; answered_at: string | null; time_limit_seconds: number | null; was_overtime: boolean | null; }): { text: string; over: boolean } | null {
+  if (!step.created_at || !step.answered_at) return null;
+  const a = new Date(step.created_at).getTime();
+  const b = new Date(step.answered_at).getTime();
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b <= a) return null;
+  const elapsed = Math.max(0, Math.round((b - a) / 1000));
+  const limit = step.time_limit_seconds ?? null;
+  const over = !!step.was_overtime;
+  const fmt = (s: number) => {
+    const m = Math.floor(s/60); const r = s % 60;
+    return String(m).padStart(2,'0') + ':' + String(r).padStart(2,'0');
+  };
+  if (limit) return { text: fmt(elapsed) + ' of ' + fmt(limit), over };
+  return { text: fmt(elapsed), over };
+}
 
 function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[] } | null {
   if (!raw) return null;
@@ -68,7 +88,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
   const { data: stepsRaw } = await supabase
     .from('interview_steps')
-    .select('id, order_index, is_follow_up, parent_step_id, custom_question, user_answer, ai_grade, ai_score, ai_feedback, ai_status, questions(question, category, subtopic)')
+    .select('id, order_index, is_follow_up, parent_step_id, custom_question, user_answer, ai_grade, ai_score, ai_feedback, ai_status, created_at, answered_at, time_limit_seconds, was_overtime, questions(question, category, subtopic)')
     .eq('interview_id', id)
     .order('order_index', { ascending: true });
 
@@ -174,8 +194,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
               <li key={s.id} className="border border-[#f5efe2]/10 bg-[#0e1c33]/30 p-6">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
-                    <div className="text-[11px] tracking-[0.22em] text-[#f5efe2]/55 mb-2">
-                      Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}
+                    <div className="text-[11px] tracking-[0.22em] text-[#f5efe2]/55 mb-2 flex items-center gap-3">
+                      <span>Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}</span>
+                      {(() => { const p = formatPace(s); if (!p) return null; return (
+                        <span className={p.over ? 'text-[#d47a7a]' : 'text-[#9ab87a]'}>{p.over ? 'OVERTIME ' : ''}{p.text}</span>
+                      ); })()}
                     </div>
                     <p className="font-playfair text-lg leading-[1.5]">{s.questions?.question}</p>
                   </div>

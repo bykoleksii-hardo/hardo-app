@@ -22,6 +22,9 @@ type StepRow = {
   ai_status: string | null;
   ai_grade: string | null;
   ai_feedback: string | null;
+  created_at: string | null;
+  time_limit_seconds: number | null;
+  was_overtime: boolean | null;
   questions: Question | null;
 };
 
@@ -32,6 +35,48 @@ type AnswerRow = {
   answer_type: string; // 'answer' | 'clarification' | 'clarification_response'
   created_at: string;
 };
+
+function formatMMSS(secs: number): string {
+  const sign = secs < 0 ? '-' : '';
+  const a = Math.abs(secs);
+  const m = Math.floor(a / 60);
+  const s = a % 60;
+  return sign + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function QuestionTimer(props: { startedAt: string | null; limitSeconds: number; disabled?: boolean }) {
+  const { startedAt, limitSeconds, disabled } = props;
+  const [now, setNow] = useState<number>(() => Date.now());
+  useEffect(() => {
+    if (disabled) return;
+    const id = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(id);
+  }, [disabled]);
+  if (!startedAt) return null;
+  const startMs = new Date(startedAt).getTime();
+  if (!Number.isFinite(startMs)) return null;
+  const elapsedSec = Math.max(0, Math.floor((now - startMs) / 1000));
+  const remainSec = limitSeconds - elapsedSec;
+  const isOver = remainSec < 0;
+  const ratio = elapsedSec / Math.max(1, limitSeconds);
+  // green < 70%, gold 70-100%, red > 100%
+  const color = isOver ? '#d47a7a' : ratio >= 0.7 ? '#d4a04a' : '#9ab87a';
+  const label = isOver ? 'OVERTIME' : 'TIME LEFT';
+  const display = isOver ? '+' + formatMMSS(elapsedSec - limitSeconds) : formatMMSS(Math.max(0, remainSec));
+  const pct = Math.min(100, Math.max(0, ratio * 100));
+  return (
+    <div className="flex items-center gap-3 text-[11px] tracking-[0.22em]" style={{ color }}>
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: isOver ? '0 0 8px ' + color : 'none' }} />
+      <span>{label}</span>
+      <span className="font-mono text-[14px] tracking-normal" style={{ color }}>{display}</span>
+      <span className="text-[#f5efe2]/30">|</span>
+      <span className="text-[#f5efe2]/45 tracking-normal text-[10px]">soft limit {formatMMSS(limitSeconds)}</span>
+      <div className="flex-1 h-[2px] bg-[#f5efe2]/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
+        <div style={{ width: pct + '%', height: '100%', background: color, transition: 'width 400ms linear' }} />
+      </div>
+    </div>
+  );
+}
 
 type ChatMsg =
   | { role: 'ai'; kind: 'question'; text: string; stepId: string }
@@ -132,6 +177,21 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
   const firstPendingId = baseSteps.find(s => s.ai_status !== 'done')?.id ?? null;
   const activeQ = activeBase?.questions ?? null;
   const blockClosed = activeBase?.ai_status === 'done';
+
+  // Timer: figure out current step (base or last unanswered FU) and its limit.
+  const timerInfo = useMemo<{ startedAt: string | null; limitSeconds: number } | null>(() => {
+    if (!activeBase) return null;
+    const childFUs = localSteps.filter(s => s.parent_step_id === activeBase.id && s.is_follow_up).sort((a,b)=>a.order_index-b.order_index);
+    const lastUnanswered = [...childFUs].reverse().find(c => !c.user_answer);
+    const target = lastUnanswered ?? activeBase;
+    const isFU = !!lastUnanswered;
+    const cat = activeBase.questions?.category ?? '';
+    const isCase = cat.toLowerCase() === 'case study';
+    const limit = (target.time_limit_seconds && target.time_limit_seconds > 0)
+      ? target.time_limit_seconds
+      : (!isFU && isCase ? 120 : 60);
+    return { startedAt: target.created_at, limitSeconds: limit };
+  }, [activeBase, localSteps]);
 
   const transcript = useMemo<ChatMsg[]>(() => {
     if (!activeBase) return [];
@@ -375,6 +435,11 @@ export default function InterviewClient({ interviewId, level, totalQuestions, st
                       </button>
                     </div>
                   </div>
+                  {timerInfo && (
+                    <div className="mb-3 -mt-2">
+                      <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing} />
+                    </div>
+                  )}
                   <textarea
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}

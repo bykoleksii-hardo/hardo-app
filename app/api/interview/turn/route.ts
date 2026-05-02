@@ -8,6 +8,7 @@ import {
   type TurnAIResult,
   type TurnContext,
 } from '@/lib/interview-prompts';
+import { getTimeLimitSeconds } from '@/lib/timer-config';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -22,6 +23,7 @@ type StepRow = {
   parent_step_id: string | null;
   custom_question: string | null;
   order_index: number;
+  created_at: string | null;
   questions: {
     id: number;
     question: string;
@@ -48,6 +50,7 @@ type ChildStepRow = {
   order_index: number;
   user_answer: string | null;
   ai_feedback: string | null;
+  created_at: string | null;
 };
 
 export async function POST(req: Request) {
@@ -68,7 +71,7 @@ export async function POST(req: Request) {
   //    If it is itself a follow-up, walk up to its parent so we always grade at the block root.
   const { data: rawStep, error: stepErr } = await supabase
     .from('interview_steps')
-    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions)')
+    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions)')
     .eq('id', body.stepId)
     .maybeSingle();
   if (stepErr || !rawStep) {
@@ -78,7 +81,7 @@ export async function POST(req: Request) {
   if (step.is_follow_up && step.parent_step_id) {
     const { data: parent } = await supabase
       .from('interview_steps')
-      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions)')
+      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions)')
       .eq('id', step.parent_step_id)
       .maybeSingle();
     if (parent) step = parent as unknown as StepRow;
@@ -96,7 +99,7 @@ export async function POST(req: Request) {
   // 2. Find every child follow-up step under this base, ordered.
   const { data: childRows } = await supabase
     .from('interview_steps')
-    .select('id, parent_step_id, is_follow_up, custom_question, order_index, user_answer, ai_feedback')
+    .select('id, parent_step_id, is_follow_up, custom_question, order_index, user_answer, ai_feedback, created_at')
     .eq('parent_step_id', baseStepId)
     .order('order_index', { ascending: true });
   const children = (childRows ?? []) as ChildStepRow[];
@@ -194,9 +197,33 @@ export async function POST(req: Request) {
   if (candAnsErr) console.error('[turn] failed to insert candidate answer', candAnsErr);
   // For real answers also mark the step's user_answer/answered_at via submit_answer-equivalent update.
   if (candidateAnswerType === 'answer') {
+    // Resolve created_at of the actual step we are answering (base step or last unanswered follow-up).
+    let stepCreatedAt: string | null = step.created_at;
+    let stepCategory: string = category;
+    let stepIsFollowUp = false;
+    if (currentStepId !== baseStepId) {
+      const cs = children.find(c => c.id === currentStepId);
+      if (cs && cs.created_at) stepCreatedAt = cs.created_at;
+      stepIsFollowUp = true;
+    }
+    const limitSec = getTimeLimitSeconds({ category: stepCategory, isFollowUp: stepIsFollowUp });
+    let elapsedSec: number | null = null;
+    if (stepCreatedAt) {
+      const startMs = new Date(stepCreatedAt).getTime();
+      const nowMs = Date.now();
+      if (Number.isFinite(startMs) && nowMs > startMs) {
+        elapsedSec = Math.round((nowMs - startMs) / 1000);
+      }
+    }
+    const overtime = elapsedSec !== null && elapsedSec > limitSec;
     await supabase
       .from('interview_steps')
-      .update({ user_answer: message, answered_at: new Date().toISOString() })
+      .update({
+        user_answer: message,
+        answered_at: new Date().toISOString(),
+        time_limit_seconds: limitSec,
+        was_overtime: overtime,
+      })
       .eq('id', currentStepId);
   }
 

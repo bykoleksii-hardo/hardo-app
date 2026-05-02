@@ -15,7 +15,7 @@ export async function GET(req: Request) {
 
   const { data: stepsRaw } = await supabase
     .from('interview_steps')
-    .select('id, order_index, is_follow_up, parent_step_id, question_id, custom_question, user_answer, answered_at, ai_status, ai_grade, ai_feedback, questions(id, question, category, subtopic, difficulty)')
+    .select('id, order_index, is_follow_up, parent_step_id, question_id, custom_question, user_answer, answered_at, created_at, time_limit_seconds, was_overtime, ai_status, ai_grade, ai_feedback, questions(id, question, category, subtopic, difficulty)')
     .eq('interview_id', id)
     .order('order_index', { ascending: true });
 
