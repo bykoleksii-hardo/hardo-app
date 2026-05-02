@@ -270,8 +270,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   const activeQ = activeBase?.questions ?? null;
   const blockClosed = activeBase?.ai_status === 'done';
 
-  // Timer: figure out current step (base or last unanswered FU) and its limit.
-  const timerInfo = useMemo<{ startedAt: string | null; limitSeconds: number } | null>(() => {
+  // Identify the active "round" target (base step or last unanswered follow-up).
+  const roundTarget = useMemo<{ stepId: string; startedAt: string | null; limitSeconds: number } | null>(() => {
     if (!activeBase) return null;
     const childFUs = localSteps.filter(s => s.parent_step_id === activeBase.id && s.is_follow_up).sort((a,b)=>a.order_index-b.order_index);
     const lastUnanswered = [...childFUs].reverse().find(c => !c.user_answer);
@@ -284,8 +284,68 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     const limit = (target.time_limit_seconds && target.time_limit_seconds > 0)
       ? target.time_limit_seconds
       : fallbackLimit;
-    return { startedAt: target.created_at, limitSeconds: limit };
+    return { stepId: target.id, startedAt: target.created_at, limitSeconds: limit };
   }, [activeBase, localSteps, inputMode]);
+
+  // Prep phase: 10s "GET READY" before each round (base + follow-ups + clarifications retries).
+  // Read-only, no REC, no Send, main timer paused. Cannot be skipped.
+  const PREP_SECONDS = 10;
+  const [prepDoneAt, setPrepDoneAt] = useState<Record<string, number>>({});
+  const [nowMs, setNowMs] = useState<number>(() => Date.now());
+  const prepStartRef = useRef<Record<string, number>>({});
+
+  const roundKey = roundTarget?.stepId ?? null;
+  // When a new round becomes active, stamp its prep start time once.
+  useEffect(() => {
+    if (!roundKey) return;
+    if (prepStartRef.current[roundKey] == null) {
+      prepStartRef.current[roundKey] = Date.now();
+      setNowMs(Date.now());
+    }
+  }, [roundKey]);
+
+  const prepActive = useMemo(() => {
+    if (!roundKey) return false;
+    if (prepDoneAt[roundKey]) return false;
+    const startedAt = prepStartRef.current[roundKey];
+    if (!startedAt) return true;
+    return (nowMs - startedAt) / 1000 < PREP_SECONDS;
+  }, [roundKey, prepDoneAt, nowMs]);
+
+  const prepRemainSec = useMemo(() => {
+    if (!roundKey || !prepActive) return 0;
+    const startedAt = prepStartRef.current[roundKey] ?? nowMs;
+    const elapsed = (nowMs - startedAt) / 1000;
+    return Math.max(0, Math.ceil(PREP_SECONDS - elapsed));
+  }, [roundKey, prepActive, nowMs]);
+
+  // Tick during prep so countdown updates and we can flip prepDoneAt at the end.
+  useEffect(() => {
+    if (!prepActive) return;
+    const id = setInterval(() => setNowMs(Date.now()), 250);
+    return () => clearInterval(id);
+  }, [prepActive]);
+
+  useEffect(() => {
+    if (!roundKey) return;
+    if (prepDoneAt[roundKey]) return;
+    const startedAt = prepStartRef.current[roundKey];
+    if (!startedAt) return;
+    if ((nowMs - startedAt) / 1000 >= PREP_SECONDS) {
+      setPrepDoneAt(prev => prev[roundKey] ? prev : { ...prev, [roundKey]: Date.now() });
+    }
+  }, [roundKey, nowMs, prepDoneAt]);
+
+  // Timer info (server start vs prep-done start: whichever is later).
+  const timerInfo = useMemo<{ startedAt: string | null; limitSeconds: number } | null>(() => {
+    if (!roundTarget) return null;
+    const serverStart = roundTarget.startedAt ? new Date(roundTarget.startedAt).getTime() : 0;
+    const prepEnd = prepDoneAt[roundTarget.stepId];
+    let effectiveMs = serverStart;
+    if (prepEnd && prepEnd > serverStart) effectiveMs = prepEnd;
+    const startedAtIso = effectiveMs ? new Date(effectiveMs).toISOString() : roundTarget.startedAt;
+    return { startedAt: startedAtIso, limitSeconds: roundTarget.limitSeconds };
+  }, [roundTarget, prepDoneAt]);
 
   const transcript = useMemo<ChatMsg[]>(() => {
     if (!activeBase) return [];
@@ -528,7 +588,18 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       </span>
                     </div>
                   </div>
-                  {timerInfo && (
+                  {prepActive ? (
+                    <div className="mb-3 -mt-2 flex items-center gap-3 text-[11px] tracking-[0.22em]" style={{ color: '#d4a04a' }}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#d4a04a] animate-pulse" />
+                      <span>GET READY</span>
+                      <span className="font-mono text-[14px] tracking-normal text-[#d4a04a]">00:{String(prepRemainSec).padStart(2, '0')}</span>
+                      <span className="text-[#f5efe2]/30">|</span>
+                      <span className="text-[#f5efe2]/45 tracking-normal text-[10px]">read the question, then start</span>
+                      <div className="flex-1 h-[2px] bg-[#f5efe2]/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
+                        <div style={{ width: ((PREP_SECONDS - prepRemainSec) / PREP_SECONDS) * 100 + '%', height: '100%', background: '#d4a04a', transition: 'width 250ms linear' }} />
+                      </div>
+                    </div>
+                  ) : timerInfo && (
                     <div className="mb-3 -mt-2">
                       <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing} />
                     </div>
@@ -539,8 +610,9 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         <button
                           type="button"
                           onClick={startRecording}
-                          disabled={submitting || finalizing || blockClosed}
+                          disabled={submitting || finalizing || blockClosed || prepActive}
                           className="flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#d4a04a] hover:text-[#e0ae54] disabled:opacity-40"
+                          title={prepActive ? 'Wait for the prep timer to finish' : ''}
                         >
                           <span className="w-2 h-2 rounded-full bg-[#d4a04a]" />
                           <span>RECORD</span>
@@ -579,11 +651,12 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                   <textarea
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
-                    placeholder="Answer, or ask the interviewer to clarify..."
+                    readOnly={prepActive}
+                    placeholder={prepActive ? 'Read the question. Typing unlocks once prep ends.' : 'Answer, or ask the interviewer to clarify...'}
                     rows={6}
-                    className="w-full bg-transparent border-0 outline-none resize-none text-[#f5efe2] placeholder:text-[#f5efe2]/30 font-inter text-[15px] leading-[1.6]"
+                    className={'w-full bg-transparent border-0 outline-none resize-none text-[#f5efe2] placeholder:text-[#f5efe2]/30 font-inter text-[15px] leading-[1.6] ' + (prepActive ? 'opacity-50 cursor-not-allowed' : '')}
                     onKeyDown={(e) => {
-                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleSubmit();
+                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !prepActive) handleSubmit();
                     }}
                   />
                   {error && <div className="text-[12px] text-[#d47a7a] mt-2">{error}</div>}
@@ -593,10 +666,11 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     </span>
                     <button
                       onClick={handleSubmit}
-                      disabled={submitting || finalizing || draft.trim().length < 1}
+                      disabled={submitting || finalizing || prepActive || draft.trim().length < 1}
                       className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-[#e0ae54]"
+                      title={prepActive ? 'Wait for the prep timer to finish' : ''}
                     >
-                      {submitting ? 'Thinking...' : finalizing ? 'Finalizing...' : 'Send'}
+                      {prepActive ? 'Get ready...' : submitting ? 'Thinking...' : finalizing ? 'Finalizing...' : 'Send'}
                     </button>
                   </div>
                 </div>
