@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getPublishedArticles } from '@/lib/knowledge/queries';
+import { listPublishedArticles } from '@/lib/knowledge/queries';
 import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
 import { getViewerPlan } from '@/lib/quota/server';
@@ -19,7 +19,7 @@ function fmtDate(s: string | null) {
 }
 
 export default async function KnowledgeIndex() {
-  const articles = await getPublishedArticles({ limit: 50 });
+  const articles = await listPublishedArticles({ limit: 50 });
   const viewer = await getViewerPlan();
 
   return (

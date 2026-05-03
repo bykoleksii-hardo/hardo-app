@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getPublishedArticles } from '@/lib/knowledge/queries';
+import { listPublishedArticles } from '@/lib/knowledge/queries';
 
 const SITE = 'https://hardo-app.bykoleksii.workers.dev';
 
@@ -20,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let articleUrls: MetadataRoute.Sitemap = [];
   try {
-    const articles = await getPublishedArticles({ limit: 200 });
+    const articles = await listPublishedArticles({ limit: 200 });
     articleUrls = articles.map((a) => ({
       url: SITE + '/knowledge/' + a.slug,
       lastModified: a.published_at ? new Date(a.published_at).toISOString() : now,
