@@ -1,4 +1,5 @@
 'use client';
+import Brand from '@/app/_components/Brand';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 

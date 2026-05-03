@@ -1,5 +1,6 @@
 'use client';
 
+import Brand from '@/app/_components/Brand';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
