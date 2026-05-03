@@ -32,9 +32,9 @@ export default async function OverviewPage() {
       {/* STAT CARDS */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
         <StatCard label="Interviews" value={totals.total_interviews} hint={`${totals.completed_interviews} completed`} />
-        <StatCard label="Avg score" value={totals.avg_score !== null ? totals.avg_score.toFixed(1) : '—'} hint="across completed runs" />
-        <StatCard label="Best grade" value={totals.best_grade ?? '—'} hint="highest letter awarded" />
-        <StatCard label="Streak" value={`${totals.streak_days}d`} hint="consecutive days" />
+        <StatCard label="Avg score" value={totals.avg_score !== null ? totals.avg_score.toFixed(1) : 'â'} hint="across completed runs" />
+        <StatCard label="Best grade" value={totals.best_grade ?? 'â'} hint="highest letter awarded" />
+        <StatCard label="Streak" value={totals.streak_days} hint={totals.streak_days === 1 ? "consecutive day" : "consecutive days"} />
       </div>
 
       {/* RADAR + RECENT */}
@@ -57,7 +57,7 @@ export default async function OverviewPage() {
         <div className="border border-[#f5efe2]/10 rounded-sm p-7 bg-[#0e1c33]/50">
           <div className="flex items-baseline justify-between mb-1">
             <div className="text-[11px] tracking-[0.22em] text-[#d4a04a]">- RECENT SESSIONS</div>
-            <Link href="/profile/history" className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">SEE ALL ↗</Link>
+            <Link href="/profile/history" className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">SEE ALL â</Link>
           </div>
           <h2 className="font-serif text-2xl mb-6">Last 3 runs.</h2>
           {recent.length > 0 ? (
@@ -66,12 +66,12 @@ export default async function OverviewPage() {
                 <li key={r.id} className="flex items-center justify-between gap-4 border border-[#f5efe2]/10 px-4 py-3 rounded-sm">
                   <div className="min-w-0">
                     <div className="font-serif text-lg capitalize">{r.candidate_level}</div>
-                    <div className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55">{fmtDate(r.started_at)} · {(r.input_mode ?? 'text').toUpperCase()}</div>
+                    <div className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55">{fmtDate(r.started_at)} Â· {(r.input_mode ?? 'text').toUpperCase()}</div>
                   </div>
                   <div className="text-right shrink-0">
                     {r.status === 'completed' ? (
                       <>
-                        <div className="font-serif text-2xl text-[#d4a04a]">{r.letter_grade ?? '—'}</div>
+                        <div className="font-serif text-2xl text-[#d4a04a]">{r.letter_grade ?? 'â'}</div>
                         <div className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55">{r.hire_recommendation ? (HIRE_LABEL[r.hire_recommendation] ?? r.hire_recommendation) : ''}</div>
                       </>
                     ) : (
@@ -82,7 +82,7 @@ export default async function OverviewPage() {
               ))}
             </ul>
           ) : (
-            <EmptyBlock title="No sessions yet" body="Your first interview is one click away." cta={{ href: '/interview/setup', label: 'Start now →' }} />
+            <EmptyBlock title="No sessions yet" body="Your first interview is one click away." cta={{ href: '/interview/setup', label: 'Start now â' }} />
           )}
         </div>
       </div>
@@ -93,7 +93,7 @@ export default async function OverviewPage() {
           <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-2">- FINISH YOUR PROFILE</div>
           <h2 className="font-serif text-2xl mb-2">Tell the interviewer who's in the room.</h2>
           <p className="text-sm text-[#f5efe2]/70 max-w-xl mb-5">Add your name, school, and a short CV summary. The persona uses these to ask sharper, more personal follow-ups.</p>
-          <Link href="/profile/about" className="inline-block bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-7 py-3 rounded-sm hover:bg-[#c8923a] transition-colors">Complete profile →</Link>
+          <Link href="/profile/about" className="inline-block bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-7 py-3 rounded-sm hover:bg-[#c8923a] transition-colors">Complete profile â</Link>
         </div>
       )}
 
@@ -132,7 +132,7 @@ function EmptyHero() {
       <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-3">- NEW HERE</div>
       <h2 className="font-serif text-3xl mb-3">Step into your first room.</h2>
       <p className="text-sm text-[#f5efe2]/65 max-w-md mx-auto mb-6">Pick a level, choose how you'll answer, and meet the interviewer. We'll start tracking your skill radar from session one.</p>
-      <Link href="/interview/setup" className="inline-block bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-8 py-3.5 rounded-sm hover:bg-[#c8923a] transition-colors">Start interview →</Link>
+      <Link href="/interview/setup" className="inline-block bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-8 py-3.5 rounded-sm hover:bg-[#c8923a] transition-colors">Start interview â</Link>
     </div>
   );
 }

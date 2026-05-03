@@ -111,7 +111,7 @@ export function AboutForm({ initial, email }: Props) {
   }
 
   return (
-    <div className="space-y-10 max-w-3xl">
+    <div className="space-y-10 max-w-3xl pb-32">
       {showWizard && (
         <div className="border border-[#d4a04a]/40 rounded-sm p-6 bg-[#d4a04a]/5">
           <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-2">- WELCOME</div>
@@ -208,7 +208,7 @@ export function AboutForm({ initial, email }: Props) {
           disabled={saving}
           className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-7 py-3 rounded-sm hover:bg-[#c8923a] transition-colors disabled:opacity-60"
         >
-          {saving ? 'Saving…' : 'Save profile'}
+          {saving ? 'Savingâ¦' : 'Save profile'}
         </button>
       </div>
     </div>
