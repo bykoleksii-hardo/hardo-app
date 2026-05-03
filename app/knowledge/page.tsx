@@ -1,57 +1,81 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { getPublishedArticles } from '@/lib/knowledge/queries';
 import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
-import { listPublishedArticles } from '@/lib/knowledge/queries';
+import { getViewerPlan } from '@/lib/quota/server';
 
 export const metadata: Metadata = {
   title: 'Knowledge Hub \u2014 HARDO',
-  description: 'Platform updates, IB industry breakdowns, and tactical guides on how to answer the questions that decide an offer.',
+  description: 'Tactical breakdowns of the questions that decide an offer. Platform updates, IB industry context, and the rubric behind every grade.',
 };
 
+export const dynamic = 'force-dynamic';
+
+function fmtDate(s: string | null) {
+  if (!s) return '';
+  const d = new Date(s);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 export default async function KnowledgeIndex() {
-  const articles = await listPublishedArticles({ limit: 50 });
+  const articles = await getPublishedArticles({ limit: 50 });
+  const viewer = await getViewerPlan();
+
   return (
     <>
-      <LandingHeader />
-      <main className="min-h-[60vh]">
-        <section className="py-20 border-b border-[#f5efe2]/10">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="text-[#d4a04a] uppercase tracking-widest text-xs mb-3">Knowledge Hub</div>
-            <h1 className="font-serif text-5xl md:text-6xl text-[#f5efe2] mb-4">Notes from the desk.</h1>
-            <p className="text-[#f5efe2]/70 text-lg max-w-2xl leading-relaxed">
-              Platform updates, IB industry breakdowns, and tactical guides on how to answer the questions that decide an offer.
+      <LandingHeader signedIn={viewer.plan !== 'anon'} />
+      <main>
+        <section className="border-b border-line">
+          <div className="max-w-page mx-auto px-6 pt-20 pb-16">
+            <div className="kicker mb-3">Knowledge Hub</div>
+            <h1 className="font-serif text-[52px] md:text-[68px] font-light leading-[1.04] tracking-[-0.022em] max-w-3xl">
+              Notes from the desk.
+            </h1>
+            <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
+              Tactical breakdowns of the questions that decide an offer. Platform updates, industry context, and the rubric behind every grade.
             </p>
           </div>
         </section>
 
-        <section className="py-16">
-          <div className="max-w-4xl mx-auto px-6">
+        <section>
+          <div className="max-w-page mx-auto px-6 py-16">
             {articles.length === 0 ? (
-              <div className="border border-dashed border-[#f5efe2]/20 rounded-lg p-12 text-center">
-                <div className="text-[#d4a04a] uppercase tracking-widest text-xs mb-3">Coming soon</div>
-                <p className="text-[#f5efe2]/70 max-w-xl mx-auto leading-relaxed">
-                  We{'\u2019'}re drafting the first batch of articles right now. Bookmark this page or come back after your first interview {'\u2014'} we{'\u2019'}ll have something worth reading.
+              <div className="border border-line rounded-md bg-paper p-12 text-center max-w-2xl mx-auto">
+                <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Coming soon</div>
+                <p className="mt-3 font-serif text-[24px] font-light leading-snug">
+                  The first batch of write-ups is in the editor. Check back shortly.
                 </p>
-                <Link href="/" className="inline-block mt-8 text-[#d4a04a] hover:text-[#f5efe2] text-sm uppercase tracking-widest">
-                  {'\u2190 Back to home'}
+                <Link
+                  href="/"
+                  className="mt-6 inline-flex items-center gap-1.5 text-[13.5px] text-ink hover:text-gold transition-colors"
+                >
+                  <span aria-hidden>{'\u2190'}</span> Back to home
                 </Link>
               </div>
             ) : (
-              <ul className="space-y-8">
-                {articles.map((a) => (
-                  <li key={a.id}>
-                    <Link href={`/knowledge/${a.slug}`} className="block group border-b border-[#f5efe2]/10 pb-8 hover:border-[#d4a04a]/40 transition">
-                      {a.published_at && (
-                        <div className="text-[#f5efe2]/40 uppercase tracking-widest text-xs mb-2">
-                          {new Date(a.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                        </div>
+              <ul className="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+                {articles.map((a) => {
+                  const tag = a.tags?.[0];
+                  return (
+                    <li key={a.id} className="border-t border-line pt-5">
+                      {tag && (
+                        <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted">{tag}</div>
                       )}
-                      <h2 className="font-serif text-3xl text-[#f5efe2] group-hover:text-[#d4a04a] transition mb-2">{a.title}</h2>
-                      {a.description && <p className="text-[#f5efe2]/70 leading-relaxed">{a.description}</p>}
-                    </Link>
-                  </li>
-                ))}
+                      <Link href={`/knowledge/${a.slug}`} className="group block mt-3">
+                        <h2 className="font-serif text-[22px] font-medium leading-snug group-hover:text-gold transition-colors">
+                          {a.title}
+                        </h2>
+                        {a.description && (
+                          <p className="mt-3 text-[14px] text-ink-2 leading-relaxed">{a.description}</p>
+                        )}
+                      </Link>
+                      <div className="mt-4 font-mono text-[10.5px] uppercase tracking-widest text-muted">
+                        {fmtDate(a.published_at)}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

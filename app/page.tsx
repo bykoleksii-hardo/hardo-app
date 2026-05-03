@@ -98,7 +98,7 @@ function FreeHero({ remaining }: { remaining: number }) {
                 Start free interview <span aria-hidden>{'\u2192'}</span>
               </Link>
             ) : (
-              <Link href="/account/upgrade" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
+              <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
                 Upgrade to HARDO {'\u00b7'} $12/mo
               </Link>
             )}

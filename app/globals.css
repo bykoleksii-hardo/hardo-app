@@ -42,3 +42,80 @@ details > summary {
 details > summary::-webkit-details-marker {
   display: none;
 }
+
+.prose-hardo {
+  color: var(--ink-2);
+  font-size: 16.5px;
+  line-height: 1.7;
+}
+.prose-hardo h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.2;
+  margin-top: 2.4em;
+  margin-bottom: 0.6em;
+  color: var(--ink);
+}
+.prose-hardo h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.25;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  color: var(--ink);
+}
+.prose-hardo p {
+  margin: 1.1em 0;
+}
+.prose-hardo a {
+  color: var(--gold-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-hardo a:hover {
+  color: var(--gold);
+}
+.prose-hardo strong {
+  color: var(--ink);
+}
+.prose-hardo ul, .prose-hardo ol {
+  margin: 1.1em 0;
+  padding-left: 1.4em;
+}
+.prose-hardo li { margin: 0.4em 0; }
+.prose-hardo blockquote {
+  border-left: 2px solid var(--gold);
+  padding-left: 1em;
+  margin: 1.5em 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--ink);
+}
+.prose-hardo code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--cream);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+.prose-hardo pre {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 1em 1.2em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1.5em 0;
+  font-size: 14px;
+}
+.prose-hardo pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+.prose-hardo hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 2em 0;
+}

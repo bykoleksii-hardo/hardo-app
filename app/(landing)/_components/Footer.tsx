@@ -14,10 +14,11 @@ export default function LandingFooter() {
         <div>
           <div className="kicker mb-3">Product</div>
           <ul className="space-y-2 text-ink-2">
-            <li><a href="#how" className="hover:text-ink">How it works</a></li>
-            <li><a href="#voice" className="hover:text-ink">Voice mode</a></li>
-            <li><a href="#pricing" className="hover:text-ink">Pricing</a></li>
+            <li><a href="/#how" className="hover:text-ink">How it works</a></li>
+            <li><a href="/#voice" className="hover:text-ink">Voice mode</a></li>
+            <li><a href="/#pricing" className="hover:text-ink">Pricing</a></li>
             <li><Link href="/knowledge" className="hover:text-ink">Knowledge Hub</Link></li>
+            <li><Link href="/upgrade" className="hover:text-ink">Upgrade</Link></li>
           </ul>
         </div>
         <div>
@@ -26,6 +27,8 @@ export default function LandingFooter() {
             <li><Link href="/login" className="hover:text-ink">Sign in</Link></li>
             <li><Link href="/signup" className="hover:text-ink">Sign up</Link></li>
             <li><a href="mailto:hello@hardo.app" className="hover:text-ink">Contact</a></li>
+            <li><Link href="/legal/terms" className="hover:text-ink">Terms</Link></li>
+            <li><Link href="/legal/privacy" className="hover:text-ink">Privacy</Link></li>
           </ul>
         </div>
       </div>
