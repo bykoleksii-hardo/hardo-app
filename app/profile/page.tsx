@@ -62,7 +62,7 @@ export default async function OverviewPage() {
                 <li key={r.id} className="flex items-center justify-between gap-4 border border-[#11161E]/10 px-4 py-3 rounded-sm">
                   <div className="min-w-0">
                     <div className="font-serif text-lg capitalize">{r.candidate_level}</div>
-                    <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">{fmtDate(r.started_at)} \u00b7 {(r.input_mode ?? 'text').toUpperCase()}</div>
+                    <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">{fmtDate(r.started_at)} {'\u00b7'} {(r.input_mode ?? 'text').toUpperCase()}</div>
                   </div>
                   <div className="text-right shrink-0">
                     {r.status === 'completed' ? (

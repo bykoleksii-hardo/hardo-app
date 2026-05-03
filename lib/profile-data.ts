@@ -4,14 +4,30 @@ import type {
   InterviewHistoryItem,
 } from '@/lib/types';
 
+function scoreToLetter(score: number | null): string | null {
+  if (score == null) return null;
+  if (score >= 90) return 'A+';
+  if (score >= 85) return 'A';
+  if (score >= 80) return 'A-';
+  if (score >= 75) return 'B+';
+  if (score >= 70) return 'B';
+  if (score >= 65) return 'B-';
+  if (score >= 60) return 'C+';
+  if (score >= 55) return 'C';
+  if (score >= 50) return 'C-';
+  if (score >= 45) return 'D';
+  return 'F';
+}
+
+
 const SKILL_AXES: Array<{ key: string; label: string; phases: string[] }> = [
-  { key: 'accounting', label: 'Accounting', phases: ['accounting'] },
-  { key: 'valuation', label: 'Valuation', phases: ['valuation'] },
-  { key: 'corp_finance', label: 'Corp Finance', phases: ['corp_finance'] },
-  { key: 'ma', label: 'M&A', phases: ['ma'] },
-  { key: 'lbo', label: 'PE / LBO', phases: ['lbo'] },
-  { key: 'behavioral', label: 'Behavioral', phases: ['behavioral', 'fit'] },
-  { key: 'case_study', label: 'Case Study', phases: ['case_study', 'case'] },
+  { key: 'accounting', label: 'Accounting', phases: ['Accounting'] },
+  { key: 'valuation', label: 'Valuation', phases: ['Valuation'] },
+  { key: 'corp_finance', label: 'Corp Finance', phases: ['Corporate Finance'] },
+  { key: 'case_study', label: 'Case / M&A', phases: ['Case Study', 'M&A'] },
+  { key: 'pe_lbo', label: 'PE / LBO', phases: ['Private Equity / LBO', 'Private Equity', 'LBO'] },
+  { key: 'behavioral', label: 'Behavioral', phases: ['Behavioral / Fit', 'Behavioral'] },
+  { key: 'markets', label: 'Markets', phases: ['Business Acumen / Markets', 'Markets'] },
 ];
 
 export interface ProfileOverview {
@@ -78,19 +94,13 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
         .from('interview_summaries')
         .select('interview_id, overall_score, hire_recommendation')
         .in('interview_id', completedIds),
-      Promise.all(
-        completedIds.map(async (id) => {
-          const { data } = await supabase.rpc('interview_letter_grade', { p_interview_id: id });
-          return { interview_id: id, letter_grade: (data as string | null) ?? null };
-        }),
-      ),
+      Promise.resolve([]),
       supabase
-        .from('interview_steps')
-        .select('interview_id, phase, ai_grade')
+        .from('interview_steps').select('interview_id, ai_grade, questions(category)')
         .in('interview_id', completedIds),
     ]);
     summaries = (s ?? []) as typeof summaries;
-    grades = gradePromises;
+    grades = (s ?? []).map((row: any) => ({ interview_id: row.interview_id, letter_grade: scoreToLetter(row.overall_score) }));
     stepGrades = (steps ?? []) as typeof stepGrades;
   }
 
@@ -118,10 +128,11 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
 
   let best_grade: string | null = null;
   let bestRank = -1;
-  for (const g of grades) {
-    if (!g.letter_grade) continue;
-    const rank = GRADE_RANK[g.letter_grade] ?? -1;
-    if (rank > bestRank) { bestRank = rank; best_grade = g.letter_grade; }
+  for (const sm of summaries) {
+    const lg = scoreToLetter(sm.overall_score);
+    if (!lg) continue;
+    const rank = GRADE_RANK[lg] ?? -1;
+    if (rank > bestRank) { bestRank = rank; best_grade = lg; }
   }
 
   // streak: consecutive days ending today with at least one started interview
@@ -141,7 +152,7 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
 
   // radar: average ai_grade rank per phase, normalized to 0-10
   const radar = SKILL_AXES.map(({ key, label, phases }) => {
-    const matching = stepGrades.filter((s) => phases.includes(s.phase) && s.ai_grade);
+    const matching = stepGrades.filter((s) => phases.includes((s as any).questions?.category) && s.ai_grade);
     if (matching.length === 0) return { key, label, score: null as number | null, sample_size: 0 };
     const ranks = matching
       .map((s) => GRADE_RANK[s.ai_grade!] ?? null)
@@ -194,15 +205,10 @@ export async function getProfileHistory(userId: string): Promise<InterviewHistor
         .from('interview_summaries')
         .select('interview_id, overall_score, hire_recommendation')
         .in('interview_id', completedIds),
-      Promise.all(
-        completedIds.map(async (id) => {
-          const { data } = await supabase.rpc('interview_letter_grade', { p_interview_id: id });
-          return { interview_id: id, letter_grade: (data as string | null) ?? null };
-        }),
-      ),
+      Promise.resolve([] as Array<{ interview_id: string; letter_grade: string | null }>),
     ]);
     summaries = (s ?? []) as typeof summaries;
-    grades = gp;
+    grades = (s ?? []).map((row: any) => ({ interview_id: row.interview_id, letter_grade: scoreToLetter(row.overall_score) }));
   }
   const summaryMap = new Map(summaries.map((s) => [s.interview_id, s]));
   const gradeMap = new Map(grades.map((g) => [g.interview_id, g.letter_grade]));
