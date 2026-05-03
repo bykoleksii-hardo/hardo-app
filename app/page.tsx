@@ -10,7 +10,7 @@ import FAQ from '@/app/(landing)/_components/FAQ';
 import KnowledgeTeaser from '@/app/(landing)/_components/KnowledgeTeaser';
 
 export const metadata: Metadata = {
-  title: 'HARDO {\u2014} AI mock interviews for IB',
+  title: 'HARDO \u2014 AI mock interviews for IB',
   description: 'AI-powered Investment Banking mock interviews. Get graded against the real bar before you sit the real one. $12/month, cancel anytime.',
 };
 

@@ -5,7 +5,7 @@ import LandingFooter from '@/app/(landing)/_components/Footer';
 import { listPublishedArticles } from '@/lib/knowledge/queries';
 
 export const metadata: Metadata = {
-  title: 'Knowledge Hub {\u2014} HARDO',
+  title: 'Knowledge Hub \u2014 HARDO',
   description: 'Platform updates, IB industry breakdowns, and tactical guides on how to answer the questions that decide an offer.',
 };
 
