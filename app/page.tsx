@@ -133,7 +133,7 @@ function PaidHero() {
             <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">3 rooms</div>Intern {'\u00b7'} Analyst {'\u00b7'} Associate</div>
             <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">12 Qs</div>per session</div>
             <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">Voice</div>or text</div>
-            <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">A\u2212 .. F</div>per question</div>
+            <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">{'A\u2212 .. F'}</div>per question</div>
           </div>
         </div>
         <Scorecard />
