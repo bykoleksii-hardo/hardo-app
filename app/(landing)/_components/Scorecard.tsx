@@ -5,6 +5,18 @@ const phases = [
   { name: 'Case depth', grade: 'B+', note: 'Held up under 3 follow-ups.' },
 ];
 
+
+function gradeColor(g: string): string {
+  const c = (g || '').trim().toUpperCase();
+  if (!c) return 'text-[#11161E]/55';
+  if (c.startsWith('A')) return 'text-[#1F6F3D]';
+  if (c.startsWith('B')) return 'text-[#3F7A4A]';
+  if (c.startsWith('C')) return 'text-[#A85A1F]';
+  if (c.startsWith('D')) return 'text-[#9C2E2E]';
+  if (c.startsWith('F')) return 'text-[#7A1F1F]';
+  return 'text-[#11161E]/75';
+}
+
 export default function Scorecard() {
   return (
     <div className="border border-line bg-paper rounded-md shadow-[0_1px_0_rgba(14,30,54,0.04)]">
@@ -32,8 +44,8 @@ export default function Scorecard() {
           {phases.map((p) => (
             <div key={p.name} className="py-4 grid grid-cols-[110px_44px_1fr] items-start gap-4">
               <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted pt-1">{p.name}</div>
-              <div className="font-serif text-[22px] font-medium leading-none">{p.grade}</div>
-              <div className="text-[13px] text-ink-2 leading-snug">{p.note}</div>
+              <div className={`font-serif text-[22px] font-medium leading-none ${gradeColor(p.grade)}`}>{p.grade}</div>
+              <div className="text-[13px] text-[#11161E]/75 leading-snug">{p.note}</div>
             </div>
           ))}
         </div>

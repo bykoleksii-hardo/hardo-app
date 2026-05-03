@@ -13,11 +13,22 @@ const HIRE_LABEL: Record<string, string> = {
 };
 
 const HIRE_COLOR: Record<string, string> = {
-  hire: 'text-[#9ed490]',
-  leaning_hire: 'text-[#B88736]',
-  leaning_no_hire: 'text-[#e8a062]',
-  no_hire: 'text-[#e89292]',
+  hire: 'text-[#1F6F3D]',
+  leaning_hire: 'text-[#3F7A4A]',
+  leaning_no_hire: 'text-[#A85A1F]',
+  no_hire: 'text-[#9C2E2E]',
 };
+
+function gradeColor(g: string | null | undefined): string {
+  const c = (g ?? '').toString().trim().toUpperCase();
+  if (!c) return 'text-[#11161E]/55';
+  if (c.startsWith('A')) return 'text-[#1F6F3D]';
+  if (c.startsWith('B')) return 'text-[#3F7A4A]';
+  if (c.startsWith('C')) return 'text-[#A85A1F]';
+  if (c.startsWith('D')) return 'text-[#9C2E2E]';
+  if (c.startsWith('F')) return 'text-[#7A1F1F]';
+  return 'text-[#11161E]/55';
+}
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -95,7 +106,7 @@ export default async function HistoryPage() {
                   <td className="px-5 py-4 text-[#11161E]/65">{(h.input_mode ?? 'text').toUpperCase()}</td>
                   <td className="px-5 py-4 text-[#11161E]/65">{fmtDur(h.started_at, h.finished_at)}</td>
                   <td className="px-5 py-4">{h.overall_score !== null ? h.overall_score.toFixed(1) : '—'}</td>
-                  <td className="px-5 py-4 font-serif text-lg text-[#B88736]">{h.letter_grade ?? '—'}</td>
+                  <td className={`px-5 py-4 font-serif text-lg ${gradeColor(h.letter_grade)}`}>{h.letter_grade ?? '—'}</td>
                   <td className={`px-5 py-4 text-[11px] tracking-[0.18em] ${h.hire_recommendation ? (HIRE_COLOR[h.hire_recommendation] ?? '') : 'text-[#11161E]/55'}`}>
                     {h.hire_recommendation ? (HIRE_LABEL[h.hire_recommendation] ?? h.hire_recommendation).toUpperCase() : '—'}
                   </td>

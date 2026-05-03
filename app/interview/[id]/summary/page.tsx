@@ -112,10 +112,10 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
   const isCompleted = interview.status === 'completed' && !!summary;
   const answeredCount = mainSteps.filter(s => s.user_answer).length;
   const hireMeta = summary ? HIRE_LABEL[summary.hire_recommendation] : null;
-  const hireToneClass = hireMeta?.tone === 'pos' ? 'text-emerald-300'
-    : hireMeta?.tone === 'neutral_pos' ? 'text-emerald-200/80'
-    : hireMeta?.tone === 'neutral_neg' ? 'text-amber-300/80'
-    : hireMeta?.tone === 'neg' ? 'text-rose-300'
+  const hireToneClass = hireMeta?.tone === 'pos' ? 'text-[#1F6F3D]'
+    : hireMeta?.tone === 'neutral_pos' ? 'text-[#3F7A4A]'
+    : hireMeta?.tone === 'neutral_neg' ? 'text-[#A85A1F]'
+    : hireMeta?.tone === 'neg' ? 'text-[#9C2E2E]'
     : 'text-[#11161E]/75';
 
   const heading = isCompleted
@@ -151,7 +151,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
         <div className="border border-[#11161E]/15 bg-[#F2ECDF]/40 p-8 mb-12 grid grid-cols-3 gap-8">
           <div>
             <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">OVERALL</div>
-            <div className="font-playfair text-4xl text-[#B88736]">{summary?.overall_score ?? interview.final_score ?? '-'}</div>
+            <div className="font-playfair text-4xl text-[#11161E]">{summary?.overall_score ?? interview.final_score ?? '-'}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">{isCompleted ? 'out of 100' : 'awaiting AI review'}</div>
           </div>
           <div>
@@ -174,11 +174,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
             <p className="text-[#11161E]/85 text-[14px] leading-[1.7] whitespace-pre-wrap mb-5">{summary.final_feedback}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <div className="text-[11px] tracking-[0.22em] text-emerald-300/90 mb-2">STRENGTHS</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">STRENGTHS</div>
                 <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_strengths}</p>
               </div>
               <div>
-                <div className="text-[11px] tracking-[0.22em] text-rose-300/90 mb-2">WEAKNESSES</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">WEAKNESSES</div>
                 <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_weaknesses}</p>
               </div>
             </div>
@@ -206,11 +206,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
                   {isCompleted && (() => {
                     const g = (grade ?? '').toString().trim();
                     const tone = !g ? 'border-[#11161E]/20 text-[#11161E]/55'
-                      : g.startsWith('A') ? 'border-emerald-400/50 text-emerald-300 bg-emerald-400/10'
-                      : g.startsWith('B') ? 'border-emerald-300/40 text-emerald-200/90 bg-emerald-400/5'
-                      : g.startsWith('C') ? 'border-amber-300/50 text-amber-300 bg-amber-400/10'
-                      : g === 'D' ? 'border-rose-300/50 text-rose-300 bg-rose-400/10'
-                      : g === 'F' ? 'border-rose-400/60 text-rose-200 bg-rose-500/15'
+                      : g.startsWith('A') ? 'border-[#1F6F3D]/40 text-[#1F6F3D] bg-[#1F6F3D]/8'
+                      : g.startsWith('B') ? 'border-[#3F7A4A]/40 text-[#3F7A4A] bg-[#3F7A4A]/8'
+                      : g.startsWith('C') ? 'border-[#A85A1F]/40 text-[#A85A1F] bg-[#A85A1F]/8'
+                      : g === 'D' ? 'border-[#9C2E2E]/40 text-[#9C2E2E] bg-[#9C2E2E]/8'
+                      : g === 'F' ? 'border-[#7A1F1F]/50 text-[#7A1F1F] bg-[#7A1F1F]/10'
                       : 'border-[#11161E]/20 text-[#11161E]/55';
                     return (
                       <div className={`shrink-0 border ${tone} px-4 py-2 text-center min-w-[60px]`}>
@@ -230,7 +230,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
                     {fb.summary && <p className="text-[#11161E]/85 text-[14px] leading-[1.6] mb-3">{fb.summary}</p>}
                     {fb.strengths.length > 0 && (
                       <div className="mb-2">
-                        <div className="text-[10px] tracking-[0.22em] text-emerald-300/90 mb-1">STRENGTHS</div>
+                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">STRENGTHS</div>
                         <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
                           {fb.strengths.map((s,i) => <li key={i}>{s}</li>)}
                         </ul>
@@ -238,7 +238,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
                     )}
                     {fb.weaknesses.length > 0 && (
                       <div>
-                        <div className="text-[10px] tracking-[0.22em] text-rose-300/90 mb-1">WEAKNESSES</div>
+                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WEAKNESSES</div>
                         <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
                           {fb.weaknesses.map((w,i) => <li key={i}>{w}</li>)}
                         </ul>

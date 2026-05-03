@@ -183,7 +183,7 @@ details > summary::-webkit-details-marker {
   font-style: italic;
   font-size: 48px;
   line-height: 1;
-  color: var(--gold);
+  color: #1F6F3D;
   letter-spacing: -0.025em;
 }
 .mini-grade .desc {
