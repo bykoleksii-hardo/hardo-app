@@ -35,7 +35,7 @@ export default function LoginClient() {
       setError(error.message);
       return;
     }
-    router.push('/interview/setup');
+    router.push('/');
     router.refresh();
   }
 
@@ -81,7 +81,7 @@ export default function LoginClient() {
       setError(error.message);
       return;
     }
-    router.push('/interview/setup');
+    router.push('/');
     router.refresh();
   }
 
