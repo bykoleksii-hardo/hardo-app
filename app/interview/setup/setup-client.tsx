@@ -141,6 +141,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
               {quota.plan === 'paid' ? 'PAID' : `FREE \u00b7 ${Math.max(0, quota.free_limit - quota.interviews_used)}/${quota.free_limit} LEFT`}
             </span>
           )}
+          <a href="/profile" className="text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">PROFILE</a>
           <span>{userEmail.toUpperCase()}</span>
           <button onClick={signOut} className="text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">SIGN OUT</button>
         </div>
