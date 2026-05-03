@@ -136,7 +136,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         <div className="flex items-center gap-4 text-xs tracking-[0.18em] text-[#11161E]/55">
           {quota && (
             <span className={quota.plan === 'paid' ? 'text-[#B88736]' : 'text-[#11161E]/55'}>
-              {quota.plan === 'paid' ? 'PAID' : `FREE \u00b7 ${Math.max(0, quota.free_limit - quota.interviews_used)}/${quota.free_limit} LEFT`}
+              {quota.plan === 'paid' ? 'HARDO' : `FREE \u00b7 ${Math.max(0, quota.free_limit - quota.interviews_used)}/${quota.free_limit} LEFT`}
             </span>
           )}
           <a href="/profile" className="text-[#11161E]/55 hover:text-[#B88736] transition-colors">PROFILE</a>
@@ -175,7 +175,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
               >
                 {locked && (
                   <div className="absolute top-4 right-4 z-10 text-[10px] tracking-[0.22em] text-[#B88736] border border-[#B88736]/60 px-2.5 py-1 bg-[#FBF7EE]/80">
-                    PAID
+                    HARDO
                   </div>
                 )}
                 <div className="mb-6 h-80 rounded-sm border border-[#11161E]/10 overflow-hidden relative">
@@ -276,7 +276,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             {blockedByLimit && !isLevelLocked(selected)
               ? 'YOUR FREE INTERVIEW IS USED. UPGRADE TO KEEP DRILLING.'
               : isLevelLocked(selected)
-              ? 'THIS LEVEL UNLOCKS WITH THE PAID PLAN.'
+              ? 'THIS LEVEL UNLOCKS WITH THE HARDO PLAN.'
               : stage === 'level'
               ? 'LOCK IN THE LEVEL FIRST. NEXT STEP: PICK TEXT OR VOICE.'
               : "START WHEN READY. THE INTERVIEWER WON'T HOLD BACK."}

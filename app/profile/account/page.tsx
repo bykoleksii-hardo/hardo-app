@@ -50,7 +50,7 @@ export default async function AccountPage() {
             <div className="font-serif text-xl flex items-center gap-3">
               {isPaid ? 'Hardo' : 'Free'}
               {isPaid && (
-                <span className="text-[10px] tracking-[0.22em] text-[#B88736] border border-[#B88736]/60 px-2 py-0.5">PAID</span>
+                <span className="text-[10px] tracking-[0.22em] text-[#B88736] border border-[#B88736]/60 px-2 py-0.5">HARDO</span>
               )}
             </div>
             <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55 mt-1">
