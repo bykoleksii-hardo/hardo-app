@@ -95,7 +95,7 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#0a1628] text-[#f5efe2] grid lg:grid-cols-2">
+    <div className="min-h-screen w-full bg-[#FBF7EE] text-[#11161E] grid lg:grid-cols-2">
       {/* LEFT  -  auth */}
       <div className="flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-16">
         <div className="max-w-md w-full mx-auto">
@@ -103,18 +103,18 @@ export default function LoginClient() {
           <div className="mb-12"><Brand size="md" href="/" /></div>
 
           {/* Mode tabs */}
-          <div className="mb-8 text-xs tracking-[0.2em] uppercase text-[#f5efe2]/60 flex items-center gap-6">
+          <div className="mb-8 text-xs tracking-[0.2em] uppercase text-[#11161E]/60 flex items-center gap-6">
             <button
               type="button"
               onClick={() => { setMode('signin'); reset(); }}
-              className={mode === 'signin' ? 'text-[#f5efe2] border-b border-[#d4a04a] pb-1' : 'hover:text-[#f5efe2]/90'}
+              className={mode === 'signin' ? 'text-[#11161E] border-b border-[#B88736] pb-1' : 'hover:text-[#11161E]/90'}
             >
               Sign in
             </button>
             <button
               type="button"
               onClick={() => { setMode('signup'); reset(); }}
-              className={mode === 'signup' || mode === 'verify' ? 'text-[#f5efe2] border-b border-[#d4a04a] pb-1' : 'hover:text-[#f5efe2]/90'}
+              className={mode === 'signup' || mode === 'verify' ? 'text-[#11161E] border-b border-[#B88736] pb-1' : 'hover:text-[#11161E]/90'}
             >
               Create account
             </button>
@@ -122,11 +122,11 @@ export default function LoginClient() {
 
           {/* Heading */}
           <h1 className="font-serif text-4xl sm:text-5xl leading-tight mb-3">
-            {mode === 'signin' && (<>Welcome <em className="text-[#d4a04a] not-italic font-serif italic">back.</em></>)}
-            {mode === 'signup' && (<>Start your <em className="text-[#d4a04a] not-italic font-serif italic">prep.</em></>)}
-            {mode === 'verify' && (<>Confirm your <em className="text-[#d4a04a] not-italic font-serif italic">email.</em></>)}
+            {mode === 'signin' && (<>Welcome <em className="text-[#B88736] not-italic font-serif italic">back.</em></>)}
+            {mode === 'signup' && (<>Start your <em className="text-[#B88736] not-italic font-serif italic">prep.</em></>)}
+            {mode === 'verify' && (<>Confirm your <em className="text-[#B88736] not-italic font-serif italic">email.</em></>)}
           </h1>
-          <p className="text-[#f5efe2]/70 mb-10 leading-relaxed">
+          <p className="text-[#11161E]/70 mb-10 leading-relaxed">
             {mode === 'signin' && 'Pick up where you left off.'}
             {mode === 'signup' && 'Eight characters minimum. No SSO yet  -  keep it simple.'}
             {mode === 'verify' && `We sent a code to ${email}. Enter it below.`}
@@ -142,12 +142,12 @@ export default function LoginClient() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border border-[#f5efe2]/20 px-4 py-3 outline-none focus:border-[#d4a04a] transition placeholder:text-[#f5efe2]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
                   placeholder="you@school.edu"
                 />
               </Field>
               <Field label="Password" hint={
-                <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#f5efe2]/50 hover:text-[#d4a04a]">
+                <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
                   {showPw ? 'Hide' : 'Show'}
                 </button>
               }>
@@ -157,7 +157,7 @@ export default function LoginClient() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent border border-[#f5efe2]/20 px-4 py-3 outline-none focus:border-[#d4a04a] transition placeholder:text-[#f5efe2]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
                   placeholder="**********"
                 />
               </Field>
@@ -166,9 +166,9 @@ export default function LoginClient() {
 
               <SubmitButton loading={loading}>Sign in &rarr;</SubmitButton>
 
-              <p className="text-[11px] text-[#f5efe2]/50 pt-2">
+              <p className="text-[11px] text-[#11161E]/50 pt-2">
                 New here?{' '}
-                <button type="button" className="underline underline-offset-2 hover:text-[#d4a04a]" onClick={() => { setMode('signup'); reset(); }}>
+                <button type="button" className="underline underline-offset-2 hover:text-[#B88736]" onClick={() => { setMode('signup'); reset(); }}>
                   Create an account
                 </button>
               </p>
@@ -185,12 +185,12 @@ export default function LoginClient() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border border-[#f5efe2]/20 px-4 py-3 outline-none focus:border-[#d4a04a] transition placeholder:text-[#f5efe2]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
                   placeholder="you@school.edu"
                 />
               </Field>
               <Field label="Password" hint={
-                <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#f5efe2]/50 hover:text-[#d4a04a]">
+                <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
                   {showPw ? 'Hide' : 'Show'}
                 </button>
               }>
@@ -201,7 +201,7 @@ export default function LoginClient() {
                   minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent border border-[#f5efe2]/20 px-4 py-3 outline-none focus:border-[#d4a04a] transition placeholder:text-[#f5efe2]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
                   placeholder="At least 8 characters"
                 />
               </Field>
@@ -210,9 +210,9 @@ export default function LoginClient() {
 
               <SubmitButton loading={loading}>Send code &rarr;</SubmitButton>
 
-              <p className="text-[11px] text-[#f5efe2]/50 pt-2">
+              <p className="text-[11px] text-[#11161E]/50 pt-2">
                 Already have an account?{' '}
-                <button type="button" className="underline underline-offset-2 hover:text-[#d4a04a]" onClick={() => { setMode('signin'); reset(); }}>
+                <button type="button" className="underline underline-offset-2 hover:text-[#B88736]" onClick={() => { setMode('signin'); reset(); }}>
                   Sign in
                 </button>
               </p>
@@ -232,7 +232,7 @@ export default function LoginClient() {
                   autoFocus
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  className="w-full bg-transparent border border-[#f5efe2]/20 px-4 py-3 text-2xl tracking-[0.5em] font-serif outline-none focus:border-[#d4a04a] transition placeholder:text-[#f5efe2]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 text-2xl tracking-[0.5em] font-serif outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
                   placeholder="******"
                 />
               </Field>
@@ -241,11 +241,11 @@ export default function LoginClient() {
 
               <SubmitButton loading={loading}>Verify & continue &rarr;</SubmitButton>
 
-              <div className="flex items-center justify-between text-[11px] text-[#f5efe2]/50 pt-2">
-                <button type="button" onClick={resendCode} className="underline underline-offset-2 hover:text-[#d4a04a]">
+              <div className="flex items-center justify-between text-[11px] text-[#11161E]/50 pt-2">
+                <button type="button" onClick={resendCode} className="underline underline-offset-2 hover:text-[#B88736]">
                   Resend code
                 </button>
-                <button type="button" onClick={() => { setMode('signup'); setCode(''); reset(); }} className="hover:text-[#d4a04a]">
+                <button type="button" onClick={() => { setMode('signup'); setCode(''); reset(); }} className="hover:text-[#B88736]">
                   Use a different email
                 </button>
               </div>
@@ -253,25 +253,25 @@ export default function LoginClient() {
           )}
 
           {/* footer */}
-          <p className="text-[10px] tracking-[0.15em] uppercase text-[#f5efe2]/35 mt-12">
+          <p className="text-[10px] tracking-[0.15em] uppercase text-[#11161E]/35 mt-12">
             By continuing you agree to our terms.
           </p>
         </div>
       </div>
 
       {/* RIGHT  -  pitch */}
-      <div className="hidden lg:flex flex-col justify-center bg-[#0e1e36] border-l border-[#f5efe2]/10 px-16 py-16">
+      <div className="hidden lg:flex flex-col justify-center bg-[#F2ECDF] border-l border-[#11161E]/10 px-16 py-16">
         <div className="max-w-lg">
-          <div className="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-[#f5efe2]/60 mb-12">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#d4a04a]" />
+          <div className="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-[#11161E]/60 mb-12">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#B88736]" />
             <span>Built for IB recruiting</span>
           </div>
 
           <h2 className="font-serif text-4xl sm:text-5xl leading-[1.1] mb-8">
-            Mock interviews that <em className="text-[#d4a04a] not-italic font-serif italic">actually</em> resemble the real thing.
+            Mock interviews that <em className="text-[#B88736] not-italic font-serif italic">actually</em> resemble the real thing.
           </h2>
 
-          <p className="text-[#f5efe2]/70 leading-relaxed mb-12">
+          <p className="text-[#11161E]/70 leading-relaxed mb-12">
             Sharp answers. Unscripted follow-ups. A scorecard graded against bulge brackets and elite boutiques  -  not a generic rubric.
           </p>
 
@@ -290,7 +290,7 @@ function Field({ label, hint, children }: { label: string; hint?: React.ReactNod
   return (
     <label className="block">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] tracking-[0.25em] uppercase text-[#f5efe2]/50">{label}</span>
+        <span className="text-[10px] tracking-[0.25em] uppercase text-[#11161E]/50">{label}</span>
         {hint}
       </div>
       {children}
@@ -303,7 +303,7 @@ function SubmitButton({ loading, children }: { loading: boolean; children: React
     <button
       type="submit"
       disabled={loading}
-      className="w-full bg-[#d4a04a] text-[#0a1628] font-medium py-3.5 px-6 hover:bg-[#e0b15c] transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wide"
+      className="w-full bg-[#B88736] text-[#FBF7EE] font-medium py-3.5 px-6 hover:bg-[#B88736] transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wide"
     >
       {loading ? 'Working...' : children}
     </button>
@@ -315,16 +315,16 @@ function Alert({ error, info }: { error: string | null; info: string | null }) {
   if (error) {
     return <div className="border border-red-400/40 bg-red-400/5 text-red-300 text-sm px-4 py-3">{error}</div>;
   }
-  return <div className="border border-[#d4a04a]/40 bg-[#d4a04a]/5 text-[#d4a04a] text-sm px-4 py-3">{info}</div>;
+  return <div className="border border-[#B88736]/40 bg-[#B88736]/5 text-[#B88736] text-sm px-4 py-3">{info}</div>;
 }
 
 function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
     <li className="flex gap-5 items-start">
-      <span className="font-serif text-2xl text-[#d4a04a]/80 leading-none pt-0.5 w-10">{n}</span>
+      <span className="font-serif text-2xl text-[#B88736]/80 leading-none pt-0.5 w-10">{n}</span>
       <div>
         <div className="font-serif text-lg mb-1">{title}</div>
-        <div className="text-[#f5efe2]/60">{children}</div>
+        <div className="text-[#11161E]/60">{children}</div>
       </div>
     </li>
   );
