@@ -50,10 +50,10 @@ export default async function InterviewPage({ params }: { params: Promise<{ id: 
 
   if (!interview) {
     return (
-      <div className="min-h-screen bg-[#0a1628] text-[#f5efe2] flex items-center justify-center font-inter">
+      <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] flex items-center justify-center font-inter">
         <div className="text-center">
           <p className="font-playfair italic text-3xl mb-4">Interview not found.</p>
-          <a href="/interview/setup" className="text-[#d4a04a] underline">Start a new one</a>
+          <a href="/interview/setup" className="text-[#B88736] underline">Start a new one</a>
         </div>
       </div>
     );

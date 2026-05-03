@@ -109,33 +109,33 @@ export function AboutForm({ initial, email }: Props) {
   return (
     <div className="space-y-10 max-w-3xl pb-32">
       {showWizard && (
-        <div className="border border-[#d4a04a]/40 rounded-sm p-6 bg-[#d4a04a]/5">
-          <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-2">- WELCOME</div>
+        <div className="border border-[#B88736]/40 rounded-sm p-6 bg-[#B88736]/5">
+          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">- WELCOME</div>
           <h2 className="font-serif text-2xl mb-2">Let's set up your room.</h2>
-          <p className="text-sm text-[#f5efe2]/70 max-w-xl">A few details so the interviewer doesn't sound generic. Everything's optional - you can fill it out now or come back later.</p>
+          <p className="text-sm text-[#11161E]/70 max-w-xl">A few details so the interviewer doesn't sound generic. Everything's optional - you can fill it out now or come back later.</p>
           <div className="mt-4 flex items-center gap-3">
-            <div className="flex-1 h-1.5 bg-[#f5efe2]/10 rounded-sm overflow-hidden">
-              <div className="h-full bg-[#d4a04a] transition-all" style={{ width: `${completeness}%` }} />
+            <div className="flex-1 h-1.5 bg-[#11161E]/10 rounded-sm overflow-hidden">
+              <div className="h-full bg-[#B88736] transition-all" style={{ width: `${completeness}%` }} />
             </div>
-            <span className="text-[11px] tracking-[0.18em] text-[#f5efe2]/65">{completeness}% complete</span>
+            <span className="text-[11px] tracking-[0.18em] text-[#11161E]/65">{completeness}% complete</span>
           </div>
         </div>
       )}
 
-      <section className="border border-[#f5efe2]/10 rounded-sm p-6">
+      <section className="border border-[#11161E]/10 rounded-sm p-6">
         <div className="flex items-start justify-between gap-6">
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-1">- PERSONALIZATION</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-1">- PERSONALIZATION</div>
             <h3 className="font-serif text-xl mb-1">Use my profile in interviews</h3>
-            <p className="text-sm text-[#f5efe2]/65 max-w-xl">When on, the interviewer can reference your school, role, and background to ask sharper, more personal follow-ups.</p>
+            <p className="text-sm text-[#11161E]/65 max-w-xl">When on, the interviewer can reference your school, role, and background to ask sharper, more personal follow-ups.</p>
           </div>
           <button
             type="button"
             onClick={() => update('use_in_persona', !state.use_in_persona)}
-            className={`relative w-12 h-7 rounded-full transition-colors shrink-0 ${state.use_in_persona ? 'bg-[#d4a04a]' : 'bg-[#f5efe2]/20'}`}
+            className={`relative w-12 h-7 rounded-full transition-colors shrink-0 ${state.use_in_persona ? 'bg-[#B88736]' : 'bg-[#11161E]/20'}`}
             aria-pressed={state.use_in_persona}
           >
-            <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#0a1628] transition-transform ${state.use_in_persona ? 'translate-x-5' : 'translate-x-0'}`} />
+            <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#FBF7EE] transition-transform ${state.use_in_persona ? 'translate-x-5' : 'translate-x-0'}`} />
           </button>
         </div>
       </section>
@@ -187,8 +187,8 @@ export function AboutForm({ initial, email }: Props) {
         />
       </Section>
 
-      <div className="sticky bottom-6 flex items-center justify-between gap-4 border border-[#f5efe2]/15 rounded-sm bg-[#0e1c33]/95 backdrop-blur px-6 py-4">
-        <div className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55">
+      <div className="sticky bottom-6 flex items-center justify-between gap-4 border border-[#11161E]/15 rounded-sm bg-[#F2ECDF]/95 backdrop-blur px-6 py-4">
+        <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">
           {error ? <span className="text-[#e89292]">{error.toUpperCase()}</span>
             : savedAt ? <span className="text-[#9ed490]">SAVED</span>
             : <span>SIGNED IN AS {email.toUpperCase()}</span>}
@@ -196,7 +196,7 @@ export function AboutForm({ initial, email }: Props) {
         <button
           onClick={save}
           disabled={saving}
-          className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-7 py-3 rounded-sm hover:bg-[#c8923a] transition-colors disabled:opacity-60"
+          className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-7 py-3 rounded-sm hover:bg-[#9C6F1E] transition-colors disabled:opacity-60"
         >
           {saving ? 'Saving\u2026' : 'Save profile'}
         </button>
@@ -209,8 +209,8 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   return (
     <section className="space-y-5">
       <div>
-        <div className="text-[11px] tracking-[0.22em] text-[#d4a04a]">- {title}</div>
-        {subtitle && <p className="text-sm text-[#f5efe2]/60 mt-1">{subtitle}</p>}
+        <div className="text-[11px] tracking-[0.22em] text-[#B88736]">- {title}</div>
+        {subtitle && <p className="text-sm text-[#11161E]/60 mt-1">{subtitle}</p>}
       </div>
       <div className="space-y-4">{children}</div>
     </section>
@@ -224,14 +224,14 @@ function Row({ children }: { children: React.ReactNode }) {
 function Field({ label, value, onChange, type = 'text', hint }: { label: string; value: string; onChange: (v: string) => void; type?: string; hint?: string }) {
   return (
     <label className="block">
-      <span className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55">{label.toUpperCase()}</span>
+      <span className="text-[11px] tracking-[0.18em] text-[#11161E]/55">{label.toUpperCase()}</span>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full bg-[#0e1c33] border border-[#f5efe2]/15 px-4 py-3 rounded-sm text-[#f5efe2] focus:outline-none focus:border-[#d4a04a] transition-colors"
+        className="mt-2 w-full bg-[#F2ECDF] border border-[#11161E]/15 px-4 py-3 rounded-sm text-[#11161E] focus:outline-none focus:border-[#B88736] transition-colors"
       />
-      {hint && <span className="text-[11px] text-[#f5efe2]/45 mt-1 block">{hint}</span>}
+      {hint && <span className="text-[11px] text-[#11161E]/45 mt-1 block">{hint}</span>}
     </label>
   );
 }
@@ -239,14 +239,14 @@ function Field({ label, value, onChange, type = 'text', hint }: { label: string;
 function TextArea({ label, value, onChange, rows = 4, hint }: { label: string; value: string; onChange: (v: string) => void; rows?: number; hint?: string }) {
   return (
     <label className="block">
-      <span className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55">{label.toUpperCase()}</span>
+      <span className="text-[11px] tracking-[0.18em] text-[#11161E]/55">{label.toUpperCase()}</span>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={rows}
-        className="mt-2 w-full bg-[#0e1c33] border border-[#f5efe2]/15 px-4 py-3 rounded-sm text-[#f5efe2] focus:outline-none focus:border-[#d4a04a] transition-colors resize-y"
+        className="mt-2 w-full bg-[#F2ECDF] border border-[#11161E]/15 px-4 py-3 rounded-sm text-[#11161E] focus:outline-none focus:border-[#B88736] transition-colors resize-y"
       />
-      {hint && <span className="text-[11px] text-[#f5efe2]/45 mt-1 block">{hint}</span>}
+      {hint && <span className="text-[11px] text-[#11161E]/45 mt-1 block">{hint}</span>}
     </label>
   );
 }

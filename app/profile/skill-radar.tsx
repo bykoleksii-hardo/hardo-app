@@ -67,7 +67,7 @@ export function SkillRadar({ data }: { data: Axis[] }) {
         <polygon
           points={polygon}
           fill="rgba(212,160,74,0.18)"
-          stroke="#d4a04a"
+          stroke="#B88736"
           strokeWidth={2}
           strokeLinejoin="round"
         />
@@ -75,7 +75,7 @@ export function SkillRadar({ data }: { data: Axis[] }) {
         {/* Data points */}
         {points.map((p, i) => (
           p.score !== null ? (
-            <circle key={i} cx={p.x} cy={p.y} r={4} fill="#d4a04a" />
+            <circle key={i} cx={p.x} cy={p.y} r={4} fill="#B88736" />
           ) : null
         ))}
 
@@ -90,7 +90,7 @@ export function SkillRadar({ data }: { data: Axis[] }) {
                 y={p.labelY}
                 textAnchor={anchor}
                 dominantBaseline="middle"
-                className="fill-[#f5efe2]/85"
+                className="fill-[#11161E]/85"
                 style={{ fontSize: 13, letterSpacing: '0.05em' }}
               >
                 {p.label}
@@ -100,7 +100,7 @@ export function SkillRadar({ data }: { data: Axis[] }) {
                 y={p.labelY + 16}
                 textAnchor={anchor}
                 dominantBaseline="middle"
-                className="fill-[#d4a04a]"
+                className="fill-[#B88736]"
                 style={{ fontSize: 11, letterSpacing: '0.05em' }}
               >
                 {p.score !== null ? p.score.toFixed(1) : '—'}

@@ -129,29 +129,29 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a1628] text-[#f5efe2] font-inter">
+    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-inter">
       {/* TOP BAR */}
-      <div className="flex items-center justify-between px-12 py-8 border-b border-[#f5efe2]/10">
+      <div className="flex items-center justify-between px-12 py-8 border-b border-[#11161E]/10">
         <Brand size="sm" href="/" />
-        <div className="flex items-center gap-4 text-xs tracking-[0.18em] text-[#f5efe2]/55">
+        <div className="flex items-center gap-4 text-xs tracking-[0.18em] text-[#11161E]/55">
           {quota && (
-            <span className={quota.plan === 'paid' ? 'text-[#d4a04a]' : 'text-[#f5efe2]/55'}>
+            <span className={quota.plan === 'paid' ? 'text-[#B88736]' : 'text-[#11161E]/55'}>
               {quota.plan === 'paid' ? 'PAID' : `FREE \u00b7 ${Math.max(0, quota.free_limit - quota.interviews_used)}/${quota.free_limit} LEFT`}
             </span>
           )}
-          <a href="/profile" className="text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">PROFILE</a>
+          <a href="/profile" className="text-[#11161E]/55 hover:text-[#B88736] transition-colors">PROFILE</a>
           <span>{userEmail.toUpperCase()}</span>
-          <button onClick={signOut} className="text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">SIGN OUT</button>
+          <button onClick={signOut} className="text-[#11161E]/55 hover:text-[#B88736] transition-colors">SIGN OUT</button>
         </div>
       </div>
 
       <main className="max-w-[1320px] mx-auto px-12 py-16">
         <div className="mb-12">
-          <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-4">- PICK YOUR ROOM</div>
+          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">- PICK YOUR ROOM</div>
           <h1 className="font-playfair text-5xl leading-[1.05]">
-            Choose the <span className="italic text-[#d4a04a]">level</span> that matches today.
+            Choose the <span className="italic text-[#B88736]">level</span> that matches today.
           </h1>
-          <p className="mt-4 text-[#f5efe2]/65 max-w-xl text-lg">
+          <p className="mt-4 text-[#11161E]/65 max-w-xl text-lg">
             Twelve questions. Same superday flow - fit, technicals, deal walks, a curveball.
             What changes is how hard the room hits back.
           </p>
@@ -168,33 +168,33 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 onClick={() => setSelected(lvl.id)}
                 className={`text-left rounded-sm border transition-all p-7 flex flex-col relative ${
                   isActive
-                    ? 'border-[#d4a04a] bg-[#0e1c33]'
-                    : 'border-[#f5efe2]/15 hover:border-[#f5efe2]/35 bg-transparent'
+                    ? 'border-[#B88736] bg-[#F2ECDF]'
+                    : 'border-[#11161E]/15 hover:border-[#11161E]/35 bg-transparent'
                 } ${locked ? 'opacity-75' : ''}`}
                 aria-pressed={isActive}
               >
                 {locked && (
-                  <div className="absolute top-4 right-4 z-10 text-[10px] tracking-[0.22em] text-[#d4a04a] border border-[#d4a04a]/60 px-2.5 py-1 bg-[#0a1628]/80">
+                  <div className="absolute top-4 right-4 z-10 text-[10px] tracking-[0.22em] text-[#B88736] border border-[#B88736]/60 px-2.5 py-1 bg-[#FBF7EE]/80">
                     PAID
                   </div>
                 )}
-                <div className="mb-6 h-80 rounded-sm border border-[#f5efe2]/10 overflow-hidden relative">
+                <div className="mb-6 h-80 rounded-sm border border-[#11161E]/10 overflow-hidden relative">
                   <img
                     src={`/levels/${lvl.id}.png`}
                     alt={`${lvl.title} interview illustration`}
                     className="absolute inset-0 w-full h-full object-cover object-top"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/30 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5 text-[10px] tracking-[0.22em] text-[#f5efe2]/75">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#FBF7EE] via-[#FBF7EE]/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-5 text-[10px] tracking-[0.22em] text-[#11161E]/75">
                     {lvl.id === 'intern' ? 'MORNING ROOM' : lvl.id === 'analyst' ? 'BOARDROOM' : 'LATE NIGHT'}
                   </div>
                 </div>
 
                 <h2 className="font-playfair text-3xl italic mb-3">{lvl.title}</h2>
-                <p className="text-sm text-[#f5efe2]/70 leading-relaxed mb-5 flex-1">{lvl.tagline}</p>
+                <p className="text-sm text-[#11161E]/70 leading-relaxed mb-5 flex-1">{lvl.tagline}</p>
                 <div className="flex items-center justify-between text-[11px] tracking-[0.18em]">
-                  <span className="text-[#d4a04a]">- 12 QUESTIONS</span>
-                  <span className="text-[#f5efe2]/45">{lvl.tone.toUpperCase()}</span>
+                  <span className="text-[#B88736]">- 12 QUESTIONS</span>
+                  <span className="text-[#11161E]/45">{lvl.tone.toUpperCase()}</span>
                 </div>
               </button>
             );
@@ -203,27 +203,27 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
 
         {/* PREVIEW SECTION */}
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-8 mt-14">
-          <div className="border-t border-[#f5efe2]/10 pt-8">
-            <div className="text-[11px] tracking-[0.22em] text-[#f5efe2]/55 mb-5">
-              WHAT YOU'LL GET <span className="text-[#d4a04a]">- {active.title.toUpperCase()}</span>
+          <div className="border-t border-[#11161E]/10 pt-8">
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-5">
+              WHAT YOU'LL GET <span className="text-[#B88736]">- {active.title.toUpperCase()}</span>
             </div>
-            <p className="font-playfair text-2xl leading-[1.4] text-[#f5efe2]/95">{active.pitch}</p>
+            <p className="font-playfair text-2xl leading-[1.4] text-[#11161E]/95">{active.pitch}</p>
             <div className="flex flex-wrap gap-2 mt-6">
               {active.tags.map((t) => (
-                <span key={t} className="text-[11px] tracking-[0.18em] text-[#f5efe2]/65 border border-[#f5efe2]/15 px-3 py-1.5">
+                <span key={t} className="text-[11px] tracking-[0.18em] text-[#11161E]/65 border border-[#11161E]/15 px-3 py-1.5">
                   - {t.toUpperCase()}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="bg-[#0e1c33] border border-[#f5efe2]/10 rounded-sm p-7">
+          <div className="bg-[#F2ECDF] border border-[#11161E]/10 rounded-sm p-7">
             <div className="flex items-center justify-between mb-5 text-[11px] tracking-[0.22em]">
-              <span className="text-[#f5efe2]/55">SAMPLE QUESTION</span>
-              <span className="text-[#d4a04a]">- {active.title.toUpperCase()}</span>
+              <span className="text-[#11161E]/55">SAMPLE QUESTION</span>
+              <span className="text-[#B88736]">- {active.title.toUpperCase()}</span>
             </div>
-            <p className="font-playfair text-lg leading-[1.5] text-[#f5efe2]/95">{active.sample.q}</p>
-            <div className="flex items-center justify-between mt-6 pt-5 border-t border-[#f5efe2]/10 text-[11px] tracking-[0.18em] text-[#f5efe2]/55">
+            <p className="font-playfair text-lg leading-[1.5] text-[#11161E]/95">{active.sample.q}</p>
+            <div className="flex items-center justify-between mt-6 pt-5 border-t border-[#11161E]/10 text-[11px] tracking-[0.18em] text-[#11161E]/55">
               <span>SAMPLE - {active.sample.phase.toUpperCase()}</span>
               <span>BENCHMARK: {active.sample.grade}</span>
             </div>
@@ -233,11 +233,11 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         {/* MODE PICKER (revealed after level is confirmed) */}
         {stage === 'mode' && (
           <div className="mt-14">
-            <div className="text-[11px] tracking-[0.22em] text-[#d4a04a] mb-4">- HOW WILL YOU ANSWER?</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">- HOW WILL YOU ANSWER?</div>
             <h2 className="font-playfair text-3xl leading-[1.1] mb-2">
-              Pick your <span className="italic text-[#d4a04a]">delivery</span> for this round.
+              Pick your <span className="italic text-[#B88736]">delivery</span> for this round.
             </h2>
-            <p className="text-[#f5efe2]/60 text-sm max-w-xl mb-8">
+            <p className="text-[#11161E]/60 text-sm max-w-xl mb-8">
               You can’t switch mid-interview - choose the one closest to how you want to drill today.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -247,18 +247,18 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                   <button
                     key={m.id}
                     onClick={() => setInputMode(m.id)}
-                    className={`text-left rounded-sm border p-7 transition-all ${isActive ? 'border-[#d4a04a] bg-[#0e1c33]' : 'border-[#f5efe2]/15 hover:border-[#f5efe2]/35 bg-transparent'}`}
+                    className={`text-left rounded-sm border p-7 transition-all ${isActive ? 'border-[#B88736] bg-[#F2ECDF]' : 'border-[#11161E]/15 hover:border-[#11161E]/35 bg-transparent'}`}
                     aria-pressed={isActive}
                   >
                     <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
-                      <span className={isActive ? 'text-[#d4a04a]' : 'text-[#f5efe2]/55'}>
+                      <span className={isActive ? 'text-[#B88736]' : 'text-[#11161E]/55'}>
                         {m.id === 'voice' ? '- VOICE' : '- TEXT'}
                       </span>
-                      {isActive && <span className="text-[#d4a04a]">SELECTED</span>}
+                      {isActive && <span className="text-[#B88736]">SELECTED</span>}
                     </div>
                     <h3 className="font-playfair text-2xl mb-2">{m.title}</h3>
-                    <p className="text-sm text-[#f5efe2]/70 mb-5 leading-relaxed">{m.tagline}</p>
-                    <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-[#f5efe2]/65">
+                    <p className="text-sm text-[#11161E]/70 mb-5 leading-relaxed">{m.tagline}</p>
+                    <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-[#11161E]/65">
                       {m.bullets.map((b) => (
                         <li key={b}>- {b.toUpperCase()}</li>
                       ))}
@@ -272,7 +272,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
 
         {/* CTA */}
         <div className="mt-14 flex items-center justify-between flex-wrap gap-6">
-          <div className="text-xs tracking-[0.18em] text-[#f5efe2]/55">
+          <div className="text-xs tracking-[0.18em] text-[#11161E]/55">
             {blockedByLimit && !isLevelLocked(selected)
               ? 'YOUR FREE INTERVIEW IS USED. UPGRADE TO KEEP DRILLING.'
               : isLevelLocked(selected)
@@ -285,7 +285,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             {stage === 'mode' && (
               <button
                 onClick={() => setStage('level')}
-                className="text-[#f5efe2]/65 hover:text-[#d4a04a] tracking-[0.05em] px-5 py-4"
+                className="text-[#11161E]/65 hover:text-[#B88736] tracking-[0.05em] px-5 py-4"
                 type="button"
               >
                 Back
@@ -301,7 +301,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 }
               }}
               disabled={ctaDisabled}
-              className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#c8923a] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#9C6F1E] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {stage === 'level'
                 ? (isLevelLocked(selected) || blockedByLimit ? ctaLabel : 'Continue \u2192')

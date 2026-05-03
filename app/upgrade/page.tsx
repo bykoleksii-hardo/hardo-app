@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function UpgradePage() {
   const viewer = await getViewerPlan();
-  if (viewer.plan === 'anon') redirect('/signup?next=/upgrade');
+  if (viewer.plan === 'anon') redirect('/login?next=/upgrade');
 
   const isPaid = viewer.plan === 'paid';
 
@@ -78,7 +78,7 @@ export default async function UpgradePage() {
                     Get HARDO <span aria-hidden>{'\u2192'}</span>
                   </a>
                   <Link
-                    href="/setup"
+                    href="/interview/setup"
                     className="inline-flex items-center text-[13.5px] text-ink-2 hover:text-ink"
                   >
                     Use my free interview first

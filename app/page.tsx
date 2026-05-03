@@ -57,7 +57,7 @@ function AnonHero() {
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <Link
-              href="/signup"
+              href="/login"
               className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors"
             >
               Try one free interview <span aria-hidden>{'\u2192'}</span>
@@ -94,7 +94,7 @@ function FreeHero({ remaining }: { remaining: number }) {
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             {hasFree ? (
-              <Link href="/setup" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
+              <Link href="/interview/setup" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
                 Start free interview <span aria-hidden>{'\u2192'}</span>
               </Link>
             ) : (
@@ -124,7 +124,7 @@ function PaidHero() {
             Unlimited interviews across Intern, Analyst, and Associate. Voice or text. Full history saved to your profile.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
-            <Link href="/setup" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
+            <Link href="/interview/setup" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
               Start interview <span aria-hidden>{'\u2192'}</span>
             </Link>
             <Link href="/profile" className="text-[14px] text-ink-2 hover:text-ink">View history</Link>
@@ -147,7 +147,7 @@ function BottomCTA({ plan }: { plan: 'anon' | 'free' | 'paid' }) {
   const sub = plan === 'paid'
     ? 'Pick a room and start when you have 30 minutes.'
     : 'Take the free Intern interview. The scorecard will tell you exactly where the bar is.';
-  const ctaHref = plan === 'paid' ? '/setup' : plan === 'free' ? '/setup' : '/signup';
+  const ctaHref = plan === 'paid' ? '/interview/setup' : plan === 'free' ? '/interview/setup' : '/login';
   const ctaText = plan === 'paid' ? 'Start interview' : plan === 'free' ? 'Start free interview' : 'Try one free interview';
 
   return (

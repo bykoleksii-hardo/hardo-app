@@ -25,7 +25,7 @@ export default function LandingFooter() {
           <div className="kicker mb-3">Company</div>
           <ul className="space-y-2 text-ink-2">
             <li><Link href="/login" className="hover:text-ink">Sign in</Link></li>
-            <li><Link href="/signup" className="hover:text-ink">Sign up</Link></li>
+            <li><Link href="/login" className="hover:text-ink">Sign up</Link></li>
             <li><a href="mailto:hello@hardo.app" className="hover:text-ink">Contact</a></li>
             <li><Link href="/legal/terms" className="hover:text-ink">Terms</Link></li>
             <li><Link href="/legal/privacy" className="hover:text-ink">Privacy</Link></li>

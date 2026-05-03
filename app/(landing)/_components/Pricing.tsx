@@ -25,7 +25,7 @@ export default function Pricing() {
               <li>Saved to your profile</li>
             </ul>
             <Link
-              href="/signup"
+              href="/login"
               className="mt-8 inline-flex items-center gap-1.5 border border-ink text-ink text-[13.5px] px-5 py-2.5 rounded-full hover:bg-ink hover:text-paper transition-colors"
             >
               Sign up free <span aria-hidden>{'\u2192'}</span>
@@ -49,7 +49,7 @@ export default function Pricing() {
               <li>Full history and trend tracking</li>
             </ul>
             <Link
-              href="/signup?plan=paid"
+              href="/login?plan=paid"
               className="mt-8 inline-flex items-center gap-1.5 bg-ink text-paper text-[13.5px] px-5 py-2.5 rounded-full hover:bg-navy transition-colors"
             >
               Get HARDO <span aria-hidden>{'\u2192'}</span>
