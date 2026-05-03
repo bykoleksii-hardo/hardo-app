@@ -26,10 +26,6 @@ type FormState = {
   use_in_persona: boolean;
 };
 
-const FIELDS_BASIC = ['first_name', 'last_name'] as const;
-const FIELDS_LOCATION = ['country', 'city'] as const;
-const FIELDS_EDU = ['university', 'major', 'graduation_year'] as const;
-
 function fromProfile(p: UserProfile | null): FormState {
   return {
     first_name: p?.first_name ?? '',
@@ -126,7 +122,6 @@ export function AboutForm({ initial, email }: Props) {
         </div>
       )}
 
-      {/* Persona toggle */}
       <section className="border border-[#f5efe2]/10 rounded-sm p-6">
         <div className="flex items-start justify-between gap-6">
           <div>
@@ -145,7 +140,6 @@ export function AboutForm({ initial, email }: Props) {
         </div>
       </section>
 
-      {/* Identity */}
       <Section title="IDENTITY" subtitle="Your name and how the interviewer should address you.">
         <Row>
           <Field label="First name" value={state.first_name} onChange={(v) => update('first_name', v)} />
@@ -157,7 +151,6 @@ export function AboutForm({ initial, email }: Props) {
         </Row>
       </Section>
 
-      {/* Location */}
       <Section title="LOCATION" subtitle="Where you're based right now.">
         <Row>
           <Field label="Country" value={state.country} onChange={(v) => update('country', v)} />
@@ -165,7 +158,6 @@ export function AboutForm({ initial, email }: Props) {
         </Row>
       </Section>
 
-      {/* Education */}
       <Section title="EDUCATION" subtitle="School, major, and graduation timeline.">
         <Row>
           <Field label="University" value={state.university} onChange={(v) => update('university', v)} />
@@ -177,7 +169,6 @@ export function AboutForm({ initial, email }: Props) {
         </Row>
       </Section>
 
-      {/* Experience */}
       <Section title="EXPERIENCE" subtitle="What you're doing now and a short professional summary.">
         <Field label="Current position" value={state.current_position} onChange={(v) => update('current_position', v)} />
         <TextArea
@@ -196,7 +187,6 @@ export function AboutForm({ initial, email }: Props) {
         />
       </Section>
 
-      {/* Save bar */}
       <div className="sticky bottom-6 flex items-center justify-between gap-4 border border-[#f5efe2]/15 rounded-sm bg-[#0e1c33]/95 backdrop-blur px-6 py-4">
         <div className="text-[11px] tracking-[0.18em] text-[#f5efe2]/55">
           {error ? <span className="text-[#e89292]">{error.toUpperCase()}</span>
@@ -208,7 +198,7 @@ export function AboutForm({ initial, email }: Props) {
           disabled={saving}
           className="bg-[#d4a04a] text-[#0a1628] font-medium tracking-[0.05em] px-7 py-3 rounded-sm hover:bg-[#c8923a] transition-colors disabled:opacity-60"
         >
-          {saving ? 'Savingâ¦' : 'Save profile'}
+          {saving ? 'Saving\u2026' : 'Save profile'}
         </button>
       </div>
     </div>
