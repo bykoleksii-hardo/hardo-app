@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Brand from '@/app/_components/Brand';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -128,7 +129,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
     <div className="min-h-screen bg-[#0a1628] text-[#f5efe2] font-inter">
       <header className="flex items-center justify-between px-8 py-4 border-b border-[#f5efe2]/10">
         <div className="flex items-center gap-6">
-          <span className="font-playfair text-xl">HARDO</span>
+          <Brand size="md" href="/" />
           <span className="text-[11px] tracking-[0.22em] text-[#f5efe2]/45">
             {'SCORECARD / '}{interview.candidate_level.toUpperCase()}
           </span>

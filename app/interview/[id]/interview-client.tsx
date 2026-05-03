@@ -600,7 +600,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     <div className="min-h-screen bg-[#0a1628] text-[#f5efe2] font-inter flex flex-col">
       <header className="flex items-center justify-between px-8 py-4 border-b border-[#f5efe2]/10">
         <div className="flex items-center gap-6">
-          <span className="font-playfair text-xl tracking-wide">HARDO</span>
+          <Brand size="md" href="/" />
           <span className="text-[11px] tracking-[0.22em] text-[#f5efe2]/45">
             SESSIONS / {level.toUpperCase()} / Q{String(answeredCount + 1).padStart(2, '0')}
             {activeQ ? ' - ' + activeQ.category.toUpperCase() : ''}

@@ -99,12 +99,7 @@ export default function LoginClient() {
       <div className="flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-16">
         <div className="max-w-md w-full mx-auto">
           {/* Brand */}
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-10 h-10 border border-[#f5efe2]/40 grid place-items-center">
-              <span className="font-serif text-lg">H</span>
-            </div>
-            <span className="font-serif tracking-wide text-lg">HARDO</span>
-          </div>
+          <div className="mb-12"><Brand size="md" href="/" /></div>
 
           {/* Mode tabs */}
           <div className="mb-8 text-xs tracking-[0.2em] uppercase text-[#f5efe2]/60 flex items-center gap-6">

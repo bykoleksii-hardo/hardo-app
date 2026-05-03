@@ -1,13 +1,11 @@
 import Link from 'next/link';
+import Brand from '@/app/_components/Brand';
 
 export default function UpgradePage() {
   return (
     <div className="min-h-screen bg-[#0a1628] text-[#f5efe2] font-inter">
       <div className="flex items-center justify-between px-12 py-8 border-b border-[#f5efe2]/10">
-        <Link href="/interview/setup" className="flex items-center gap-3">
-          <div className="w-9 h-9 border border-[#f5efe2]/40 flex items-center justify-center font-playfair text-lg italic">H</div>
-          <span className="tracking-[0.18em] text-sm">HARDO</span>
-        </Link>
+        <Brand size="sm" href="/" />
         <Link href="/interview/setup" className="text-xs tracking-[0.18em] text-[#f5efe2]/55 hover:text-[#d4a04a] transition-colors">
           BACK TO SETUP
         </Link>

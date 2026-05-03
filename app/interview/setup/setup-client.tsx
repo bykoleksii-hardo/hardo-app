@@ -131,10 +131,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
     <div className="min-h-screen bg-[#0a1628] text-[#f5efe2] font-inter">
       {/* TOP BAR */}
       <div className="flex items-center justify-between px-12 py-8 border-b border-[#f5efe2]/10">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 border border-[#f5efe2]/40 flex items-center justify-center font-playfair text-lg italic">H</div>
-          <span className="tracking-[0.18em] text-sm">HARDO</span>
-        </div>
+        <Brand size="sm" href="/" />
         <div className="flex items-center gap-4 text-xs tracking-[0.18em] text-[#f5efe2]/55">
           {quota && (
             <span className={quota.plan === 'paid' ? 'text-[#d4a04a]' : 'text-[#f5efe2]/55'}>

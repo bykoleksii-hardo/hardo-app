@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import Brand from '@/app/_components/Brand';
 import Link from 'next/link';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { ProfileTabs } from './profile-tabs';
@@ -25,10 +26,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
     <div className="min-h-screen bg-[#0a1628] text-[#f5efe2] font-sans">
       {/* TOP BAR */}
       <div className="flex items-center justify-between px-12 py-8 border-b border-[#f5efe2]/10">
-        <Link href="/interview/setup" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 border border-[#f5efe2]/40 flex items-center justify-center font-serif text-lg italic group-hover:border-[#d4a04a] transition-colors">H</div>
-          <span className="tracking-[0.18em] text-sm">HARDO</span>
-        </Link>
+        <Brand size="sm" href="/" />
         <div className="flex items-center gap-6 text-xs tracking-[0.18em] text-[#f5efe2]/55">
           <Link href="/interview/setup" className="hover:text-[#d4a04a] transition-colors">START INTERVIEW</Link>
           <span className="text-[#f5efe2]/85">{(displayName ?? '').toUpperCase()}</span>

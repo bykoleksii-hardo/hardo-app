@@ -1,11 +1,12 @@
 import Link from 'next/link';
+import Brand from '@/app/_components/Brand';
 
 export default function LandingFooter() {
   return (
     <footer className="border-t border-[#f5efe2]/10 mt-24">
       <div className="max-w-6xl mx-auto px-6 py-12 grid gap-10 md:grid-cols-4 text-sm">
         <div>
-          <div className="font-serif text-2xl text-[#f5efe2] mb-3">HARDO</div>
+          <div className="mb-3"><Brand size="md" /></div>
           <p className="text-[#f5efe2]/60 leading-relaxed">
             AI-powered Investment Banking mock interviews. Get graded against the bar before you sit the real one.
           </p>
