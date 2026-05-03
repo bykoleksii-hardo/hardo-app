@@ -2,35 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 :root {
-  --color-navy: #0a1628;
-  --color-cream: #f5efe2;
-  --color-gold: #d4a04a;
+  --paper: #FBF7EE;
+  --cream: #F2ECDF;
+  --cream-2: #EAE2D0;
+  --ink: #11161E;
+  --ink-2: #2A2F38;
+  --navy: #0E1E36;
+  --gold: #B88736;
+  --gold-2: #9A6F26;
+  --line: rgba(14,30,54,0.12);
+  --line-2: rgba(14,30,54,0.22);
 }
 
-html,
-body {
-  background-color: var(--color-navy);
-  color: var(--color-cream);
-  font-family: 'Inter', system-ui, sans-serif;
+html, body {
+  background: var(--paper);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-.serif {
-  font-family: 'Playfair Display', Georgia, serif;
+::selection {
+  background: rgba(184, 135, 54, 0.25);
+  color: var(--ink);
 }
 
-.mono {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+.kicker {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  color: var(--muted, #6A6354);
 }
 
-/* Subtle background gradient like the landing page */
-body {
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212, 160, 74, 0.08), transparent 60%),
-    linear-gradient(180deg, #0a1628 0%, #050d1a 100%);
-  min-height: 100vh;
+details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+details > summary::-webkit-details-marker {
+  display: none;
 }

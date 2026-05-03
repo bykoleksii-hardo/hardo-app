@@ -1,44 +1,29 @@
 import Link from 'next/link';
-import { listPublishedArticles } from '@/lib/knowledge/queries';
 
-export default async function KnowledgeTeaser() {
-  const articles = await listPublishedArticles({ limit: 3 });
+export default function KnowledgeTeaser() {
   return (
-    <section className="py-24 border-t border-[#f5efe2]/10 bg-[#050d1a]/60">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="flex items-end justify-between mb-12">
-          <div>
-            <div className="text-[#d4a04a] uppercase tracking-widest text-xs mb-3">Knowledge Hub</div>
-            <h2 className="font-serif text-4xl md:text-5xl text-[#f5efe2] max-w-2xl">Notes from the desk.</h2>
-          </div>
-          <Link href="/knowledge" className="hidden sm:inline text-[#d4a04a] hover:text-[#f5efe2] text-sm uppercase tracking-widest">
-            {'See all \u2197'}
+    <section id="knowledge" className="border-t border-line bg-cream/40">
+      <div className="max-w-page mx-auto px-6 py-20">
+        <div className="kicker mb-3">Knowledge Hub</div>
+        <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-2xl">
+          Notes from the desk.
+        </h2>
+        <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
+          Tactical breakdowns of the questions that decide an offer. Platform updates, industry context, and the rubric behind every grade.
+        </p>
+
+        <div className="mt-14 border border-line rounded-md bg-paper p-10 text-center">
+          <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Coming soon</div>
+          <p className="mt-3 font-serif text-[24px] font-light leading-snug max-w-lg mx-auto">
+            The first set of write-ups is in the editor. Check back shortly.
+          </p>
+          <Link
+            href="/knowledge"
+            className="mt-6 inline-flex items-center gap-1.5 text-[13.5px] text-ink hover:text-gold transition-colors"
+          >
+            Open Knowledge Hub <span aria-hidden>{'\u2192'}</span>
           </Link>
         </div>
-        {articles.length === 0 ? (
-          <div className="border border-dashed border-[#f5efe2]/20 rounded-lg p-10 text-center">
-            <p className="text-[#f5efe2]/60 max-w-xl mx-auto leading-relaxed">
-              Articles are coming soon: platform updates, industry breakdowns, and tactical guides on how to answer the questions that decide an offer.
-            </p>
-            <Link href="/knowledge" className="inline-block mt-6 text-[#d4a04a] hover:text-[#f5efe2] text-sm uppercase tracking-widest">
-              {'Open Knowledge Hub \u2192'}
-            </Link>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-3 gap-6">
-            {articles.map((a) => (
-              <Link key={a.id} href={`/knowledge/${a.slug}`} className="block border border-[#f5efe2]/10 rounded-lg p-6 bg-[#0a1628]/40 hover:border-[#d4a04a]/40 transition">
-                {a.published_at && (
-                  <div className="text-[#f5efe2]/40 uppercase tracking-widest text-xs mb-3">
-                    {new Date(a.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </div>
-                )}
-                <div className="font-serif text-2xl text-[#f5efe2] mb-3">{a.title}</div>
-                {a.description && <p className="text-[#f5efe2]/70 text-sm leading-relaxed">{a.description}</p>}
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
     </section>
   );

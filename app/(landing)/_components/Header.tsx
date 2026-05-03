@@ -1,32 +1,36 @@
 import Link from 'next/link';
 import Brand from '@/app/_components/Brand';
-import { getViewerPlan } from '@/lib/quota/server';
-import { SignOutButton } from '@/app/profile/account/sign-out-button';
 
-export default async function LandingHeader() {
-  const { plan } = await getViewerPlan();
-  const signedIn = plan !== 'anon';
+type Props = {
+  signedIn?: boolean;
+};
+
+export default function LandingHeader({ signedIn = false }: Props) {
   return (
-    <header className="border-b border-[#f5efe2]/10 bg-[#0a1628]/80 backdrop-blur sticky top-0 z-40">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <header className="border-b border-line bg-paper/80 backdrop-blur sticky top-0 z-40">
+      <div className="max-w-page mx-auto px-6 h-16 flex items-center justify-between">
         <Brand size="md" />
-        <nav className="flex items-center gap-6 text-sm">
-          {signedIn ? (
-            <>
-              <Link href="/interview/setup" className="text-[#f5efe2]/80 hover:text-[#d4a04a] transition">Start interview</Link>
-              <Link href="/profile" className="text-[#f5efe2]/80 hover:text-[#d4a04a] transition">Profile</Link>
-              <Link href="/knowledge" className="text-[#f5efe2]/80 hover:text-[#d4a04a] transition hidden sm:inline">Knowledge Hub</Link>
-              <SignOutButton />
-            </>
-          ) : (
-            <>
-              <Link href="#how" className="text-[#f5efe2]/80 hover:text-[#d4a04a] transition hidden sm:inline">How it works</Link>
-              <Link href="#pricing" className="text-[#f5efe2]/80 hover:text-[#d4a04a] transition hidden sm:inline">Pricing</Link>
-              <Link href="/knowledge" className="text-[#f5efe2]/80 hover:text-[#d4a04a] transition hidden sm:inline">Knowledge Hub</Link>
-              <Link href="/login" className="text-[#0a1628] bg-[#d4a04a] hover:bg-[#d4a04a]/90 px-4 py-2 rounded transition font-medium">Sign in</Link>
-            </>
-          )}
+        <nav className="hidden md:flex items-center gap-7 text-[13.5px] text-ink-2">
+          <a href="#how" className="hover:text-ink">How it works</a>
+          <a href="#voice" className="hover:text-ink">Voice mode</a>
+          <a href="#pricing" className="hover:text-ink">Pricing</a>
+          <Link href="/knowledge" className="hover:text-ink">Knowledge Hub</Link>
+          <a href="#faq" className="hover:text-ink">FAQ</a>
         </nav>
+        <div className="flex items-center gap-3">
+          {signedIn ? (
+            <Link href="/profile" className="text-[13.5px] text-ink-2 hover:text-ink">Profile</Link>
+          ) : (
+            <Link href="/login" className="text-[13.5px] text-ink-2 hover:text-ink hidden sm:inline">Sign in</Link>
+          )}
+          <Link
+            href={signedIn ? '/setup' : '/signup'}
+            className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 rounded-full hover:bg-navy transition-colors"
+          >
+            {signedIn ? 'Start interview' : 'Try free'}
+            <span aria-hidden>{'\u2192'}</span>
+          </Link>
+        </div>
       </div>
     </header>
   );

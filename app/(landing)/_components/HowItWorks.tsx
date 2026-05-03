@@ -1,35 +1,41 @@
+const steps = [
+  {
+    n: '01',
+    title: 'Pick a level and a mode.',
+    body: 'Intern, Analyst, or Associate. Voice if you want the real-room pressure, text if you want to type your way through the case.',
+  },
+  {
+    n: '02',
+    title: 'Sit twelve questions.',
+    body: 'Technicals, behavioral, a case. Up to two follow-ups on standard questions, up to five on the case. No hand-holding, no leading hints.',
+  },
+  {
+    n: '03',
+    title: 'Read your scorecard.',
+    body: 'A four-phase grade, a follow-up depth score, and a written verdict on a four-level hire scale. Saved to your profile for next time.',
+  },
+];
+
 export default function HowItWorks() {
-  const steps = [
-    {
-      num: '01',
-      title: 'Pick your level',
-      body: 'Intern, Analyst, or Associate. Each level pulls a different question pool and grading bar {\u2014} the same bar real recruiters use.',
-    },
-    {
-      num: '02',
-      title: 'Answer with the clock running',
-      body: '12 questions per session: technicals, behavioral, and a case. 2{\u20133} minutes per text answer, 1{\u20132} minutes when you talk. Up to 2 follow-ups per question, 5 on the case.',
-    },
-    {
-      num: '03',
-      title: 'Get graded against the bar',
-      body: 'Letter grade per question, four-phase scorecard (technical, structure, communication, case), follow-up depth score, and a hire / leaning hire / leaning no-hire / no-hire recommendation.',
-    },
-  ];
   return (
-    <section id="how" className="py-24 border-t border-[#f5efe2]/10">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-[#d4a04a] uppercase tracking-widest text-xs mb-3">How it works</div>
-        <h2 className="font-serif text-4xl md:text-5xl text-[#f5efe2] mb-12 max-w-2xl">Three steps. No fluff.</h2>
-        <div className="grid md:grid-cols-3 gap-8">
+    <section id="how" className="border-t border-line bg-cream/40">
+      <div className="max-w-page mx-auto px-6 py-20">
+        <div className="kicker mb-3">How it works</div>
+        <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-2xl">
+          Three steps. No fluff.
+        </h2>
+        <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
+          Every session is graded against the same bar real banking interviewers use: a letter grade per question, four-phase scorecard, follow-up depth, and one of four calls.
+        </p>
+        <ol className="mt-14 grid gap-10 md:grid-cols-3">
           {steps.map((s) => (
-            <div key={s.num} className="border border-[#f5efe2]/10 rounded-lg p-8 bg-[#0a1628]/40">
-              <div className="text-[#d4a04a] font-serif text-3xl mb-4">{s.num}</div>
-              <div className="text-[#f5efe2] font-medium text-xl mb-3">{s.title}</div>
-              <p className="text-[#f5efe2]/70 text-sm leading-relaxed">{s.body}</p>
-            </div>
+            <li key={s.n} className="border-t border-line pt-6">
+              <div className="font-mono text-[12px] tracking-widest text-muted">{s.n}</div>
+              <h3 className="mt-3 font-serif text-[24px] font-medium leading-snug">{s.title}</h3>
+              <p className="mt-3 text-[14.5px] text-ink-2 leading-relaxed">{s.body}</p>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   );

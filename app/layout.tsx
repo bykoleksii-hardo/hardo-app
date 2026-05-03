@@ -1,28 +1,35 @@
 import type { Metadata } from 'next';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Inter_Tight, Fraunces, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({
+const sans = Inter_Tight({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
 });
 
-const playfair = Playfair_Display({
+const serif = Fraunces({
   subsets: ['latin'],
   variable: '--font-serif',
+  weight: ['300', '400', '500', '600'],
+  display: 'swap',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'HARDO — Land Your IB Offer',
-  description: 'AI-powered Investment Banking mock interviews. Land your offer.',
+  title: 'HARDO \u2014 AI mock interviews for IB',
+  description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className="font-sans bg-[#0a1628] text-[#f5efe2] antialiased">
+    <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
+      <body className="font-sans bg-paper text-ink antialiased">
         {children}
       </body>
     </html>

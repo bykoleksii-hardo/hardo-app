@@ -1,46 +1,65 @@
 import Link from 'next/link';
 
-type Variant = 'anon' | 'free';
-
-export default function Pricing({ variant }: { variant: Variant }) {
+export default function Pricing() {
   return (
-    <section id="pricing" className="py-24 border-t border-[#f5efe2]/10">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="text-[#d4a04a] uppercase tracking-widest text-xs mb-3">Pricing</div>
-        <h2 className="font-serif text-4xl md:text-5xl text-[#f5efe2] mb-12 max-w-2xl">One free try. One plan. Cancel anytime.</h2>
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl">
-          <div className="border border-[#f5efe2]/10 rounded-lg p-8 bg-[#0a1628]/40">
-            <div className="text-[#f5efe2]/40 uppercase tracking-widest text-xs mb-3">Free</div>
-            <div className="font-serif text-5xl text-[#f5efe2] mb-1">$0</div>
-            <div className="text-[#f5efe2]/50 text-sm mb-6">No card required.</div>
-            <ul className="space-y-3 text-sm text-[#f5efe2]/80 mb-8">
-              <li>{'\u2022'} 1 full Intern-level interview</li>
-              <li>{'\u2022'} Full scorecard and recommendation</li>
-              <li>{'\u2022'} Saved to your profile</li>
+    <section id="pricing" className="border-t border-line">
+      <div className="max-w-page mx-auto px-6 py-20">
+        <div className="kicker mb-3">Pricing</div>
+        <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-3xl">
+          One free try. One plan. Cancel anytime.
+        </h2>
+        <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
+          Pricing in USD. Subscription renews monthly until canceled. No long-term contract, no annual lock-in.
+        </p>
+
+        <div className="mt-14 grid gap-6 md:grid-cols-2">
+          <div className="border border-line rounded-md p-8 bg-paper">
+            <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Free</div>
+            <div className="mt-6 flex items-baseline gap-2">
+              <span className="font-serif text-[56px] font-light leading-none">$0</span>
+              <span className="text-[13px] text-muted">/ no card</span>
+            </div>
+            <ul className="mt-8 space-y-3 text-[14.5px] text-ink-2">
+              <li>One full Intern-level interview</li>
+              <li>Full scorecard and recommendation</li>
+              <li>Saved to your profile</li>
             </ul>
-            {variant === 'anon' ? (
-              <Link href="/login" className="block text-center border border-[#f5efe2]/30 text-[#f5efe2] py-3 rounded hover:border-[#d4a04a] hover:text-[#d4a04a] transition">Sign up free</Link>
-            ) : (
-              <Link href="/interview/setup" className="block text-center border border-[#f5efe2]/30 text-[#f5efe2] py-3 rounded hover:border-[#d4a04a] hover:text-[#d4a04a] transition">Use my free interview</Link>
-            )}
+            <Link
+              href="/signup"
+              className="mt-8 inline-flex items-center gap-1.5 border border-ink text-ink text-[13.5px] px-5 py-2.5 rounded-full hover:bg-ink hover:text-paper transition-colors"
+            >
+              Sign up free <span aria-hidden>{'\u2192'}</span>
+            </Link>
           </div>
-          <div className="border border-[#d4a04a] rounded-lg p-8 bg-[#d4a04a]/5 relative">
-            <div className="absolute top-3 right-3 text-[10px] text-[#0a1628] bg-[#d4a04a] px-2 py-1 rounded font-medium tracking-widest uppercase">Most picked</div>
-            <div className="text-[#d4a04a] uppercase tracking-widest text-xs mb-3">Hardo</div>
-            <div className="font-serif text-5xl text-[#f5efe2] mb-1">$12<span className="text-2xl text-[#f5efe2]/60">/mo</span></div>
-            <div className="text-[#f5efe2]/50 text-sm mb-6">Monthly. Cancel anytime.</div>
-            <ul className="space-y-3 text-sm text-[#f5efe2]/80 mb-8">
-              <li>{'\u2022'} Unlimited interviews across all three levels</li>
-              <li>{'\u2022'} Intern, Analyst, and Associate question pools</li>
-              <li>{'\u2022'} Voice answers (Whisper transcription)</li>
-              <li>{'\u2022'} Full history and trend tracking on your profile</li>
+
+          <div className="border border-ink rounded-md p-8 bg-cream relative">
+            <div className="absolute -top-3 left-8 bg-ink text-paper text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full">
+              Most picked
+            </div>
+            <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Subscription</div>
+            <div className="mt-1 font-serif text-[22px] font-medium">HARDO</div>
+            <div className="mt-5 flex items-baseline gap-2">
+              <span className="font-serif text-[56px] font-light leading-none">$12</span>
+              <span className="text-[13px] text-muted">/ month {'\u00b7'} cancel anytime</span>
+            </div>
+            <ul className="mt-8 space-y-3 text-[14.5px] text-ink-2">
+              <li>Unlimited interviews across all three rooms</li>
+              <li>Intern, Analyst, and Associate question pools</li>
+              <li>Voice answers {'\u00b7'} Whisper transcription</li>
+              <li>Full history and trend tracking</li>
             </ul>
-            <Link href={variant === 'anon' ? '/login?upgrade=1' : '/account/upgrade'} className="block text-center bg-[#d4a04a] text-[#0a1628] font-medium py-3 rounded hover:bg-[#d4a04a]/90 transition">
-              {variant === 'anon' ? 'Get Hardo' : 'Upgrade to Hardo'}
+            <Link
+              href="/signup?plan=paid"
+              className="mt-8 inline-flex items-center gap-1.5 bg-ink text-paper text-[13.5px] px-5 py-2.5 rounded-full hover:bg-navy transition-colors"
+            >
+              Get HARDO <span aria-hidden>{'\u2192'}</span>
             </Link>
           </div>
         </div>
-        <p className="text-[#f5efe2]/40 text-xs mt-6 max-w-2xl">Pricing in USD. Subscription renews monthly until canceled. No long-term contract.</p>
+
+        <p className="mt-8 text-[13px] text-muted font-mono uppercase tracking-widest">
+          $12 {'\u00b7'} less than one hour with a tutor.
+        </p>
       </div>
     </section>
   );
