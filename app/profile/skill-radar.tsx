@@ -1,8 +1,10 @@
 // Server-renderable SVG skill radar
 // dynamic axes; each `score` is 0..10 or null
 
-const SIZE = 520;
-const CENTER = SIZE / 2; // 260
+const SIZE = 600;
+const SIZE_Y = 540;
+const CENTER_X = SIZE / 2; // 300
+const CENTER_Y = SIZE_Y / 2; // 270
 const RADIUS = 180;
 const RINGS = 5;
 
@@ -33,12 +35,12 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
       ...a,
       angle,
       anchor,
-      x: CENTER + Math.cos(angle) * r,
-      y: CENTER + Math.sin(angle) * r,
-      labelX: CENTER + Math.cos(angle) * (RADIUS + 32),
-      labelY: CENTER + Math.sin(angle) * (RADIUS + 32),
-      axisX: CENTER + Math.cos(angle) * RADIUS,
-      axisY: CENTER + Math.sin(angle) * RADIUS,
+      x: CENTER_X + Math.cos(angle) * r,
+      y: CENTER_Y + Math.sin(angle) * r,
+      labelX: CENTER_X + Math.cos(angle) * (RADIUS + 32),
+      labelY: CENTER_Y + Math.sin(angle) * (RADIUS + 32),
+      axisX: CENTER_X + Math.cos(angle) * RADIUS,
+      axisY: CENTER_Y + Math.sin(angle) * RADIUS,
     };
   });
 
@@ -52,15 +54,15 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
   const hirePolygon = points
     .map((_p, i) => {
       const a = angleFor(i, axes.length);
-      return `${CENTER + Math.cos(a) * hireRadius},${CENTER + Math.sin(a) * hireRadius}`;
+      return `${CENTER_X + Math.cos(a) * hireRadius},${CENTER_Y + Math.sin(a) * hireRadius}`;
     })
     .join(' ');
 
   return (
     <div className="flex justify-center">
       <svg
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
-        className="h-auto w-full max-w-[520px]"
+        viewBox={`0 0 ${SIZE} ${SIZE_Y}`}
+        className="h-auto w-full max-w-[600px]"
         role="img"
         aria-label="Skill radar"
       >
@@ -70,8 +72,8 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
           return (
             <circle
               key={i}
-              cx={CENTER}
-              cy={CENTER}
+              cx={CENTER_X}
+              cy={CENTER_Y}
               r={r}
               fill="none"
               stroke="rgba(245,239,226,0.08)"
@@ -84,8 +86,8 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
         {points.map((p, i) => (
           <line
             key={`axis-${i}`}
-            x1={CENTER}
-            y1={CENTER}
+            x1={CENTER_X}
+            y1={CENTER_Y}
             x2={p.axisX}
             y2={p.axisY}
             stroke="rgba(245,239,226,0.10)"
@@ -135,7 +137,7 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
                 y={p.labelY}
                 textAnchor={anchor}
                 dominantBaseline="middle"
-                className="fill-[#11161E]/85"
+                className={p.score == null ? "fill-[#11161E]/45" : p.score >= 6 ? "fill-[#1F6F3D]" : p.score >= 4 ? "fill-[#A85A1F]" : "fill-[#9C2E2E]"}
                 style={{ fontSize: 13, letterSpacing: '0.05em' }}
               >
                 {p.label.toUpperCase()}{arrow}
