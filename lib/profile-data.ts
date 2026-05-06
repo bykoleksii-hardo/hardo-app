@@ -39,8 +39,14 @@ export interface ProfileOverview {
     streak_days: number;
   };
   recent: InterviewHistoryItem[];
-  radar: Array<{ key: string; label: string; score: number | null; sample_size: number }>;
+  radar: Array<{ key: string; label: string; score: number | null; sample_size: number; trend: 'up' | 'down' | 'flat' | null }>;
+  hire_bar: number;
 }
+
+// Require at least 3 graded steps in an axis before showing a numeric score
+const MIN_RADAR_SAMPLE = 3;
+// Hire bar (target zone) plotted on the radar; corresponds to leaning_hire (~B grade)
+export const HIRE_BAR_SCORE = 6.0;
 
 const GRADE_RANK: Record<string, number> = {
   'A+': 12, 'A': 11, 'A-': 10,
@@ -152,15 +158,37 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
   // radar: average ai_grade rank per phase, normalized to 0-10
   const radar = SKILL_AXES.map(({ key, label, phases }) => {
     const matching = stepGrades.filter((s) => phases.includes((s as any).questions?.category) && s.ai_grade);
-    if (matching.length === 0) return { key, label, score: null as number | null, sample_size: 0 };
     const ranks = matching
       .map((s) => GRADE_RANK[s.ai_grade!] ?? null)
       .filter((v): v is number => v !== null);
-    if (ranks.length === 0) return { key, label, score: null, sample_size: 0 };
+    const sample_size = ranks.length;
+    if (sample_size < MIN_RADAR_SAMPLE) {
+      return { key, label, score: null as number | null, sample_size, trend: null as 'up' | 'down' | 'flat' | null };
+    }
     const avg = ranks.reduce((a, b) => a + b, 0) / ranks.length;
     // map 0..12 -> 0..10
     const score = +((avg / 12) * 10).toFixed(1);
-    return { key, label, score, sample_size: ranks.length };
+
+    // trend: compare last interview's matching grades vs. older average
+    const lastInterviewId = completedIds[0];
+    const lastRanks = matching
+      .filter((s) => s.interview_id === lastInterviewId)
+      .map((s) => GRADE_RANK[s.ai_grade!] ?? null)
+      .filter((v): v is number => v !== null);
+    const olderRanks = matching
+      .filter((s) => s.interview_id !== lastInterviewId)
+      .map((s) => GRADE_RANK[s.ai_grade!] ?? null)
+      .filter((v): v is number => v !== null);
+    let trend: 'up' | 'down' | 'flat' | null = null;
+    if (lastRanks.length >= 1 && olderRanks.length >= 1) {
+      const lastAvg = lastRanks.reduce((a, b) => a + b, 0) / lastRanks.length;
+      const olderAvg = olderRanks.reduce((a, b) => a + b, 0) / olderRanks.length;
+      if (lastAvg - olderAvg > 0.6) trend = 'up';
+      else if (olderAvg - lastAvg > 0.6) trend = 'down';
+      else trend = 'flat';
+    }
+
+    return { key, label, score, sample_size, trend };
   });
 
   return {
@@ -174,6 +202,7 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
     },
     recent,
     radar,
+    hire_bar: HIRE_BAR_SCORE,
   };
 }
 

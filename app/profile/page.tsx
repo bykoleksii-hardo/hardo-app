@@ -22,7 +22,7 @@ export default async function OverviewPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { totals, recent, radar, profile } = await getProfileOverview(user.id);
+  const { totals, recent, radar, profile, hire_bar } = await getProfileOverview(user.id);
 
   const hasInterviews = totals.total_interviews > 0;
   const hasRadarData = radar.some((r) => r.score !== null);
@@ -44,7 +44,7 @@ export default async function OverviewPage() {
           </div>
           <h2 className="font-serif text-2xl mb-6">Where you stand by phase.</h2>
           {hasRadarData ? (
-            <SkillRadar data={radar} />
+            <SkillRadar axes={radar} hireBar={hire_bar} />
           ) : (
             <EmptyBlock title="No phase data yet" body="Finish a few interviews and we'll plot your strongest and weakest phases here." />
           )}
