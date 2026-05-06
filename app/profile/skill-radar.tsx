@@ -1,5 +1,5 @@
 // Server-renderable SVG skill radar
-// 7 axes; each `score` is 0..10 or null
+// dynamic axes; each `score` is 0..10 or null
 
 const SIZE = 520;
 const CENTER = SIZE / 2; // 260

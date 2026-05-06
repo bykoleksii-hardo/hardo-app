@@ -24,10 +24,9 @@ const SKILL_AXES: Array<{ key: string; label: string; phases: string[] }> = [
   { key: 'accounting', label: 'Accounting', phases: ['Accounting'] },
   { key: 'valuation', label: 'Valuation', phases: ['Valuation'] },
   { key: 'corp_finance', label: 'Corp Finance', phases: ['Corporate Finance'] },
-  { key: 'case_study', label: 'Case / M&A', phases: ['Case Study', 'M&A'] },
-  { key: 'pe_lbo', label: 'PE / LBO', phases: ['Private Equity / LBO', 'Private Equity', 'LBO'] },
+  { key: 'ma_case', label: 'M&A / Case', phases: ['M&A', 'Case Study'] },
+  { key: 'pe_lbo', label: 'PE / LBO', phases: ['Private Equity / LBO', 'Private Equity', 'LBO', 'Due Diligence'] },
   { key: 'behavioral', label: 'Behavioral', phases: ['Behavioral / Fit', 'Behavioral'] },
-  { key: 'markets', label: 'Markets', phases: ['Business Acumen / Markets', 'Markets'] },
 ];
 
 export interface ProfileOverview {

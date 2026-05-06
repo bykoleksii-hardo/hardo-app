@@ -40,7 +40,7 @@ export default async function OverviewPage() {
         <div className="border border-[#11161E]/10 rounded-sm p-7 bg-[#F2ECDF]/50">
           <div className="flex items-baseline justify-between mb-1">
             <div className="text-[11px] tracking-[0.22em] text-[#B88736]">- SKILL RADAR</div>
-            <span className="text-[11px] tracking-[0.18em] text-[#11161E]/45">7 AXES</span>
+            <span className="text-[11px] tracking-[0.18em] text-[#11161E]/45">6 AXES</span>
           </div>
           <h2 className="font-serif text-2xl mb-6">Where you stand by phase.</h2>
           {hasRadarData ? (
