@@ -30,7 +30,9 @@ export const metadata: Metadata = {
     type: 'website',
     title: 'HARDO \u2014 AI mock interviews for IB',
     description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
+    images: ['/og.png'],
     siteName: 'HARDO',
+    images: ['/og.png'],
   },
   twitter: {
     card: 'summary',
