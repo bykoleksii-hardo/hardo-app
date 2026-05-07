@@ -40,6 +40,7 @@ export const metadata: Metadata = {
     description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
   },
   robots: { index: true, follow: true },
+  icons: { apple: '/apple-touch-icon.png' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
