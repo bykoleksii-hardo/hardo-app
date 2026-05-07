@@ -22,8 +22,22 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://hardo-app.bykoleksii.workers.dev'),
   title: 'HARDO \u2014 AI mock interviews for IB',
   description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
+  applicationName: 'HARDO',
+  openGraph: {
+    type: 'website',
+    title: 'HARDO \u2014 AI mock interviews for IB',
+    description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
+    siteName: 'HARDO',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'HARDO \u2014 AI mock interviews for IB',
+    description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

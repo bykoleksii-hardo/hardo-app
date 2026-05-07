@@ -68,7 +68,7 @@ function AnonHero() {
             <span>No card required.</span>
             <span>{'\u2022'} 12 questions / session</span>
             <span>{'\u2022'} 3 rooms</span>
-            <span>{'\u2022'} 4-phase scorecard</span>
+            <span>{'\u2022'} Letter grade per answer</span>
           </div>
         </div>
         <Scorecard />

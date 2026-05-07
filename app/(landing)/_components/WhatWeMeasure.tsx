@@ -1,8 +1,8 @@
 const phases = [
-  { name: 'Technical', body: 'Mechanics, accuracy, and cross-checks. Did the answer hold up under a sanity test?' },
-  { name: 'Structure', body: 'Answer-first framing, clear signposting, and recovery when the question pivots.' },
-  { name: 'Communication', body: 'Pace, filler, jargon hygiene. Scored on delivery, not just on the words.' },
-  { name: 'Case depth', body: 'How far you held under follow-ups before the answer started to thin.' },
+  { name: 'Letter grade', body: 'A+ to F on every answer. The same scale a real reviewer scribbles in the margin — hidden until the end.' },
+  { name: 'Skill radar', body: 'Six axes that mirror IB territory: Accounting, Valuation, Corp Finance, M&A / Case, PE / LBO, Behavioral.' },
+  { name: 'Follow-up depth', body: 'How far you held under pressure before the answer started to thin. Up to two probes on a normal question, five on a case.' },
+  { name: 'Hire call', body: 'One of four: hire, leaning hire, leaning no-hire, no-hire. Same bar real teams use — no engagement scores.' },
 ];
 
 export default function WhatWeMeasure() {
@@ -11,10 +11,10 @@ export default function WhatWeMeasure() {
       <div className="max-w-page mx-auto px-6 py-20">
         <div className="kicker mb-3">What we measure</div>
         <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-3xl">
-          Four phases. One verdict.
+          One scorecard. One verdict.
         </h2>
         <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
-          The same axes a real interviewer carries on a notepad. No vanity metrics, no engagement scores.
+          The same notes a real interviewer carries on a notepad: a letter, a radar, follow-up depth, a hire call. No vanity metrics, no engagement scores.
         </p>
         <div className="mt-14 grid gap-x-10 gap-y-8 md:grid-cols-2">
           {phases.map((p) => (

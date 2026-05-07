@@ -14,7 +14,7 @@ const steps = [
   {
     n: '03',
     title: 'Get graded against the bar.',
-    body: 'Letter grade per question, four-phase scorecard, follow-up depth, and one of four hire calls.',
+    body: 'Letter grade per question, six-axis skill radar, follow-up depth, and one of four hire calls.',
     visual: 'grade' as const,
   },
 ];
@@ -28,7 +28,7 @@ function StepVisual({ kind }: { kind: 'levels' | 'wave' | 'grade' }) {
           <span className="lvl-chip on">Analyst</span>
           <span className="lvl-chip gold">Associate</span>
         </div>
-        <span className="mt-2.5 block">Selected · <b>Analyst · M&amp;A round</b></span>
+        <span className="mt-2.5 block">Selected Â· <b>Analyst Â· M&amp;A round</b></span>
       </div>
     );
   }
@@ -41,7 +41,7 @@ function StepVisual({ kind }: { kind: 'levels' | 'wave' | 'grade' }) {
             <i key={i} style={{ height: `${h}px` }} />
           ))}
         </div>
-        <span className="mt-2.5 block">Voice · <b>1:42 / 2:00</b> · transcribing</span>
+        <span className="mt-2.5 block">Voice Â· <b>1:42 / 2:00</b> Â· transcribing</span>
       </div>
     );
   }
@@ -49,7 +49,7 @@ function StepVisual({ kind }: { kind: 'levels' | 'wave' | 'grade' }) {
     <div className="step-visual">
       <div className="mini-grade">
         <span className="g">{'A\u2212'}</span>
-        <span className="desc"><b>Leaning hire</b>Verdict · Session #047</span>
+        <span className="desc"><b>Leaning hire</b>Verdict Â· Session #047</span>
       </div>
     </div>
   );
@@ -59,7 +59,7 @@ export default function HowItWorks() {
   return (
     <section id="how" className="border-t border-line bg-cream/40">
       <div className="max-w-page mx-auto px-6 py-20">
-        <div className="kicker mb-3">— How it works</div>
+        <div className="kicker mb-3">â How it works</div>
         <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-2xl">
           Three steps. No fluff.
         </h2>

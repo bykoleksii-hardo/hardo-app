@@ -33,7 +33,7 @@ export default async function AccountPage() {
         <div className="border border-[#11161E]/10 rounded-sm p-5">
           <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">EMAIL</div>
           <div className="font-serif text-lg mt-1">{user.email}</div>
-          <div className="text-[11px] tracking-[0.05em] text-[#11161E]/45 mt-2">Signed in via Supabase auth</div>
+          <div className="text-[11px] tracking-[0.05em] text-[#11161E]/45 mt-2">Signed in via email</div>
         </div>
       </Section>
 
@@ -55,7 +55,7 @@ export default async function AccountPage() {
             </div>
             <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55 mt-1">
               {isPaid
-                ? 'UNLIMITED INTERVIEWS · ALL LEVELS'
+                ? 'UNLIMITED INTERVIEWS Â· ALL LEVELS'
                 : `${freeLeft}/${quota?.free_limit ?? 1} INTERN INTERVIEW${(quota?.free_limit ?? 1) === 1 ? '' : 'S'} LEFT`}
             </div>
           </div>
@@ -65,13 +65,13 @@ export default async function AccountPage() {
             </button>
           ) : (
             <Link href="/upgrade" className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-6 py-3 rounded-sm hover:bg-[#9C6F1E] transition-colors">
-              Upgrade to Hardo →
+              Upgrade to Hardo â
             </Link>
           )}
         </div>
         <p className="text-[11px] tracking-[0.05em] text-[#11161E]/45">
           {isPaid
-            ? 'Cancel anytime — billing portal is coming. Reach out if you need it now.'
+            ? 'Cancel anytime â billing portal is coming. Reach out if you need it now.'
             : '$12 / month, monthly only. Cancel anytime once you upgrade.'}
         </p>
       </Section>
