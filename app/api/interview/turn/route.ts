@@ -162,7 +162,6 @@ export async function POST(req: Request) {
       ],
     });
     ai = out.data;
-    console.log('[turn] ai received', { kind: ai.kind, message_type: ai.message_type, grade: ai.grade, followUpsSoFar, maxFollowUps });
     // Consistency guard: kind=clarification_response REQUIRES message_type=clarification.
     // If the model returns kind=clarification_response with message_type=answer, the model is
     // confused about whether the candidate answered or asked. Trust the kind (model crafted a

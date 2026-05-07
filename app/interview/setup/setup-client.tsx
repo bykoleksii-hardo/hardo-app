@@ -19,7 +19,7 @@ const INPUT_MODES: Array<{ id: InputMode; title: string; tagline: string; bullet
     id: 'voice',
     title: 'Speak your answers',
     tagline: 'Closer to the real superday: think out loud, sound natural, hit the timer.',
-    bullets: ['1 minute per question', '2 minutes for the case study', 'Microphone required - transcript is editable'],
+    bullets: ['1 minute per question', '2 minutes for the case study', 'Microphone required — transcript is editable'],
   },
 ];
 
@@ -36,7 +36,7 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
     id: 'intern',
     title: 'Intern',
     tagline: 'First superday season. Build muscle on the basics before the real heat.',
-    pitch: "Foundations of accounting, valuation, and a soft fit-check. No deal walk-throughs - we keep follow-ups gentle and let you build muscle before the real heat.",
+    pitch: "Foundations of accounting, valuation, and a soft fit-check. No deal walk-throughs — we keep follow-ups gentle and let you build muscle before the real heat.",
     tags: ['3 statements', 'Comps & DCF basics', 'Why banking', 'Soft fit'],
     sample: { q: 'Walk me through how $10 of depreciation flows through the three statements. Take your time - I want to hear the logic, not just the numbers.', phase: 'Accounting', grade: 'B-' },
     tone: 'foundations',
@@ -152,7 +152,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             Choose the <span className="italic text-[#B88736]">level</span> that matches today.
           </h1>
           <p className="mt-4 text-[#11161E]/65 max-w-xl text-lg">
-            Twelve questions. Same superday flow - fit, technicals, deal walks, a curveball.
+            Twelve questions. Same superday flow — fit, technicals, deal walks, a curveball.
             What changes is how hard the room hits back.
           </p>
         </div>
@@ -238,7 +238,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
               Pick your <span className="italic text-[#B88736]">delivery</span> for this round.
             </h2>
             <p className="text-[#11161E]/60 text-sm max-w-xl mb-8">
-              You can’t switch mid-interview - choose the one closest to how you want to drill today.
+              You can’t switch mid-interview — choose the one closest to how you want to drill today.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {INPUT_MODES.map((m) => {

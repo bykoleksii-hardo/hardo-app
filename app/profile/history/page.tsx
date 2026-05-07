@@ -54,7 +54,7 @@ export default async function HistoryPage() {
       <div className="border border-dashed border-[#11161E]/20 rounded-sm p-16 text-center">
         <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">— NO HISTORY YET</div>
         <h2 className="font-serif text-3xl mb-3">Every run lands here.</h2>
-        <p className="text-sm text-[#11161E]/65 max-w-md mx-auto mb-6">After each interview you'll see the level, your grade, and the interviewer's read - all in one place.</p>
+        <p className="text-sm text-[#11161E]/65 max-w-md mx-auto mb-6">After each interview you'll see the level, your grade, and the interviewer's read — all in one place.</p>
         <Link href="/interview/setup" className="inline-block bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-8 py-3.5 rounded-sm hover:bg-[#9C6F1E] transition-colors">Start your first interview →</Link>
       </div>
     );

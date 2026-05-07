@@ -150,17 +150,17 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         <div className="border border-[#11161E]/15 bg-[#F2ECDF]/40 p-8 mb-12 grid grid-cols-3 gap-8">
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">OVERALL</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— OVERALL</div>
             <div className="font-playfair text-4xl text-[#11161E]">{summary?.overall_score ?? interview.final_score ?? '-'}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">{isCompleted ? 'out of 100' : 'awaiting AI review'}</div>
           </div>
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">QUESTIONS</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— QUESTIONS</div>
             <div className="font-playfair text-4xl">{answeredCount} / {interview.total_questions}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">answered</div>
           </div>
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">RECOMMENDATION</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— RECOMMENDATION</div>
             <div className={`font-playfair text-4xl ${hireToneClass}`}>{hireMeta?.label ?? '—'}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">
               {interview.finished_at ? new Date(interview.finished_at).toLocaleString() : (isCompleted ? '' : interview.status?.toString().toUpperCase())}
@@ -170,15 +170,15 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         {isCompleted && summary && (
           <div className="border border-[#B88736]/30 bg-[#F2ECDF]/30 p-6 mb-12">
-            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">OVERALL FEEDBACK</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">— OVERALL FEEDBACK</div>
             <p className="text-[#11161E]/85 text-[14px] leading-[1.7] whitespace-pre-wrap mb-5">{summary.final_feedback}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">STRENGTHS</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">— STRENGTHS</div>
                 <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_strengths}</p>
               </div>
               <div>
-                <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">WEAKNESSES</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">— WEAKNESSES</div>
                 <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_weaknesses}</p>
               </div>
             </div>
@@ -215,22 +215,22 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
                     return (
                       <div className={`shrink-0 border ${tone} px-4 py-2 text-center min-w-[60px]`}>
                         <div className="font-playfair text-2xl leading-none">{g || 'N/A'}</div>
-                        <div className="text-[9px] tracking-[0.22em] mt-1 opacity-75">GRADE</div>
+                        <div className="text-[9px] tracking-[0.22em] mt-1 opacity-75">— GRADE</div>
                       </div>
                     );
                   })()}
                 </div>
-                <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">YOUR ANSWER</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— YOUR ANSWER</div>
                 <p className="text-[#11161E]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
                   {s.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}
                 </p>
                 {fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0) && (
                   <div className="mt-5">
-                    <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">FEEDBACK</div>
+                    <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— FEEDBACK</div>
                     {fb.summary && <p className="text-[#11161E]/85 text-[14px] leading-[1.6] mb-3">{fb.summary}</p>}
                     {fb.strengths.length > 0 && (
                       <div className="mb-2">
-                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">STRENGTHS</div>
+                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">— STRENGTHS</div>
                         <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
                           {fb.strengths.map((s,i) => <li key={i}>{s}</li>)}
                         </ul>
@@ -238,7 +238,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
                     )}
                     {fb.weaknesses.length > 0 && (
                       <div>
-                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WEAKNESSES</div>
+                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">— WEAKNESSES</div>
                         <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
                           {fb.weaknesses.map((w,i) => <li key={i}>{w}</li>)}
                         </ul>
@@ -248,7 +248,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
                 )}
                 {followUps.length > 0 && (
                   <div className="mt-5 border-l border-[#B88736]/40 pl-4 space-y-4">
-                    <div className="text-[10px] tracking-[0.22em] text-[#B88736]">FOLLOW-UPS</div>
+                    <div className="text-[10px] tracking-[0.22em] text-[#B88736]">— FOLLOW-UPS</div>
                     {followUps.map(f => (
                       <div key={f.id} className="text-[13px]">
                         <p className="font-playfair italic text-[#11161E]/75 mb-1">{f.custom_question ?? f.questions?.question}</p>

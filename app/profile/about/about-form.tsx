@@ -112,7 +112,7 @@ export function AboutForm({ initial, email }: Props) {
         <div className="border border-[#B88736]/40 rounded-sm p-6 bg-[#B88736]/5">
           <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— WELCOME</div>
           <h2 className="font-serif text-2xl mb-2">Let's set up your room.</h2>
-          <p className="text-sm text-[#11161E]/70 max-w-xl">A few details so the interviewer doesn't sound generic. Everything's optional - you can fill it out now or come back later.</p>
+          <p className="text-sm text-[#11161E]/70 max-w-xl">A few details so the interviewer doesn't sound generic. Everything's optional — you can fill it out now or come back later.</p>
           <div className="mt-4 flex items-center gap-3">
             <div className="flex-1 h-1.5 bg-[#11161E]/10 rounded-sm overflow-hidden">
               <div className="h-full bg-[#B88736] transition-all" style={{ width: `${completeness}%` }} />
@@ -180,7 +180,7 @@ export function AboutForm({ initial, email }: Props) {
         />
         <TextArea
           label="Bio (optional)"
-          hint="Anything personal you want the interviewer to know - hobbies, motivations, why banking."
+          hint="Anything personal you want the interviewer to know — hobbies, motivations, why banking."
           value={state.bio}
           onChange={(v) => update('bio', v)}
           rows={4}
