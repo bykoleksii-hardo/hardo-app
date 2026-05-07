@@ -91,7 +91,7 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
 
   let summaries: Array<{ interview_id: string; overall_score: number | null; hire_recommendation: string | null }> = [];
   let grades: Array<{ interview_id: string; letter_grade: string | null }> = [];
-  let stepGrades: Array<{ interview_id: string; phase: string; ai_grade: string | null }> = [];
+  let stepGrades: Array<{ interview_id: string; phase: string; ai_grade: string | null; difficulty?: number | null }> = [];
 
   if (completedIds.length > 0) {
     const [{ data: s }, gradePromises, { data: steps }] = await Promise.all([
@@ -101,7 +101,7 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
         .in('interview_id', completedIds),
       Promise.resolve([]),
       supabase
-        .from('interview_steps').select('interview_id, ai_grade, questions(category)')
+        .from('interview_steps').select('interview_id, ai_grade, questions(category, difficulty)')
         .in('interview_id', completedIds),
     ]);
     summaries = (s ?? []) as typeof summaries;
@@ -155,42 +155,46 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
     else break;
   }
 
-  // radar: average ai_grade rank per phase, normalized to 0-10
+  // radar: difficulty-weighted ai_grade rank per phase, normalized to 0-10
   const radar = SKILL_AXES.map(({ key, label, phases }) => {
     const matching = stepGrades.filter((s) => phases.includes((s as any).questions?.category) && s.ai_grade);
-    const ranks = matching
-      .map((s) => GRADE_RANK[s.ai_grade!] ?? null)
-      .filter((v): v is number => v !== null);
-    const sample_size = ranks.length;
+    type W = { rank: number; weight: number; interview_id: string };
+    const weighted: W[] = matching
+      .map((s) => {
+        const r = GRADE_RANK[s.ai_grade!];
+        if (r == null) return null;
+        const d = Number((s as any).questions?.difficulty);
+        const weight = Number.isFinite(d) && d > 0 ? d : 2;
+        return { rank: r, weight, interview_id: s.interview_id };
+      })
+      .filter((v): v is W => v !== null);
+    const sample_size = weighted.length;
     if (sample_size < MIN_RADAR_SAMPLE) {
       return { key, label, score: null as number | null, sample_size, trend: null as 'up' | 'down' | 'flat' | null };
     }
-    const avg = ranks.reduce((a, b) => a + b, 0) / ranks.length;
+    const wsum = weighted.reduce((a, b) => a + b.weight, 0);
+    const wavg = weighted.reduce((a, b) => a + b.rank * b.weight, 0) / (wsum || 1);
     // map 0..12 -> 0..10
-    const score = +((avg / 12) * 10).toFixed(1);
+    const score = Math.round((wavg / 12) * 10 * 10) / 10;
 
-    // trend: compare last interview's matching grades vs. older average
+    // trend: compare last interview's matching grades vs. older average (difficulty-weighted)
     const lastInterviewId = completedIds[0];
-    const lastRanks = matching
-      .filter((s) => s.interview_id === lastInterviewId)
-      .map((s) => GRADE_RANK[s.ai_grade!] ?? null)
-      .filter((v): v is number => v !== null);
-    const olderRanks = matching
-      .filter((s) => s.interview_id !== lastInterviewId)
-      .map((s) => GRADE_RANK[s.ai_grade!] ?? null)
-      .filter((v): v is number => v !== null);
+    const lastW = weighted.filter((w) => w.interview_id === lastInterviewId);
+    const olderW = weighted.filter((w) => w.interview_id !== lastInterviewId);
     let trend: 'up' | 'down' | 'flat' | null = null;
-    if (lastRanks.length >= 1 && olderRanks.length >= 1) {
-      const lastAvg = lastRanks.reduce((a, b) => a + b, 0) / lastRanks.length;
-      const olderAvg = olderRanks.reduce((a, b) => a + b, 0) / olderRanks.length;
-      if (lastAvg - olderAvg > 0.6) trend = 'up';
-      else if (olderAvg - lastAvg > 0.6) trend = 'down';
+    if (lastW.length > 0 && olderW.length > 0) {
+      const lastWsum = lastW.reduce((a, b) => a + b.weight, 0) || 1;
+      const olderWsum = olderW.reduce((a, b) => a + b.weight, 0) || 1;
+      const lastAvg = lastW.reduce((a, b) => a + b.rank * b.weight, 0) / lastWsum;
+      const olderAvg = olderW.reduce((a, b) => a + b.rank * b.weight, 0) / olderWsum;
+      const delta = lastAvg - olderAvg;
+      if (delta > 0.6) trend = 'up';
+      else if (delta < -0.6) trend = 'down';
       else trend = 'flat';
     }
 
     return { key, label, score, sample_size, trend };
   });
-
   return {
     profile: (profile as UserProfile) ?? null,
     totals: {
