@@ -51,7 +51,7 @@ export default function Scorecard() {
 
         <div className="mt-5 border-t border-line pt-4 font-mono text-[10.5px] uppercase tracking-widest text-muted flex items-center justify-between">
           <span>Follow-up depth {'\u00b7'} 3.4 / 5</span>
-          <span>4-phase scorecard</span>
+          <span>Six-axis radar</span>
         </div>
       </div>
     </div>
