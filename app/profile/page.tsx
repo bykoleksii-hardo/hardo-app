@@ -25,7 +25,6 @@ export default async function OverviewPage() {
   const { totals, recent, radar, profile, hire_bar } = await getProfileOverview(user.id);
 
   const hasInterviews = totals.total_interviews > 0;
-  const hasRadarData = radar.some((r) => r.score !== null);
 
   return (
     <div className="space-y-12">
@@ -43,11 +42,7 @@ export default async function OverviewPage() {
             <span className="text-[11px] tracking-[0.18em] text-[#11161E]/45">6 AXES</span>
           </div>
           <h2 className="font-serif text-2xl mb-6">Where you stand by phase.</h2>
-          {hasRadarData ? (
-            <SkillRadar axes={radar} hireBar={hire_bar} />
-          ) : (
-            <EmptyBlock title="No phase data yet" body="Finish a few interviews and we'll plot your strongest and weakest phases here." />
-          )}
+          <SkillRadar axes={radar} hireBar={hire_bar} />
         </div>
 
         <div className="border border-[#11161E]/10 rounded-sm p-7 bg-[#F2ECDF]/50">
