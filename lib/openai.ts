@@ -55,6 +55,34 @@ function parseOpenAIError(status: number, body: string): { code: string | null; 
   }
 }
 
+const OPENAI_TIMEOUT_MS = 30000;
+const OPENAI_RETRY_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
+
+async function fetchOpenAI(url: string, init: RequestInit, attempt = 0): Promise<Response> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), OPENAI_TIMEOUT_MS);
+  try {
+    const r = await fetch(url, { ...init, signal: ctrl.signal });
+    if (!r.ok && OPENAI_RETRY_STATUSES.has(r.status) && attempt < 2) {
+      const backoff = attempt === 0 ? 300 : 800;
+      console.warn(`[openai] retrying after status ${r.status} (attempt ${attempt + 1})`);
+      await new Promise((res) => setTimeout(res, backoff));
+      return fetchOpenAI(url, init, attempt + 1);
+    }
+    return r;
+  } catch (e) {
+    if (attempt < 2) {
+      const backoff = attempt === 0 ? 300 : 800;
+      console.warn(`[openai] retrying after network/abort error (attempt ${attempt + 1})`, (e as Error).message);
+      await new Promise((res) => setTimeout(res, backoff));
+      return fetchOpenAI(url, init, attempt + 1);
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function chatJSON<T>(opts: {
   messages: ChatMessage[];
   schema: Record<string, unknown>;
@@ -75,7 +103,7 @@ export async function chatJSON<T>(opts: {
     model: opts.model ?? DEFAULT_MODEL,
     messages: opts.messages,
     temperature: opts.temperature ?? 0.4,
-    max_tokens: opts.maxTokens ?? 700,
+    max_tokens: opts.maxTokens ?? 900,
     response_format: {
       type: 'json_schema',
       json_schema: {
@@ -85,7 +113,7 @@ export async function chatJSON<T>(opts: {
       },
     },
   };
-  const r = await fetch('https://api.openai.com/v1/chat/completions', {
+  const r = await fetchOpenAI('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -141,9 +169,9 @@ export async function chatText(opts: {
     model: opts.model ?? DEFAULT_MODEL,
     messages: opts.messages,
     temperature: opts.temperature ?? 0.4,
-    max_tokens: opts.maxTokens ?? 700,
+    max_tokens: opts.maxTokens ?? 900,
   };
-  const r = await fetch('https://api.openai.com/v1/chat/completions', {
+  const r = await fetchOpenAI('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,

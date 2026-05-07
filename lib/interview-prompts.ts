@@ -217,7 +217,7 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     `Is case-study block: ${ctx.isCase ? 'yes' : 'no'}`,
     `Follow-ups asked so far: ${ctx.followUpsSoFar} / max ${ctx.maxFollowUps}`,
     `Follow-ups remaining: ${Math.max(0, ctx.maxFollowUps - ctx.followUpsSoFar)}`,
-    `When grading, use the FULL scale (A, A-, B+, B, B-, C+, C, C-, D, F) and prefer +/- variants over bare letters when the answer is between tiers.`,
+    `When grading, use the FULL scale (A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F) and prefer +/- variants over bare letters when the answer is between tiers.`,
     ``,
     `BASE QUESTION:`,
     ctx.question,
@@ -260,7 +260,7 @@ export const TURN_SCHEMA: Record<string, unknown> = {
     },
     grade: {
       type: 'string',
-      enum: ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F', ''],
+      enum: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', ''],
       description: 'Used ONLY when kind=close_block. Letter grade for the whole block calibrated to the candidate level per the system prompt. Use the FULL scale - bare A/B/C are for clear-center answers only; prefer A-/B+/B-/C+/C- when the answer leans between tiers. Empty string when kind is not close_block.',
     },
     feedback: {
