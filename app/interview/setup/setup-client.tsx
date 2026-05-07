@@ -193,7 +193,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 <h2 className="font-playfair text-3xl italic mb-3">{lvl.title}</h2>
                 <p className="text-sm text-[#11161E]/70 leading-relaxed mb-5 flex-1">{lvl.tagline}</p>
                 <div className="flex items-center justify-between text-[11px] tracking-[0.18em]">
-                  <span className="text-[#B88736]">- 12 QUESTIONS</span>
+                  <span className="text-[#B88736]">— 12 QUESTIONS</span>
                   <span className="text-[#11161E]/45">{lvl.tone.toUpperCase()}</span>
                 </div>
               </button>
