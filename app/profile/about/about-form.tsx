@@ -110,7 +110,7 @@ export function AboutForm({ initial, email }: Props) {
     <div className="space-y-10 max-w-3xl pb-32">
       {showWizard && (
         <div className="border border-[#B88736]/40 rounded-sm p-6 bg-[#B88736]/5">
-          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">- WELCOME</div>
+          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— WELCOME</div>
           <h2 className="font-serif text-2xl mb-2">Let's set up your room.</h2>
           <p className="text-sm text-[#11161E]/70 max-w-xl">A few details so the interviewer doesn't sound generic. Everything's optional - you can fill it out now or come back later.</p>
           <div className="mt-4 flex items-center gap-3">
@@ -125,7 +125,7 @@ export function AboutForm({ initial, email }: Props) {
       <section className="border border-[#11161E]/10 rounded-sm p-6">
         <div className="flex items-start justify-between gap-6">
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-1">- PERSONALIZATION</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-1">— PERSONALIZATION</div>
             <h3 className="font-serif text-xl mb-1">Use my profile in interviews</h3>
             <p className="text-sm text-[#11161E]/65 max-w-xl">When on, the interviewer can reference your school, role, and background to ask sharper, more personal follow-ups.</p>
           </div>
@@ -209,7 +209,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   return (
     <section className="space-y-5">
       <div>
-        <div className="text-[11px] tracking-[0.22em] text-[#B88736]">- {title}</div>
+        <div className="text-[11px] tracking-[0.22em] text-[#B88736]">— {title}</div>
         {subtitle && <p className="text-sm text-[#11161E]/60 mt-1">{subtitle}</p>}
       </div>
       <div className="space-y-4">{children}</div>

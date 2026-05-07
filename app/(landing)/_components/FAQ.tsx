@@ -4,7 +4,7 @@ const baseItems: Item[] = [
   { q: 'How long is one interview?', a: '12 questions. Plan for roughly 30\u201345 minutes if you type, 20\u201330 if you answer by voice. You can pause between questions.' },
   { q: 'Does my answer get cut off?', a: 'No. The model lets you finish your sentence in voice mode and never interrupts mid-word. Each answer has a soft 2-minute cap with a visible timer.' },
   { q: 'How are follow-ups decided?', a: 'Up to 2 follow-ups on standard questions, up to 5 on the case. The model only digs further if your last answer left an opening, exactly the way a real interviewer would.' },
-  { q: 'When do I see my grade?', a: 'Letter grades stay hidden during the interview. The full scorecard \u2014 four phases, follow-up depth, written verdict \u2014 unlocks at the end and is saved to your profile.' },
+  { q: 'When do I see my grade?', a: 'Letter grades stay hidden during the interview. The full scorecard \u2014 letter grade per answer, follow-up depth, written verdict \u2014 unlocks at the end and is saved to your profile.' },
   { q: 'What levels are there?', a: 'Three rooms: Intern, Analyst, and Associate. Each pulls from its own question pool and grades against the bar for that level.' },
 ];
 

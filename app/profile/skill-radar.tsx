@@ -89,7 +89,7 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
         viewBox={`0 0 ${SIZE} ${SIZE_Y}`}
         className="w-full max-w-[600px] h-auto"
         role="img"
-        aria-label="Skill radar across IB interview phases"
+        aria-label="Skill radar across the six interview categories"
       >
         {/* Concentric rings */}
         {Array.from({ length: RINGS }).map((_, i) => {

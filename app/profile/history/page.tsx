@@ -52,7 +52,7 @@ export default async function HistoryPage() {
   if (history.length === 0) {
     return (
       <div className="border border-dashed border-[#11161E]/20 rounded-sm p-16 text-center">
-        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">- NO HISTORY YET</div>
+        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">— NO HISTORY YET</div>
         <h2 className="font-serif text-3xl mb-3">Every run lands here.</h2>
         <p className="text-sm text-[#11161E]/65 max-w-md mx-auto mb-6">After each interview you'll see the level, your grade, and the interviewer's read - all in one place.</p>
         <Link href="/interview/setup" className="inline-block bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-8 py-3.5 rounded-sm hover:bg-[#9C6F1E] transition-colors">Start your first interview →</Link>
@@ -67,7 +67,7 @@ export default async function HistoryPage() {
     <div className="space-y-12">
       {inFlight.length > 0 && (
         <section>
-          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">- IN PROGRESS</div>
+          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— IN PROGRESS</div>
           <ul className="space-y-3">
             {inFlight.map((h) => (
               <li key={h.id} className="flex items-center justify-between gap-6 border border-[#B88736]/40 rounded-sm px-6 py-4 bg-[#F2ECDF]/40">
@@ -83,7 +83,7 @@ export default async function HistoryPage() {
       )}
 
       <section>
-        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">- COMPLETED</div>
+        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— COMPLETED</div>
         <div className="overflow-hidden border border-[#11161E]/10 rounded-sm">
           <table className="w-full text-sm">
             <thead className="bg-[#F2ECDF] text-[10px] tracking-[0.22em] text-[#11161E]/55">
