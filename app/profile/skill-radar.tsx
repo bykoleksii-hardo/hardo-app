@@ -65,9 +65,11 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
 
   const hasAnyData = axes.some((a) => a.score != null);
 
-  const polygon = points
-    .map((p) => (p.score != null ? `${p.x},${p.y}` : `${CENTER_X},${CENTER_Y}`))
-    .join(' ');
+  // Build polygon only from points that have data; if fewer than 3, we render
+  // a polyline-style stroke so 1\u20132 valid points still show as a line/dot.
+  const validPoints = points.filter((p) => p.score != null);
+  const polygon = validPoints.map((p) => `${p.x},${p.y}`).join(' ');
+  const usePolyline = validPoints.length < 3;
 
   const hireRadius = (hireBar / 10) * RADIUS;
   const hirePolygon = points
@@ -138,14 +140,23 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
           />
         )}
 
-        {/* Data polygon */}
-        {hasAnyData && (
+        {/* Data polygon (\u22653 axes) or polyline (1\u20132 axes) */}
+        {hasAnyData && !usePolyline && (
           <polygon
             points={polygon}
             fill="rgba(212,160,74,0.18)"
             stroke="#B88736"
             strokeWidth={2}
             strokeLinejoin="round"
+          />
+        )}
+        {hasAnyData && usePolyline && validPoints.length === 2 && (
+          <polyline
+            points={polygon}
+            fill="none"
+            stroke="#B88736"
+            strokeWidth={2}
+            strokeLinecap="round"
           />
         )}
 
