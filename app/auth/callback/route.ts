@@ -12,8 +12,10 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    // Code present but exchange failed -> typically expired/invalid magic link
+    return NextResponse.redirect(`${origin}/login?reset=expired`);
   }
 
-  // return the user to an error page with instructions
+  // No code -> generic auth error
   return NextResponse.redirect(`${origin}/login?error=auth`);
 }
