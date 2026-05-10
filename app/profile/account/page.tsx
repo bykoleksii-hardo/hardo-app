@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { SignOutButton } from './sign-out-button';
+import { ManagePlanButton, UpgradeButton } from './billing-buttons';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,13 +60,9 @@ export default async function AccountPage() {
             </div>
           </div>
           {isPaid ? (
-            <button type="button" disabled className="border border-[#11161E]/20 text-[#11161E]/50 tracking-[0.05em] px-6 py-3 rounded-sm cursor-not-allowed" title="Plan management coming soon">
-              Manage plan
-            </button>
+            <ManagePlanButton />
           ) : (
-            <Link href="/upgrade" className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-6 py-3 rounded-sm hover:bg-[#9C6F1E] transition-colors">
-              Upgrade to Hardo â
-            </Link>
+            <UpgradeButton />
           )}
         </div>
         <p className="text-[11px] tracking-[0.05em] text-[#11161E]/45">
