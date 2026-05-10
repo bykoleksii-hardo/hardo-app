@@ -1,7 +1,7 @@
 'use client';
 
 import Brand from '@/app/_components/Brand';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 
@@ -19,6 +19,17 @@ export default function LoginClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+
+  const [resetExpired, setResetExpired] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reset') === 'expired') {
+      setResetExpired(true);
+      setMode('forgot');
+    }
+  }, []);
 
   function reset() {
     setError(null);
@@ -120,6 +131,13 @@ export default function LoginClient() {
         <div className="max-w-md w-full mx-auto">
           {/* Brand */}
           <div className="mb-12"><Brand size="md" href="/" /></div>
+
+          {resetExpired ? (
+            <div className="mb-6 rounded-md border border-[#9C2E2E]/30 bg-[#9C2E2E]/5 px-4 py-3">
+              <div className="text-[13px] font-medium text-[#9C2E2E]">Your reset link expired</div>
+              <div className="mt-1 text-[12px] text-[#11161E]/70">Request a new password reset link below.</div>
+            </div>
+          ) : null}
 
           {/* Mode tabs */}
           {(mode === 'signin' || mode === 'signup' || mode === 'verify') && (
