@@ -50,15 +50,17 @@ export default function SummaryQuestions({ steps, isCompleted }: Props) {
   const mainSteps = useMemo(() => steps.filter((s) => !s.is_follow_up), [steps]);
 
   const followUpsByParent = useMemo(() => {
-    const map: Record<string, StepRow[]> = {};
+    const map = new Map<string, StepRow[]>();
     for (const s of steps) {
       if (s.is_follow_up && s.parent_step_id) {
-        if (!map[s.parent_step_id]) map[s.parent_step_id] = [];
-        map[s.parent_step_id].push(s);
+        const arr = map.get(s.parent_step_id) ?? [];
+        arr.push(s);
+        map.set(s.parent_step_id, arr);
       }
     }
-    for (const k of Object.keys(map)) {
-      map[k].sort((a, b) => a.order_index - b.order_index);
+    for (const [k, arr] of map.entries()) {
+      arr.sort((a, b) => a.order_index - b.order_index);
+      map.set(k, arr);
     }
     return map;
   }, [steps]);
@@ -88,7 +90,8 @@ export default function SummaryQuestions({ steps, isCompleted }: Props) {
         if (c !== cat) return false;
       }
       if (grade !== ALL) {
-        const g = ((s.ai_grade ?? s.ai_score ?? '') as string).toString().trim().charAt(0).toUpperCase();
+        const raw = (s.ai_grade ?? s.ai_score ?? '') as string;
+        const g = raw.toString().trim().charAt(0).toUpperCase();
         if (g !== grade) return false;
       }
       return true;

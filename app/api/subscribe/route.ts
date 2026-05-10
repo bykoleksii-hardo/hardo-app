@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,16 +18,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: 'invalid_email' }, { status: 400 });
   }
 
-  // Read Resend env from CF Workers runtime first, fallback to process.env (dev).
-  // @ts-ignore
-  const env = (globalThis as any).process?.env ?? {};
-  const apiKey: string | undefined = env.RESEND_API_KEY;
-  const audienceId: string | undefined = env.RESEND_AUDIENCE_ID;
-  const notifyTo: string | undefined = env.SUBSCRIBE_NOTIFY_TO;
-  const fromAddr: string = env.RESEND_FROM ?? 'HARDO <hello@hardo.app>';
+  const apiKey = process.env.RESEND_API_KEY;
+  const audienceId = process.env.RESEND_AUDIENCE_ID;
+  const notifyTo = process.env.SUBSCRIBE_NOTIFY_TO;
+  const fromAddr = process.env.RESEND_FROM ?? 'HARDO <hello@hardo.app>';
 
-  // No Resend configured — accept gracefully so the form still works
-  // (will be wired live once user adds RESEND_API_KEY in Cloudflare).
+  // No Resend configured — accept gracefully so the form still works.
+  // Will be wired live once user adds RESEND_API_KEY in Cloudflare secrets.
   if (!apiKey) {
     console.log('[subscribe] no RESEND_API_KEY, captured email locally only:', email);
     return NextResponse.json({ ok: true, queued: true });
@@ -70,7 +68,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     console.log('[subscribe] error', e?.message);
-    // Don't leak internals to user; accept the email anyway.
+    // Don't leak internals; accept the email anyway.
     return NextResponse.json({ ok: true, queued: true });
   }
 }
