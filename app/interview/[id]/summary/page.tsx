@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import Brand from '@/app/_components/Brand';
+import ShareLinkButton from './share-button';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -134,9 +135,12 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
             {'SCORECARD / '}{interview.candidate_level.toUpperCase()}
           </span>
         </div>
-        <a href="/interview/setup" className="text-[11px] tracking-[0.22em] border border-[#11161E]/20 px-4 py-2 hover:text-[#B88736]">
-          NEW INTERVIEW
-        </a>
+        <div className="flex items-center gap-3">
+          <ShareLinkButton />
+          <a href="/interview/setup" className="text-[11px] tracking-[0.22em] border border-[#11161E]/20 px-4 py-2 hover:text-[#B88736]">
+            NEW INTERVIEW
+          </a>
+        </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-8 py-12">

@@ -20,7 +20,7 @@ export default function Scorecard() {
   return (
     <div className="border border-line bg-paper rounded-md shadow-[0_1px_0_rgba(14,30,54,0.04)]">
       <div className="border-b border-line px-6 py-3 flex items-center justify-between font-mono text-[10.5px] uppercase tracking-widest text-muted">
-        <span>{'\u2014'} Scorecard {'\u00b7'} Session #047</span>
+        <span>{'\u2014'} Example output {'\u00b7'} Not your session</span>
         <span>Graded</span>
       </div>
       <div className="px-6 py-6 grid gap-1">

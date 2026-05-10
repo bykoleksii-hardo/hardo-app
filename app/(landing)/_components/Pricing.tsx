@@ -34,7 +34,7 @@ export default function Pricing() {
 
           <div className="border border-ink rounded-md p-8 bg-cream relative">
             <div className="absolute -top-3 left-8 bg-ink text-paper text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full">
-              Most picked
+              Recommended
             </div>
             <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Subscription</div>
             <div className="mt-1 font-serif text-[22px] font-medium">HARDO</div>

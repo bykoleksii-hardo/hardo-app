@@ -254,7 +254,7 @@ export default function LoginClient() {
 
           {/* footer */}
           <p className="text-[10px] tracking-[0.15em] uppercase text-[#11161E]/35 mt-12">
-            By continuing you agree to our terms.
+            By continuing you agree to our <a href="/legal/terms" className="underline underline-offset-2 hover:text-[#B88736]">Terms</a> and <a href="/legal/privacy" className="underline underline-offset-2 hover:text-[#B88736]">Privacy Policy</a>.
           </p>
         </div>
       </div>

@@ -41,18 +41,35 @@ export default async function KnowledgeIndex() {
         <section>
           <div className="max-w-page mx-auto px-6 py-16">
             {articles.length === 0 ? (
-              <div className="border border-line rounded-md bg-paper p-12 text-center max-w-2xl mx-auto">
-                <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Coming soon</div>
-                <p className="mt-3 font-serif text-[24px] font-light leading-snug">
-                  The first batch of write-ups is in the editor. Check back shortly.
-                </p>
-                <Link
-                  href="/"
-                  className="mt-6 inline-flex items-center gap-1.5 text-[13.5px] text-ink hover:text-gold transition-colors"
-                >
-                  <span aria-hidden>{'\u2190'}</span> Back to home
-                </Link>
-              </div>
+              <>
+                <div className="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3 opacity-60 pointer-events-none select-none" aria-hidden="true">
+                  {[
+                    { tag: 'Valuation', title: 'Why your DCF terminal value is probably wrong', date: 'Soon' },
+                    { tag: 'M&A / Case', title: 'How to think about synergies without sounding like a banker pitch', date: 'Soon' },
+                    { tag: 'Behavioral', title: 'Answer-first, then build: a structure that survives stress', date: 'Soon' },
+                  ].map((p) => (
+                    <div key={p.title}>
+                      <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted">{p.tag}</div>
+                      <div className="mt-3">
+                        <h2 className="font-serif text-[22px] font-medium leading-snug">{p.title}</h2>
+                      </div>
+                      <div className="mt-4 font-mono text-[10.5px] uppercase tracking-widest text-muted">{p.date}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-16 border border-line rounded-md bg-paper p-12 text-center max-w-2xl mx-auto">
+                  <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Coming soon</div>
+                  <p className="mt-3 font-serif text-[24px] font-light leading-snug">
+                    The first batch of write-ups is in the editor. Check back shortly.
+                  </p>
+                  <Link
+                    href="/"
+                    className="mt-6 inline-flex items-center gap-1.5 text-[13.5px] text-ink hover:text-gold transition-colors"
+                  >
+                    <span aria-hidden>{'\u2190'}</span> Back to home
+                  </Link>
+                </div>
+              </>
             ) : (
               <ul className="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
                 {articles.map((a) => {

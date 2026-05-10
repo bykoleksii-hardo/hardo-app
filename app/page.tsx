@@ -49,7 +49,7 @@ function AnonHero() {
       <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center">
         <div>
           <div className="kicker mb-4">AI mock interviews {'\u00b7'} Investment banking</div>
-          <h1 className="font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em]">
+          <h1 className="font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
             Practice against the bar. Not a chatbot.
           </h1>
           <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
@@ -64,6 +64,7 @@ function AnonHero() {
             </Link>
             <a href="#how" className="text-[14px] text-ink-2 hover:text-ink">How it works</a>
           </div>
+          <p className="mt-3 text-[13px] text-muted">Email + 6-digit code. No password to remember.</p>
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-muted">
             <span>No card required.</span>
             <span>{'\u2022'} 12 questions / session</span>
@@ -72,6 +73,12 @@ function AnonHero() {
           </div>
         </div>
         <Scorecard />
+      </div>
+      <div className="md:hidden fixed inset-x-0 bottom-0 z-50 border-t border-line bg-paper/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3">
+        <span className="text-[12px] font-mono uppercase tracking-widest text-muted">No card required</span>
+        <Link href="/login" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 rounded-full">
+          Try free <span aria-hidden>{'\u2192'}</span>
+        </Link>
       </div>
     </section>
   );
@@ -84,7 +91,7 @@ function FreeHero({ remaining }: { remaining: number }) {
       <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center">
         <div>
           <div className="kicker mb-4">Welcome back</div>
-          <h1 className="font-serif text-[52px] md:text-[68px] font-light leading-[1.04] tracking-[-0.022em]">
+          <h1 className="font-serif text-[52px] md:text-[68px] font-light leading-[1.04] tracking-[-0.022em] max-w-[18ch]">
             {hasFree ? 'Your free interview is ready.' : 'You\u2019ve used your free interview.'}
           </h1>
           <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
@@ -117,7 +124,7 @@ function PaidHero() {
       <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center">
         <div>
           <div className="kicker mb-4">HARDO subscription {'\u00b7'} active</div>
-          <h1 className="font-serif text-[52px] md:text-[68px] font-light leading-[1.04] tracking-[-0.022em]">
+          <h1 className="font-serif text-[52px] md:text-[68px] font-light leading-[1.04] tracking-[-0.022em] max-w-[18ch]">
             Pick a room. Sit the bar.
           </h1>
           <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
