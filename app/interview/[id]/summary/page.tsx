@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Brand from '@/app/_components/Brand';
 import ShareLinkButton from './share-button';
+import SummaryQuestions from './SummaryQuestions';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -189,82 +190,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        <h2 className="font-playfair text-2xl mb-6">Question by question</h2>
-        <ol className="space-y-6">
-          {mainSteps.map((s) => {
-            const followUps = followUpsByParent.get(s.id) ?? [];
-            const fb = parseFeedback(s.ai_feedback);
-            const grade = s.ai_grade ?? s.ai_score;
-            return (
-              <li key={s.id} className="border border-[#11161E]/10 bg-[#F2ECDF]/30 p-6">
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div>
-                    <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-2 flex items-center gap-3">
-                      <span>Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}</span>
-                      {(() => { const p = formatPace(s); if (!p) return null; return (
-                        <span className={p.over ? 'text-[#d47a7a]' : 'text-[#9ab87a]'}>{p.over ? 'OVERTIME ' : ''}{p.text}</span>
-                      ); })()}
-                    </div>
-                    <p className="font-playfair text-lg leading-[1.5]">{s.questions?.question}</p>
-                  </div>
-                  {isCompleted && (() => {
-                    const g = (grade ?? '').toString().trim();
-                    const tone = !g ? 'border-[#11161E]/20 text-[#11161E]/55'
-                      : g.startsWith('A') ? 'border-[#1F6F3D]/40 text-[#1F6F3D] bg-[#1F6F3D]/8'
-                      : g.startsWith('B') ? 'border-[#3F7A4A]/40 text-[#3F7A4A] bg-[#3F7A4A]/8'
-                      : g.startsWith('C') ? 'border-[#A85A1F]/40 text-[#A85A1F] bg-[#A85A1F]/8'
-                      : g === 'D' ? 'border-[#9C2E2E]/40 text-[#9C2E2E] bg-[#9C2E2E]/8'
-                      : g === 'F' ? 'border-[#7A1F1F]/50 text-[#7A1F1F] bg-[#7A1F1F]/10'
-                      : 'border-[#11161E]/20 text-[#11161E]/55';
-                    return (
-                      <div className={`shrink-0 border ${tone} px-4 py-2 text-center min-w-[60px]`}>
-                        <div className="font-playfair text-2xl leading-none">{g || 'N/A'}</div>
-                        <div className="text-[9px] tracking-[0.22em] mt-1 opacity-75">— GRADE</div>
-                      </div>
-                    );
-                  })()}
-                </div>
-                <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— YOUR ANSWER</div>
-                <p className="text-[#11161E]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
-                  {s.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}
-                </p>
-                {fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0) && (
-                  <div className="mt-5">
-                    <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— FEEDBACK</div>
-                    {fb.summary && <p className="text-[#11161E]/85 text-[14px] leading-[1.6] mb-3">{fb.summary}</p>}
-                    {fb.strengths.length > 0 && (
-                      <div className="mb-2">
-                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">— STRENGTHS</div>
-                        <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
-                          {fb.strengths.map((s,i) => <li key={i}>{s}</li>)}
-                        </ul>
-                      </div>
-                    )}
-                    {fb.weaknesses.length > 0 && (
-                      <div>
-                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">— WEAKNESSES</div>
-                        <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
-                          {fb.weaknesses.map((w,i) => <li key={i}>{w}</li>)}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {followUps.length > 0 && (
-                  <div className="mt-5 border-l border-[#B88736]/40 pl-4 space-y-4">
-                    <div className="text-[10px] tracking-[0.22em] text-[#B88736]">— FOLLOW-UPS</div>
-                    {followUps.map(f => (
-                      <div key={f.id} className="text-[13px]">
-                        <p className="font-playfair italic text-[#11161E]/75 mb-1">{f.custom_question ?? f.questions?.question}</p>
-                        <p className="text-[#11161E]/85 leading-[1.6] whitespace-pre-wrap">{f.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ol>
+        <SummaryQuestions steps={steps} isCompleted={isCompleted} />
 
         <div className="mt-12 text-center">
           <a href="/interview/setup" className="inline-block bg-[#B88736] text-[#FBF7EE] tracking-wide px-8 py-3 font-medium hover:bg-[#B88736]">

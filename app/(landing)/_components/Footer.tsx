@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Brand from '@/app/_components/Brand';
+import SubscribeForm from './SubscribeForm';
 
 export default function LandingFooter() {
   return (
@@ -10,28 +11,7 @@ export default function LandingFooter() {
           <p className="mt-4 max-w-sm text-ink-2 leading-relaxed">
             AI mock interviews for investment banking. Twelve questions per session, voice or text, a real scorecard at the end.
           </p>
-          <form
-            action="mailto:hello@hardo.app"
-            method="post"
-            encType="text/plain"
-            className="mt-6 flex max-w-sm items-center gap-2 border border-line rounded-full bg-paper pl-4 pr-1 py-1"
-          >
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="you@school.edu"
-              aria-label="Email for product updates"
-              className="flex-1 bg-transparent text-[13px] text-ink placeholder:text-muted outline-none py-1.5"
-            />
-            <button
-              type="submit"
-              className="bg-ink text-paper text-[12px] px-3.5 py-1.5 rounded-full hover:bg-navy transition-colors"
-            >
-              Notify me
-            </button>
-          </form>
-          <p className="mt-2 text-[11px] text-muted font-mono uppercase tracking-widest">No spam. New rooms and write-ups only.</p>
+          <SubscribeForm />
         </div>
         <div>
           <div className="kicker mb-3">Product</div>

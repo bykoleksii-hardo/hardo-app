@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import CommandPalette from '@/app/_components/CommandPalette';
 import { Inter_Tight, Fraunces, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
       <body className="font-sans bg-paper text-ink antialiased">
         {children}
+        <CommandPalette />
       </body>
     </html>
   );
