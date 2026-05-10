@@ -20,7 +20,21 @@ type StepRow = {
   questions: { question: string; category: string; subtopic: string | null } | null;
 };
 
-function formatPace(step: { created_at: string | null; answered_at: string | null; time_limit_seconds: number | null; was_overtime: boolean | null; }
+function formatPace(step: { created_at: string | null; answered_at: string | null; time_limit_seconds: number | null; was_overtime: boolean | null; }): { text: string; over: boolean } | null {
+  if (!step.created_at || !step.answered_at) return null;
+  const a = new Date(step.created_at).getTime();
+  const b = new Date(step.answered_at).getTime();
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b <= a) return null;
+  const elapsed = Math.max(0, Math.round((b - a) / 1000));
+  const limit = step.time_limit_seconds ?? null;
+  const over = !!step.was_overtime;
+  const fmt = (s: number) => {
+    const m = Math.floor(s/60); const r = s % 60;
+    return String(m).padStart(2,'0') + ':' + String(r).padStart(2,'0');
+  };
+  if (limit) return { text: fmt(elapsed) + ' of ' + fmt(limit), over };
+  return { text: fmt(elapsed), over };
+}
 
 type Props = {
   steps: StepRow[];
