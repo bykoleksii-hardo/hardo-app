@@ -1,3 +1,4 @@
+import Reveal from '@/app/_components/Reveal';
 const phases = [
   { name: 'Letter grade', body: 'A+ to F on every answer. The same scale a real reviewer scribbles in the margin — hidden until the end.' },
   { name: 'Skill radar', body: 'Six axes that mirror IB territory: Accounting, Valuation, Corp Finance, M&A / Case, PE / LBO, Behavioral.' },
@@ -8,6 +9,7 @@ const phases = [
 export default function WhatWeMeasure() {
   return (
     <section className="border-t border-line">
+      <Reveal>
       <div className="max-w-page mx-auto px-6 py-20">
         <div className="kicker mb-3">What we measure</div>
         <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-3xl">
@@ -31,6 +33,7 @@ export default function WhatWeMeasure() {
           <span className="border border-line rounded-full px-3 py-1">Saved to profile</span>
         </div>
       </div>
+      </Reveal>
     </section>
   );
 }

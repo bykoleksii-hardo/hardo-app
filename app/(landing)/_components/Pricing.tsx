@@ -1,8 +1,10 @@
+import Reveal from '@/app/_components/Reveal';
 import Link from 'next/link';
 
 export default function Pricing() {
   return (
     <section id="pricing" className="border-t border-line">
+      <Reveal>
       <div className="max-w-page mx-auto px-6 py-20">
         <div className="kicker mb-3">Pricing</div>
         <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-3xl">
@@ -61,6 +63,7 @@ export default function Pricing() {
           $12 {'\u00b7'} less than one hour with a tutor.
         </p>
       </div>
+      </Reveal>
     </section>
   );
 }

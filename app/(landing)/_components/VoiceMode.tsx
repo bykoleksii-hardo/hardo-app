@@ -1,6 +1,8 @@
+import Reveal from '@/app/_components/Reveal';
 export default function VoiceMode() {
   return (
     <section id="voice" className="border-t border-line bg-cream/60">
+      <Reveal>
       <div className="max-w-page mx-auto px-6 py-20 grid gap-12 md:grid-cols-2 md:items-center">
         <div>
           <div className="kicker mb-3">Voice mode</div>
@@ -45,6 +47,7 @@ export default function VoiceMode() {
           </div>
         </div>
       </div>
+      </Reveal>
     </section>
   );
 }

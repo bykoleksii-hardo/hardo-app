@@ -1,3 +1,4 @@
+import Reveal from '@/app/_components/Reveal';
 type Item = { q: string; a: string };
 
 const baseItems: Item[] = [
@@ -17,6 +18,7 @@ export default function FAQ({ showPricing = true }: { showPricing?: boolean }) {
   const items = showPricing ? [...baseItems, ...pricingItems] : baseItems;
   return (
     <section id="faq" className="border-t border-line">
+      <Reveal>
       <div className="max-w-page mx-auto px-6 py-20">
         <div className="kicker mb-3">FAQ</div>
         <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em]">
@@ -37,6 +39,7 @@ export default function FAQ({ showPricing = true }: { showPricing?: boolean }) {
           ))}
         </div>
       </div>
+      </Reveal>
     </section>
   );
 }

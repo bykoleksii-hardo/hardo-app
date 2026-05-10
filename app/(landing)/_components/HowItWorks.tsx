@@ -1,3 +1,4 @@
+import Reveal from '@/app/_components/Reveal';
 const steps = [
   {
     n: '01',
@@ -58,6 +59,7 @@ function StepVisual({ kind }: { kind: 'levels' | 'wave' | 'grade' }) {
 export default function HowItWorks() {
   return (
     <section id="how" className="border-t border-line bg-cream/40">
+      <Reveal>
       <div className="max-w-page mx-auto px-6 py-20">
         <div className="kicker mb-3">— How it works</div>
         <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-2xl">
@@ -77,6 +79,7 @@ export default function HowItWorks() {
           ))}
         </div>
       </div>
+      </Reveal>
     </section>
   );
 }

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
 
-type Mode = 'signin' | 'signup' | 'verify';
+type Mode = 'signin' | 'signup' | 'verify' | 'forgot' | 'forgotSent';
 
 export default function LoginClient() {
   const router = useRouter();
@@ -23,6 +23,25 @@ export default function LoginClient() {
   function reset() {
     setError(null);
     setInfo(null);
+  }
+
+  async function onForgot(e: React.FormEvent) {
+    e.preventDefault();
+    reset();
+    if (!email) {
+      setError('Enter your email first.');
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset`,
+    });
+    setLoading(false);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setMode('forgotSent');
   }
 
   async function onSignIn(e: React.FormEvent) {
@@ -103,6 +122,7 @@ export default function LoginClient() {
           <div className="mb-12"><Brand size="md" href="/" /></div>
 
           {/* Mode tabs */}
+          {(mode === 'signin' || mode === 'signup' || mode === 'verify') && (
           <div className="mb-8 text-xs tracking-[0.2em] uppercase text-[#11161E]/60 flex items-center gap-6">
             <button
               type="button"
@@ -119,6 +139,7 @@ export default function LoginClient() {
               Create account
             </button>
           </div>
+          )}
 
           {/* Heading */}
           <h1 className="font-serif text-4xl sm:text-5xl leading-tight mb-3">
@@ -148,9 +169,9 @@ export default function LoginClient() {
               </Field>
               <Field label="Password" hint={
                 <div className="flex items-center gap-4">
-                  <a href="mailto:hello@hardo.app?subject=Password reset" className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
+                  <button type="button" onClick={() => { setMode('forgot'); reset(); }} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
                     Forgot?
-                  </a>
+                  </button>
                   <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
                     {showPw ? 'Hide' : 'Show'}
                   </button>
@@ -196,9 +217,9 @@ export default function LoginClient() {
               </Field>
               <Field label="Password" hint={
                 <div className="flex items-center gap-4">
-                  <a href="mailto:hello@hardo.app?subject=Password reset" className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
+                  <button type="button" onClick={() => { setMode('forgot'); reset(); }} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
                     Forgot?
-                  </a>
+                  </button>
                   <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
                     {showPw ? 'Hide' : 'Show'}
                   </button>
@@ -260,6 +281,66 @@ export default function LoginClient() {
                 </button>
               </div>
             </form>
+          )}
+
+          {/* FORGOT PASSWORD - request */}
+          {mode === 'forgot' && (
+            <form onSubmit={onForgot} className="space-y-5">
+              <p className="text-[13px] text-[#11161E]/65 leading-relaxed">
+                We{'\u2019'}ll email you a link to set a new password. The link expires in one hour.
+              </p>
+
+              <Field label="Email">
+                <input
+                  type="email"
+                  autoComplete="email"
+                  required
+                  autoFocus
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  placeholder="you@school.edu"
+                />
+              </Field>
+
+              <Alert error={error} info={info} />
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] py-3.5 rounded-sm hover:bg-[#9C6F1E] transition-colors disabled:opacity-60"
+              >
+                {loading ? 'Sending\u2026' : 'Send reset link \u2192'}
+              </button>
+
+              <p className="text-[11px] text-[#11161E]/50 pt-2">
+                <button type="button" className="underline underline-offset-2 hover:text-[#B88736]" onClick={() => { setMode('signin'); reset(); }}>
+                  Back to sign in
+                </button>
+              </p>
+            </form>
+          )}
+
+          {/* FORGOT PASSWORD - sent confirmation */}
+          {mode === 'forgotSent' && (
+            <div className="space-y-5">
+              <div className="text-[11px] tracking-[0.22em] text-[#B88736]">{'\u2014'} CHECK YOUR INBOX</div>
+              <h3 className="font-serif text-2xl leading-snug">Reset link on the way.</h3>
+              <p className="text-[13px] text-[#11161E]/65 leading-relaxed">
+                If an account exists for <span className="text-[#11161E]">{email || 'that address'}</span>, a reset link is in your inbox now. Open it on this device to set a new password.
+              </p>
+              <p className="text-[12px] text-[#11161E]/50">
+                Don{'\u2019'}t see it? Check spam, then{' '}
+                <button type="button" className="underline underline-offset-2 hover:text-[#B88736]" onClick={() => { setMode('forgot'); reset(); }}>
+                  resend the link
+                </button>.
+              </p>
+              <p className="text-[11px] text-[#11161E]/50 pt-2">
+                <button type="button" className="underline underline-offset-2 hover:text-[#B88736]" onClick={() => { setMode('signin'); reset(); }}>
+                  Back to sign in
+                </button>
+              </p>
+            </div>
           )}
 
           {/* footer */}
