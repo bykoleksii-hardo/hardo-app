@@ -20,6 +20,12 @@ type StepRow = {
   questions: { question: string; category: string; subtopic: string | null } | null;
 };
 
+type ParsedFeedback = {
+  summary?: string;
+  strengths?: string[];
+  weaknesses?: string[];
+};
+
 function formatPace(step: { created_at: string | null; answered_at: string | null; time_limit_seconds: number | null; was_overtime: boolean | null; }): { text: string; over: boolean } | null {
   if (!step.created_at || !step.answered_at) return null;
   const a = new Date(step.created_at).getTime();
@@ -34,6 +40,20 @@ function formatPace(step: { created_at: string | null; answered_at: string | nul
   };
   if (limit) return { text: fmt(elapsed) + ' of ' + fmt(limit), over };
   return { text: fmt(elapsed), over };
+}
+
+function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[] } | null {
+  if (!raw) return null;
+  try {
+    const j = JSON.parse(raw) as ParsedFeedback;
+    return {
+      summary: typeof j.summary === 'string' ? j.summary : '',
+      strengths: Array.isArray(j.strengths) ? j.strengths : [],
+      weaknesses: Array.isArray(j.weaknesses) ? j.weaknesses : [],
+    };
+  } catch {
+    return { summary: raw, strengths: [], weaknesses: [] };
+  }
 }
 
 type Props = {
