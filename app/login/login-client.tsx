@@ -147,9 +147,14 @@ export default function LoginClient() {
                 />
               </Field>
               <Field label="Password" hint={
-                <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
-                  {showPw ? 'Hide' : 'Show'}
-                </button>
+                <div className="flex items-center gap-4">
+                  <a href="mailto:hello@hardo.app?subject=Password reset" className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
+                    Forgot?
+                  </a>
+                  <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
+                    {showPw ? 'Hide' : 'Show'}
+                  </button>
+                </div>
               }>
                 <input
                   type={showPw ? 'text' : 'password'}
@@ -190,9 +195,14 @@ export default function LoginClient() {
                 />
               </Field>
               <Field label="Password" hint={
-                <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
-                  {showPw ? 'Hide' : 'Show'}
-                </button>
+                <div className="flex items-center gap-4">
+                  <a href="mailto:hello@hardo.app?subject=Password reset" className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
+                    Forgot?
+                  </a>
+                  <button type="button" onClick={() => setShowPw(s => !s)} className="text-[10px] tracking-[0.2em] uppercase text-[#11161E]/50 hover:text-[#B88736]">
+                    {showPw ? 'Hide' : 'Show'}
+                  </button>
+                </div>
               }>
                 <input
                   type={showPw ? 'text' : 'password'}
