@@ -43,7 +43,7 @@ export default function SubscribeForm() {
     return (
       <div className="mt-6 max-w-sm">
         <div className="border border-line rounded-full bg-paper px-4 py-2.5 text-[13px] text-ink">
-          Thanks. We&rsquo;ll be in touch.
+          Check your inbox to confirm.
         </div>
         <p className="mt-2 text-[11px] text-muted font-mono uppercase tracking-widest">
           You can unsubscribe any time.
