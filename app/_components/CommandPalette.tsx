@@ -7,9 +7,10 @@ type Cmd = {
   id: string;
   label: string;
   hint?: string;
-  group: 'GO' | 'INTERVIEW' | 'ACCOUNT' | 'LEGAL' | 'HELP';
+  group: 'GO' | 'INTERVIEW' | 'ACCOUNT' | 'LEGAL' | 'HELP' | 'ADMIN';
   href?: string;
   action?: () => void;
+  adminOnly?: boolean;
   keywords?: string;
 };
 
@@ -33,7 +34,8 @@ const COMMANDS: Cmd[] = [
   { id: 'terms', label: 'Terms of Service', hint: '/legal/terms', group: 'LEGAL', href: '/legal/terms' },
   { id: 'privacy', label: 'Privacy Policy', hint: '/legal/privacy', group: 'LEGAL', href: '/legal/privacy' },
 
-  { id: 'contact', label: 'Contact us', hint: 'mailto:hello@hardo.app', group: 'HELP', href: 'mailto:hello@hardo.app', keywords: 'email support help' },
+  { id: 'contact', label: 'Contact us', hint: 'mailto:hello@hardo.app', group: 'HELP', href: 'mailto:hello@hardo.app', keywords: 'email support help' },,
+  { id: 'admin-knowledge', label: 'Admin: Knowledge Hub', hint: '/admin/knowledge', group: 'ADMIN', href: '/admin/knowledge', adminOnly: true, keywords: 'admin manage articles cms' }
 ];
 
 function score(cmd: Cmd, q: string): number {
@@ -52,7 +54,8 @@ function score(cmd: Cmd, q: string): number {
   return i === needle.length ? 10 : 0;
 }
 
-export default function CommandPalette() {
+export default function CommandPalette({ isAdmin = false }: { isAdmin?: boolean }) {
+  const visibleCommands = isAdmin ? COMMANDS : COMMANDS.filter((c) => !c.adminOnly);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [active, setActive] = useState(0);
@@ -88,7 +91,7 @@ export default function CommandPalette() {
   }, [open]);
 
   const results = useMemo(() => {
-    const arr = COMMANDS.map((c) => ({ c, s: score(c, q) }))
+    const arr = visibleCommands.map((c) => ({ c, s: score(c, q) }))
       .filter((x) => x.s > 0)
       .sort((a, b) => b.s - a.s);
     return arr.map((x) => x.c);
@@ -130,7 +133,7 @@ export default function CommandPalette() {
   }
 
   // Group results in rendering order
-  const groupOrder: Cmd['group'][] = ['INTERVIEW', 'GO', 'ACCOUNT', 'LEGAL', 'HELP'];
+  const groupOrder: Cmd['group'][] = ['ADMIN', 'INTERVIEW', 'GO', 'ACCOUNT', 'LEGAL', 'HELP'];
   const grouped: Record<string, Cmd[]> = {};
   for (const c of results) {
     (grouped[c.group] ||= []).push(c);

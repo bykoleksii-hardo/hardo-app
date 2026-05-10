@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getViewerPlan } from '@/lib/quota/server';
+import { getUserRole } from '@/lib/auth/roles';
 import LandingHeader from './(landing)/_components/Header';
 import LandingFooter from './(landing)/_components/Footer';
 import HowItWorks from './(landing)/_components/HowItWorks';
@@ -21,10 +22,12 @@ export const dynamic = 'force-dynamic';
 export default async function Page() {
   const viewer = await getViewerPlan();
   const signedIn = viewer.plan !== 'anon';
+  const role = signedIn ? await getUserRole() : 'user';
+  const isAdmin = role === 'admin' || role === 'editor';
 
   return (
     <>
-      <LandingHeader signedIn={signedIn} />
+      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} />
       <main>
         {viewer.plan === 'anon' && <AnonHero />}
         {viewer.plan === 'free' && <FreeHero remaining={viewer.interviews_remaining ?? 0} />}

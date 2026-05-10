@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import CommandPalette from '@/app/_components/CommandPalette';
+import { getUserRole } from '@/lib/auth/roles';
 import { Inter_Tight, Fraunces, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
@@ -51,12 +52,14 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const role = await getUserRole();
+  const isAdmin = role === 'admin' || role === 'editor';
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
       <body className="font-sans bg-paper text-ink antialiased">
         {children}
-        <CommandPalette />
+        <CommandPalette isAdmin={isAdmin} />
       </body>
     </html>
   );
