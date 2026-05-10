@@ -41,7 +41,7 @@ export default function Pricing() {
             <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Subscription</div>
             <div className="mt-1 font-serif text-[22px] font-medium">HARDO</div>
             <div className="mt-5 flex items-baseline gap-2">
-              <span className="font-serif text-[56px] font-light leading-none">$12</span>
+              <span className="font-serif text-[56px] font-light leading-none">$12.99</span>
               <span className="text-[13px] text-muted">/ month {'\u00b7'} cancel anytime</span>
             </div>
             <ul className="mt-8 space-y-3 text-[14.5px] text-ink-2">
@@ -60,7 +60,7 @@ export default function Pricing() {
         </div>
 
         <p className="mt-8 text-[13px] text-muted font-mono uppercase tracking-widest">
-          $12 {'\u00b7'} less than one hour with a tutor.
+          $12.99 {'\u00b7'} less than one hour with a tutor.
         </p>
       </div>
       </Reveal>
