@@ -118,6 +118,9 @@ function shortLabel(q: Question | null, idx: number) {
   const tail = (q.subtopic && q.subtopic.length <= 28 ? q.subtopic : null) ?? q.category;
   return `Q${String(idx).padStart(2, '0')} - ${tail}`;
 }
+function lockedLabel(idx: number) {
+  return `Q${String(idx).padStart(2, '0')} - ─────`;
+}
 
 function buildBlockTranscript(baseStep: StepRow, allSteps: StepRow[], allAnswers: AnswerRow[]): ChatMsg[] {
   const out: ChatMsg[] = [];
@@ -644,6 +647,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
               const done = s.ai_status === 'done';
               const active = s.id === activeBaseId;
               const locked = !done && !active && s.id !== firstPendingId;
+              // Reveal category/subtopic only for questions the user has reached.
+              const revealed = done || active;
               const cat = s.questions?.category ?? '';
               return (
                 <li key={s.id}>
@@ -652,9 +657,9 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     disabled={locked}
                     className={`w-full text-left flex items-center gap-2 px-2 py-2 text-[12px] ${active ? 'bg-[#B88736]/10 border-l-2 border-[#B88736]' : ''}`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: colorFor(cat) }} />
-                    <span className={`flex-1 ${locked ? 'text-[#11161E]/35' : 'text-[#11161E]/85'}`}>
-                      {shortLabel(s.questions, s.order_index)}
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: revealed ? colorFor(cat) : 'rgba(17,22,30,0.2)' }} />
+                    <span className={`flex-1 ${revealed ? 'text-[#11161E]/85' : 'text-[#11161E]/35'}`}>
+                      {revealed ? shortLabel(s.questions, s.order_index) : lockedLabel(s.order_index)}
                     </span>
                     {done && <span className="text-[10px] tracking-[0.18em] text-[#9ab87a]">DONE</span>}
                     {active && !done && <span className="text-[10px] tracking-[0.18em] text-[#B88736]">NOW</span>}
