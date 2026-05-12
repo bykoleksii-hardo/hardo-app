@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { withLogging } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export async function POST(req: Request) {
+export const POST = withLogging('subscribe.create', async (req: Request, _ctx) => {
   let email = '';
   try {
     const body = await req.json();
@@ -94,4 +95,4 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ ok: true, pending: true });
-}
+});

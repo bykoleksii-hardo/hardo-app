@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { withLogging } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: Request) {
+export const GET = withLogging('subscribe.confirm', async (req: Request, _ctx) => {
   const url = new URL(req.url);
   const token = url.searchParams.get('token') ?? '';
   const origin = url.origin;
@@ -37,7 +38,7 @@ export async function GET(req: Request) {
   if (rpcStatus === 'invalid') return redirectWith('invalid');
   if (rpcStatus === 'already_confirmed') return redirectWith('already');
 
-  // rpcStatus === 'confirmed' — wire to Resend audience + notify
+  // rpcStatus === 'confirmed' â wire to Resend audience + notify
   const apiKey = process.env.RESEND_API_KEY;
   const audienceId = process.env.RESEND_AUDIENCE_ID;
   const notifyTo = process.env.SUBSCRIBE_NOTIFY_TO;
@@ -80,4 +81,4 @@ export async function GET(req: Request) {
   }
 
   return redirectWith('success');
-}
+});

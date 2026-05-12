@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { withLogging } from '@/lib/observability';
 
-export async function GET() {
+export const GET = withLogging('quota.get', async (_ctx) => {
   try {
     const supabase = await getSupabaseServer();
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
@@ -17,4 +18,4 @@ export async function GET() {
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? 'Unknown error' }, { status: 500 });
   }
-}
+});
