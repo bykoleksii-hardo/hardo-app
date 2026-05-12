@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/lib/types';
+import { parseApiError, formatApiError } from '@/lib/observability';
 
 interface Props {
   initial: UserProfile | null;
@@ -95,12 +96,15 @@ export function AboutForm({ initial, email }: Props) {
           use_in_persona: state.use_in_persona,
         }),
       });
-      const j = await res.json();
-      if (!res.ok) throw new Error(j.error || 'Save failed');
+      if (!res.ok) {
+        const err = await parseApiError(res, 'Save failed');
+        throw err;
+      }
+      await res.json();
       setSavedAt(Date.now());
       router.refresh();
     } catch (e: any) {
-      setError(e?.message ?? 'Something went wrong');
+      setError(formatApiError(e, 'Something went wrong'));
     } finally {
       setSaving(false);
     }
@@ -110,9 +114,9 @@ export function AboutForm({ initial, email }: Props) {
     <div className="space-y-10 max-w-3xl pb-32">
       {showWizard && (
         <div className="border border-[#B88736]/40 rounded-sm p-6 bg-[#B88736]/5">
-          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— WELCOME</div>
+          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">â WELCOME</div>
           <h2 className="font-serif text-2xl mb-2">Let's set up your room.</h2>
-          <p className="text-sm text-[#11161E]/70 max-w-xl">A few details so the interviewer doesn't sound generic. Everything's optional — you can fill it out now or come back later.</p>
+          <p className="text-sm text-[#11161E]/70 max-w-xl">A few details so the interviewer doesn't sound generic. Everything's optional â you can fill it out now or come back later.</p>
           <div className="mt-4 flex items-center gap-3">
             <div className="flex-1 h-1.5 bg-[#11161E]/10 rounded-sm overflow-hidden">
               <div className="h-full bg-[#B88736] transition-all" style={{ width: `${completeness}%` }} />
@@ -125,7 +129,7 @@ export function AboutForm({ initial, email }: Props) {
       <section className="border border-[#11161E]/10 rounded-sm p-6">
         <div className="flex items-start justify-between gap-6">
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-1">— PERSONALIZATION</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-1">â PERSONALIZATION</div>
             <h3 className="font-serif text-xl mb-1">Use my profile in interviews</h3>
             <p className="text-sm text-[#11161E]/65 max-w-xl">When on, the interviewer can reference your school, role, and background to ask sharper, more personal follow-ups.</p>
           </div>
@@ -180,7 +184,7 @@ export function AboutForm({ initial, email }: Props) {
         />
         <TextArea
           label="Bio (optional)"
-          hint="Anything personal you want the interviewer to know — hobbies, motivations, why banking."
+          hint="Anything personal you want the interviewer to know â hobbies, motivations, why banking."
           value={state.bio}
           onChange={(v) => update('bio', v)}
           rows={4}
@@ -209,7 +213,7 @@ function Section({ title, subtitle, children }: { title: string; subtitle?: stri
   return (
     <section className="space-y-5">
       <div>
-        <div className="text-[11px] tracking-[0.22em] text-[#B88736]">— {title}</div>
+        <div className="text-[11px] tracking-[0.22em] text-[#B88736]">â {title}</div>
         {subtitle && <p className="text-sm text-[#11161E]/60 mt-1">{subtitle}</p>}
       </div>
       <div className="space-y-4">{children}</div>

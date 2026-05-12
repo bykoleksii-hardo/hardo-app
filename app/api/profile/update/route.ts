@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { withLogging } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,7 @@ const ALLOWED_KEYS = [
 
 type AllowedKey = (typeof ALLOWED_KEYS)[number];
 
-export async function PATCH(request: Request) {
+export const PATCH = withLogging('profile.update', async (request: Request, _ctx) => {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -75,4 +76,4 @@ export async function PATCH(request: Request) {
   }
 
   return NextResponse.json({ ok: true });
-}
+});
