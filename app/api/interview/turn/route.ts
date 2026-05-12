@@ -257,7 +257,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     if (followUpsSoFar >= maxFollowUps) {
       ai.kind = 'close_block';
       ai.grade = ai.grade || 'B';
-      ai.feedback = ai.feedback || 'Closing the block â follow-up limit reached.';
+      ai.feedback = ai.feedback || 'Closing the block — follow-up limit reached.';
     } else {
       const { data: insertResult, error: insertErr } = await supabase.rpc('insert_followup_step', {
         p_interview_id: interviewId,

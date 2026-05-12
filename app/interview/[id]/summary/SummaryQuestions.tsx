@@ -171,7 +171,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
 
       {filteredSteps.length === 0 ? (
         <div className="border border-dashed border-[#11161E]/20 bg-[#F2ECDF]/30 p-8 text-center">
-          <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-2">â NO MATCHES</div>
+          <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-2">— NO MATCHES</div>
           <p className="text-[#11161E]/65 text-[14px] mb-4">
             No questions match these filters.
           </p>
@@ -195,7 +195,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
                     <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-2 flex items-center gap-3">
-                      <span>Q{String(s.order_index).padStart(2,'0')}{' Â· '}{(s.questions?.category ?? '').toUpperCase()}</span>
+                      <span>Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}</span>
                       {(() => { const p = formatPace(s); if (!p) return null; return (
                         <span className={p.over ? 'text-[#d47a7a]' : 'text-[#9ab87a]'}>{p.over ? 'OVERTIME ' : ''}{p.text}</span>
                       ); })()}
@@ -214,22 +214,22 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                     return (
                       <div className={`shrink-0 border ${tone} px-4 py-2 text-center min-w-[60px]`}>
                         <div className="font-playfair text-2xl leading-none">{g || 'N/A'}</div>
-                        <div className="text-[9px] tracking-[0.22em] mt-1 opacity-75">â GRADE</div>
+                        <div className="text-[9px] tracking-[0.22em] mt-1 opacity-75">— GRADE</div>
                       </div>
                     );
                   })()}
                 </div>
-                <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">â YOUR ANSWER</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— YOUR ANSWER</div>
                 <p className="text-[#11161E]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
                   {s.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}
                 </p>
                 {fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0) && (
                   <div className="mt-5">
-                    <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">â FEEDBACK</div>
+                    <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— FEEDBACK</div>
                     {fb.summary && <p className="text-[#11161E]/85 text-[14px] leading-[1.6] mb-3">{fb.summary}</p>}
                     {fb.strengths.length > 0 && (
                       <div className="mb-2">
-                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">â STRENGTHS</div>
+                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">— STRENGTHS</div>
                         <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
                           {fb.strengths.map((s,i) => <li key={i}>{s}</li>)}
                         </ul>
@@ -237,7 +237,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                     )}
                     {fb.weaknesses.length > 0 && (
                       <div>
-                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">â WEAKNESSES</div>
+                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">— WEAKNESSES</div>
                         <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
                           {fb.weaknesses.map((w,i) => <li key={i}>{w}</li>)}
                         </ul>
@@ -247,7 +247,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                 )}
                 {followUps.length > 0 && (
                   <div className="mt-5 border-l border-[#B88736]/40 pl-4 space-y-4">
-                    <div className="text-[10px] tracking-[0.22em] text-[#B88736]">â FOLLOW-UPS</div>
+                    <div className="text-[10px] tracking-[0.22em] text-[#B88736]">— FOLLOW-UPS</div>
                     {followUps.map(f => (
                       <div key={f.id} className="text-[13px]">
                         <p className="font-playfair italic text-[#11161E]/75 mb-1">{f.custom_question ?? f.questions?.question}</p>

@@ -20,7 +20,7 @@ const INPUT_MODES: Array<{ id: InputMode; title: string; tagline: string; bullet
     id: 'voice',
     title: 'Speak your answers',
     tagline: 'Closer to the real superday: think out loud, sound natural, hit the timer.',
-    bullets: ['1 minute per question', '2 minutes for the case study', 'Microphone required â transcript is editable'],
+    bullets: ['1 minute per question', '2 minutes for the case study', 'Microphone required — transcript is editable'],
   },
 ];
 
@@ -37,9 +37,9 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
     id: 'intern',
     title: 'Intern',
     tagline: 'First superday season. Build muscle on the basics before the real heat.',
-    pitch: "Foundations of accounting, valuation, and a soft fit-check. No deal walk-throughs â we keep follow-ups gentle and let you build muscle before the real heat.",
+    pitch: "Foundations of accounting, valuation, and a soft fit-check. No deal walk-throughs — we keep follow-ups gentle and let you build muscle before the real heat.",
     tags: ['3 statements', 'Comps & DCF basics', 'Why banking', 'Soft fit'],
-    sample: { q: 'Walk me through how $10 of depreciation flows through the three statements. Take your time â I want to hear the logic, not just the numbers.', phase: 'Accounting', grade: 'B-' },
+    sample: { q: 'Walk me through how $10 of depreciation flows through the three statements. Take your time — I want to hear the logic, not just the numbers.', phase: 'Accounting', grade: 'B-' },
     tone: 'foundations',
   },
   {
@@ -153,12 +153,12 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
 
       <main className="max-w-[1320px] mx-auto px-12 py-16">
         <div className="mb-12">
-          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">â PICK YOUR ROOM</div>
+          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— PICK YOUR ROOM</div>
           <h1 className="font-playfair text-5xl leading-[1.05]">
             Choose the <span className="italic text-[#B88736]">level</span> that matches today.
           </h1>
           <p className="mt-4 text-[#11161E]/65 max-w-xl text-lg">
-            Twelve questions. Same superday flow â fit, technicals, deal walks, a curveball.
+            Twelve questions. Same superday flow — fit, technicals, deal walks, a curveball.
             What changes is how hard the room hits back.
           </p>
         </div>
@@ -199,7 +199,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 <h2 className="font-playfair text-3xl italic mb-3">{lvl.title}</h2>
                 <p className="text-sm text-[#11161E]/70 leading-relaxed mb-5 flex-1">{lvl.tagline}</p>
                 <div className="flex items-center justify-between text-[11px] tracking-[0.18em]">
-                  <span className="text-[#B88736]">â 12 QUESTIONS</span>
+                  <span className="text-[#B88736]">— 12 QUESTIONS</span>
                   <span className="text-[#11161E]/45">{lvl.tone.toUpperCase()}</span>
                 </div>
               </button>
@@ -211,13 +211,13 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-8 mt-14">
           <div className="border-t border-[#11161E]/10 pt-8">
             <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-5">
-              WHAT YOU'LL GET <span className="text-[#B88736]">â {active.title.toUpperCase()}</span>
+              WHAT YOU'LL GET <span className="text-[#B88736]">— {active.title.toUpperCase()}</span>
             </div>
             <p className="font-playfair text-2xl leading-[1.4] text-[#11161E]/95">{active.pitch}</p>
             <div className="flex flex-wrap gap-2 mt-6">
               {active.tags.map((t) => (
                 <span key={t} className="text-[11px] tracking-[0.18em] text-[#11161E]/65 border border-[#11161E]/15 px-3 py-1.5">
-                  â {t.toUpperCase()}
+                  — {t.toUpperCase()}
                 </span>
               ))}
             </div>
@@ -226,11 +226,11 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
           <div className="bg-[#F2ECDF] border border-[#11161E]/10 rounded-sm p-7">
             <div className="flex items-center justify-between mb-5 text-[11px] tracking-[0.22em]">
               <span className="text-[#11161E]/55">SAMPLE QUESTION</span>
-              <span className="text-[#B88736]">â {active.title.toUpperCase()}</span>
+              <span className="text-[#B88736]">— {active.title.toUpperCase()}</span>
             </div>
             <p className="font-playfair text-lg leading-[1.5] text-[#11161E]/95">{active.sample.q}</p>
             <div className="flex items-center justify-between mt-6 pt-5 border-t border-[#11161E]/10 text-[11px] tracking-[0.18em] text-[#11161E]/55">
-              <span>SAMPLE â {active.sample.phase.toUpperCase()}</span>
+              <span>SAMPLE — {active.sample.phase.toUpperCase()}</span>
               <span>BENCHMARK: {active.sample.grade}</span>
             </div>
           </div>
@@ -239,12 +239,12 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         {/* MODE PICKER (revealed after level is confirmed) */}
         {stage === 'mode' && (
           <div className="mt-14">
-            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">â HOW WILL YOU ANSWER?</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— HOW WILL YOU ANSWER?</div>
             <h2 className="font-playfair text-3xl leading-[1.1] mb-2">
               Pick your <span className="italic text-[#B88736]">delivery</span> for this round.
             </h2>
             <p className="text-[#11161E]/60 text-sm max-w-xl mb-8">
-              You canât switch mid-interview â choose the one closest to how you want to drill today.
+              You can’t switch mid-interview — choose the one closest to how you want to drill today.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {INPUT_MODES.map((m) => {
@@ -258,7 +258,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                   >
                     <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
                       <span className={isActive ? 'text-[#B88736]' : 'text-[#11161E]/55'}>
-                        {m.id === 'voice' ? 'â VOICE' : 'â TEXT'}
+                        {m.id === 'voice' ? '— VOICE' : '— TEXT'}
                       </span>
                       {isActive && <span className="text-[#B88736]">SELECTED</span>}
                     </div>
@@ -266,7 +266,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                     <p className="text-sm text-[#11161E]/70 mb-5 leading-relaxed">{m.tagline}</p>
                     <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-[#11161E]/65">
                       {m.bullets.map((b) => (
-                        <li key={b}>â {b.toUpperCase()}</li>
+                        <li key={b}>— {b.toUpperCase()}</li>
                       ))}
                     </ul>
                   </button>

@@ -38,7 +38,7 @@ export const GET = withLogging('subscribe.confirm', async (req: Request, _ctx) =
   if (rpcStatus === 'invalid') return redirectWith('invalid');
   if (rpcStatus === 'already_confirmed') return redirectWith('already');
 
-  // rpcStatus === 'confirmed' â wire to Resend audience + notify
+  // rpcStatus === 'confirmed' — wire to Resend audience + notify
   const apiKey = process.env.RESEND_API_KEY;
   const audienceId = process.env.RESEND_AUDIENCE_ID;
   const notifyTo = process.env.SUBSCRIBE_NOTIFY_TO;
