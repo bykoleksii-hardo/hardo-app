@@ -44,6 +44,7 @@ export default function LandingFooter({ signedIn = false, isPaid = false }: Prop
               </>
             )}
             <li><a href="mailto:hello@hardo.app" className="hover:text-ink">Contact</a></li>
+            <li><a href="mailto:suggestions@hardo.app?subject=HARDO%20Feedback%20%2F%20Suggestion" className="hover:text-ink">Feedback / Suggestions</a></li>
             <li><Link href="/legal/terms" className="hover:text-ink">Terms</Link></li>
             <li><Link href="/legal/privacy" className="hover:text-ink">Privacy</Link></li>
           </ul>
