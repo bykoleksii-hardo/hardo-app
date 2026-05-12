@@ -17,12 +17,14 @@ export function ManagePlanButton() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
         setStatus('error');
-        setMsg(
-          data?.message ??
-            (res.status === 503
-              ? 'Plan management not available yet. Try again later.'
-              : 'Could not open the customer portal.')
-        );
+        const reqId = res.headers.get('x-request-id');
+        const baseMessage =
+          (data?.message as string | undefined) ??
+          (res.status === 503
+            ? 'Plan management not available yet. Try again later.'
+            : 'Could not open the customer portal.');
+        const shape: ApiErrorShape = { status: res.status, message: baseMessage, requestId: reqId, raw: data };
+        setMsg(formatApiError(shape));
         return;
       }
       window.location.href = data.url as string;
