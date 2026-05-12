@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getCustomerPortalUrl } from '@/lib/lemonsqueezy';
+import { withLogging } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function POST() {
+export const POST = withLogging('POST /api/billing/portal', async (_req: Request, _ctx: { requestId: string }) => {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -43,4 +44,4 @@ export async function POST() {
     const msg = e instanceof Error ? e.message : 'unknown';
     return NextResponse.json({ error: 'portal_failed', message: msg }, { status: 500 });
   }
-}
+});
