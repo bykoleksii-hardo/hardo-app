@@ -46,12 +46,14 @@ function formatMMSS(secs: number): string {
   return sign + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
 }
 
+const OVERTIME_LIMIT_SECONDS = 30;
+
 function QuestionTimer(props: { startedAt: string | null; limitSeconds: number; disabled?: boolean }) {
   const { startedAt, limitSeconds, disabled } = props;
   const [now, setNow] = useState<number>(() => Date.now());
   useEffect(() => {
     if (disabled) return;
-    const id = setInterval(() => setNow(Date.now()), 500);
+    const id = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(id);
   }, [disabled]);
   if (!startedAt) return null;
@@ -60,21 +62,37 @@ function QuestionTimer(props: { startedAt: string | null; limitSeconds: number; 
   const elapsedSec = Math.max(0, Math.floor((now - startMs) / 1000));
   const remainSec = limitSeconds - elapsedSec;
   const isOver = remainSec < 0;
+  const overtimeElapsed = isOver ? Math.min(OVERTIME_LIMIT_SECONDS, elapsedSec - limitSeconds) : 0;
+  const overtimeRemain = Math.max(0, OVERTIME_LIMIT_SECONDS - overtimeElapsed);
+  const overtimeRatio = isOver ? overtimeElapsed / OVERTIME_LIMIT_SECONDS : 0;
   const ratio = elapsedSec / Math.max(1, limitSeconds);
   // green < 70%, gold 70-100%, red > 100%
   const color = isOver ? '#d47a7a' : ratio >= 0.7 ? '#B88736' : '#9ab87a';
+  // Urgent: last 10s of overtime — pulse.
+  const urgent = isOver && overtimeRemain <= 10;
   const label = isOver ? 'OVERTIME' : 'TIME LEFT';
-  const display = isOver ? '+' + formatMMSS(elapsedSec - limitSeconds) : formatMMSS(Math.max(0, remainSec));
-  const pct = Math.min(100, Math.max(0, ratio * 100));
+  const display = isOver ? '+' + formatMMSS(overtimeElapsed) : formatMMSS(Math.max(0, remainSec));
+  const pct = isOver ? overtimeRatio * 100 : Math.min(100, Math.max(0, ratio * 100));
+  const pulseStyle: React.CSSProperties = urgent ? { animation: 'hardo-pulse 900ms ease-in-out infinite' } : {};
   return (
-    <div className="flex items-center gap-3 text-[11px] tracking-[0.22em]" style={{ color }}>
+    <div className="flex items-center gap-3 text-[11px] tracking-[0.22em]" style={{ color, ...pulseStyle }}>
+      <style dangerouslySetInnerHTML={{ __html: '@keyframes hardo-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }' }} />
       <span className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: isOver ? '0 0 8px ' + color : 'none' }} />
       <span>{label}</span>
       <span className="font-mono text-[14px] tracking-normal" style={{ color }}>{display}</span>
-      <span className="text-[#11161E]/30">|</span>
-      <span className="text-[#11161E]/45 tracking-normal text-[10px]">soft limit {formatMMSS(limitSeconds)}</span>
+      {isOver ? (
+        <>
+          <span className="text-[#11161E]/30">|</span>
+          <span className="text-[#11161E]/55 tracking-normal text-[10px]">auto-lock in {formatMMSS(overtimeRemain)}</span>
+        </>
+      ) : (
+        <>
+          <span className="text-[#11161E]/30">|</span>
+          <span className="text-[#11161E]/45 tracking-normal text-[10px]">soft limit {formatMMSS(limitSeconds)}</span>
+        </>
+      )}
       <div className="flex-1 h-[2px] bg-[#11161E]/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
-        <div style={{ width: pct + '%', height: '100%', background: color, transition: 'width 400ms linear' }} />
+        <div style={{ width: pct + '%', height: '100%', background: color, transition: 'width 250ms linear' }} />
       </div>
     </div>
   );
@@ -119,7 +137,7 @@ function shortLabel(q: Question | null, idx: number) {
   return `Q${String(idx).padStart(2, '0')} - ${tail}`;
 }
 function lockedLabel(idx: number) {
-  return `Q${String(idx).padStart(2, '0')} - ─────`;
+  return `Q${String(idx).padStart(2, '0')} - âââââ`;
 }
 
 function buildBlockTranscript(baseStep: StepRow, allSteps: StepRow[], allAnswers: AnswerRow[]): ChatMsg[] {
@@ -477,7 +495,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     const startMs = new Date(timerInfo.startedAt).getTime();
     if (!Number.isFinite(startMs)) return;
     const elapsedSec = (nowMs - startMs) / 1000;
-    if (elapsedSec > timerInfo.limitSeconds + 30) {
+    if (elapsedSec > timerInfo.limitSeconds + OVERTIME_LIMIT_SECONDS) {
       autoStopArmedRef.current[roundKey] = true;
       if (inputMode === 'voice' && recState === 'recording') {
         stopRecording();
