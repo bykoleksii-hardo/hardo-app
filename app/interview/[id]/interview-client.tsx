@@ -307,10 +307,15 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         fd.append('audio', blob, 'audio.webm');
         fd.append('stepId', activeBase.id);
         const r = await fetch('/api/transcribe', { method: 'POST', body: fd });
-        const data = await r.json();
         if (!r.ok) {
-          throw new Error(data.friendly || data.error || 'Voice transcription failed.');
+          const shape = await parseApiError(r);
+          const friendly =
+            ((shape.raw as { friendly?: string } | undefined)?.friendly) ||
+            shape.message ||
+            'Voice transcription failed.';
+          throw new Error(formatApiError({ ...shape, message: friendly }));
         }
+        const data = await r.json();
         const newPiece = String(data.text || '').trim();
         setDraft(prev => prev ? (prev.replace(/\s+$/, '') + ' ' + newPiece) : newPiece);
         // Reset 10s review window so user has the full 10s starting NOW (when text actually appears).
@@ -556,8 +561,12 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
               body: JSON.stringify({ interviewId }),
             });
             if (!fr.ok) {
-              const errBody = await fr.json().catch(() => ({}));
-              throw new Error(errBody.friendly || errBody.error || 'Failed to finalize the interview. Please try again.');
+              const shape = await parseApiError(fr);
+              const friendly =
+                ((shape.raw as { friendly?: string } | undefined)?.friendly) ||
+                shape.message ||
+                'Failed to finalize the interview. Please try again.';
+              throw new Error(formatApiError({ ...shape, message: friendly }));
             }
           } catch (e) {
             setFinalizing(false);
