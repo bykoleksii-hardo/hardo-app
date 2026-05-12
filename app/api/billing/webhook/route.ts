@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { verifyWebhookSignature, normalizeSubscriptionStatus } from '@/lib/lemonsqueezy';
+import { withLogging } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,7 @@ interface LsWebhookEnvelope {
   };
 }
 
-export async function POST(req: Request) {
+export const POST = withLogging('POST /api/billing/webhook', async (req: Request, _ctx: { requestId: string }) => {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
   if (!secret) {
     return NextResponse.json({ error: 'webhook_not_configured' }, { status: 503 });
@@ -90,7 +91,7 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ ok: true, event: eventName, status });
-}
+});
 
 export async function GET() {
   return NextResponse.json({ error: 'method_not_allowed' }, { status: 405 });

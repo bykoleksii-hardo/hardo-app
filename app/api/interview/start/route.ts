@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { withLogging } from '@/lib/observability';
 
-export async function POST(req: Request) {
+export const POST = withLogging('POST /api/interview/start', async (req: Request, _ctx: { requestId: string }) => {
   try {
     const { level, input_mode: inputModeRaw } = await req.json();
     if (!['intern', 'analyst', 'associate'].includes(level)) {
@@ -67,4 +68,4 @@ export async function POST(req: Request) {
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? 'Unknown error' }, { status: 500 });
   }
-}
+});

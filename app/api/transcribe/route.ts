@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { transcribeAudio, GroqError } from '@/lib/groq-client';
+import { withLogging } from '@/lib/observability';
 
 // Soft monthly cap: ~30 hours of recorded audio per user.
 const MONTHLY_AUDIO_CAP_SEC = 30 * 60 * 60; // 108000s
@@ -9,7 +10,7 @@ const PERIOD_DAYS = 30;
 // Hard per-request cap: 5 minutes of audio (Groq free tier safety).
 const MAX_REQUEST_SEC = 5 * 60;
 
-export async function POST(req: NextRequest) {
+export const POST = withLogging('POST /api/transcribe', async (req: NextRequest, _ctx: { requestId: string }) => {
   try {
     const supabase = await getSupabaseServer();
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
@@ -107,4 +108,4 @@ export async function POST(req: NextRequest) {
     const msg = (e as Error)?.message ?? 'Unknown error';
     return NextResponse.json({ error: msg, friendly: 'Voice transcription failed. Please type your answer.' }, { status: 500 });
   }
-}
+});

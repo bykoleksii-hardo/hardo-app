@@ -9,6 +9,7 @@ import {
   type TurnContext,
 } from '@/lib/interview-prompts';
 import { getTimeLimitSeconds } from '@/lib/timer-config';
+import { withLogging } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -53,7 +54,7 @@ type ChildStepRow = {
   created_at: string | null;
 };
 
-export async function POST(req: Request) {
+export const POST = withLogging('POST /api/interview/turn', async (req: Request, _ctx: { requestId: string }) => {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -256,7 +257,7 @@ export async function POST(req: Request) {
     if (followUpsSoFar >= maxFollowUps) {
       ai.kind = 'close_block';
       ai.grade = ai.grade || 'B';
-      ai.feedback = ai.feedback || 'Closing the block — follow-up limit reached.';
+      ai.feedback = ai.feedback || 'Closing the block â follow-up limit reached.';
     } else {
       const { data: insertResult, error: insertErr } = await supabase.rpc('insert_followup_step', {
         p_interview_id: interviewId,
@@ -336,4 +337,4 @@ export async function POST(req: Request) {
       { role: 'ai', kind: 'close_block', text: ai.feedback },
     ],
   });
-}
+});
