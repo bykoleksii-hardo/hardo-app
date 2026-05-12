@@ -54,6 +54,34 @@ function formatPace(step: { created_at: string | null; answered_at: string | nul
   return { text: fmt(elapsed), over };
 }
 
+type FinalFeedbackShape = {
+  summary: string;
+  next_steps_plan: string[];
+  weakest_block_label: string;
+  strongest_moment: string;
+};
+
+function parseFinalFeedback(raw: string | null | undefined): FinalFeedbackShape {
+  const empty: FinalFeedbackShape = { summary: '', next_steps_plan: [], weakest_block_label: '', strongest_moment: '' };
+  if (!raw) return empty;
+  // New format: JSON object with summary + next_steps_plan + weakest_block_label + strongest_moment.
+  // Legacy format: plain string.
+  if (raw.trim().startsWith('{')) {
+    try {
+      const j = JSON.parse(raw) as Partial<FinalFeedbackShape> & Record<string, unknown>;
+      return {
+        summary: typeof j.summary === 'string' ? j.summary : '',
+        next_steps_plan: Array.isArray(j.next_steps_plan) ? j.next_steps_plan.filter((x): x is string => typeof x === 'string') : [],
+        weakest_block_label: typeof j.weakest_block_label === 'string' ? j.weakest_block_label : '',
+        strongest_moment: typeof j.strongest_moment === 'string' ? j.strongest_moment : '',
+      };
+    } catch {
+      return { ...empty, summary: raw };
+    }
+  }
+  return { ...empty, summary: raw };
+}
+
 function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[] } | null {
   if (!raw) return null;
   try {
@@ -168,18 +196,18 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         <div className="border border-[#11161E]/15 bg-[#F2ECDF]/40 p-8 mb-12 grid grid-cols-3 gap-8">
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— OVERALL</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">â OVERALL</div>
             <div className="font-playfair text-4xl text-[#11161E]">{summary?.overall_score ?? interview.final_score ?? '-'}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">{isCompleted ? 'out of 100' : 'awaiting AI review'}</div>
           </div>
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— QUESTIONS</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">â QUESTIONS</div>
             <div className="font-playfair text-4xl">{answeredCount} / {interview.total_questions}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">answered</div>
           </div>
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— RECOMMENDATION</div>
-            <div className={`font-playfair text-4xl ${hireToneClass}`}>{hireMeta?.label ?? '—'}</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">â RECOMMENDATION</div>
+            <div className={`font-playfair text-4xl ${hireToneClass}`}>{hireMeta?.label ?? 'â'}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">
               {interview.finished_at ? new Date(interview.finished_at).toLocaleString() : (isCompleted ? '' : interview.status?.toString().toUpperCase())}
             </div>
@@ -188,15 +216,50 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         {isCompleted && summary && (
           <div className="border border-[#B88736]/30 bg-[#F2ECDF]/30 p-6 mb-12">
-            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">— OVERALL FEEDBACK</div>
-            <p className="text-[#11161E]/85 text-[14px] leading-[1.7] whitespace-pre-wrap mb-5">{summary.final_feedback}</p>
+            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">â OVERALL FEEDBACK</div>
+            {(() => {
+              const final = parseFinalFeedback(summary.final_feedback);
+              return (
+                <>
+                  {final.summary && (
+                    <p className="text-[#11161E]/85 text-[14px] leading-[1.7] whitespace-pre-wrap mb-5">{final.summary}</p>
+                  )}
+                  {(final.weakest_block_label || final.strongest_moment) && (
+                    <div className="grid sm:grid-cols-2 gap-4 mb-5">
+                      {final.strongest_moment && (
+                        <div className="border border-[#1F6F3D]/30 bg-[#1F6F3D]/[0.04] rounded-md px-4 py-3">
+                          <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">STRONGEST MOMENT</div>
+                          <p className="text-[#11161E]/85 text-[13px] leading-[1.55]">{final.strongest_moment}</p>
+                        </div>
+                      )}
+                      {final.weakest_block_label && (
+                        <div className="border border-[#9C2E2E]/30 bg-[#9C2E2E]/[0.04] rounded-md px-4 py-3">
+                          <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WEAKEST BLOCK</div>
+                          <p className="text-[#11161E]/85 text-[13px] leading-[1.55]">{final.weakest_block_label}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {final.next_steps_plan.length > 0 && (
+                    <div className="border border-[#B88736]/30 bg-[#B88736]/[0.05] rounded-md px-5 py-4 mb-5">
+                      <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-2">YOUR PREP PLAN</div>
+                      <ol className="list-decimal list-inside text-[#11161E]/85 text-[14px] leading-[1.7] space-y-1">
+                        {final.next_steps_plan.map((step, i) => (
+                          <li key={i}>{step}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">— STRENGTHS</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">â STRENGTHS</div>
                 <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_strengths}</p>
               </div>
               <div>
-                <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">— WEAKNESSES</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">â WEAKNESSES</div>
                 <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_weaknesses}</p>
               </div>
             </div>
@@ -207,7 +270,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         <div className="mt-12 text-center">
           <a href="/interview/setup" className="inline-block bg-[#B88736] text-[#FBF7EE] tracking-wide px-8 py-3 font-medium hover:bg-[#B88736]">
-            Run another interview {'—'}
+            Run another interview {'âÂÂ'}
           </a>
         </div>
       </div>

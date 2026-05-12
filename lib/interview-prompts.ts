@@ -196,7 +196,36 @@ CALIBRATION RULES:
   - For Case Study (Q10-Q12) at any level, weight quantitative reasoning and second-order thinking more heavily than for normal blocks.
 
 Always be flexible: do not follow a script, formulate follow-ups based on what the candidate
-actually said. Detect "Case Study" category and walk them through it like a real case.`;
+actually said. 
+
+FEEDBACK RUBRIC (close_block only):
+You must produce a 4-part structured feedback in 'feedback_detail' and a 1-2 sentence rolled-up 'feedback' summary.
+Every field below MUST reference something concrete from THIS candidate's actual answer (a quoted phrase, a specific IB concept, a number they gave, or - if they gave nothing - explicitly state "no usable substance").
+
+  - feedback_detail.what_worked (1-2 sentences):
+      What this candidate actually did well, in their own framing. Quote one specific phrase or call out one concrete IB concept they named.
+      If F or non-answer, say "Nothing usable - no answer was attempted." Do not invent strengths.
+
+  - feedback_detail.what_was_missing (1-2 sentences):
+      The SPECIFIC IB mechanic, formula, edge case, or second-order effect they failed to address, calibrated to their level.
+      Name the actual concept (e.g. "WACC sensitivity to ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
+
+  - feedback_detail.how_to_improve (1-2 sentences):
+      One concrete, drillable next step. Examples: "Re-walk the LBO returns waterfall: Sources/Uses -> Exit equity -> IRR/MoM, with a 1x debt paydown", or "Practice EV-to-Equity bridge with at least 3 line items (debt, cash, minorities)".
+      Banned: "study more", "be more structured", "work on clarity", "go deeper", "review fundamentals".
+
+  - feedback_detail.model_answer_pointer (1 sentence):
+      Sketch what an A-grade answer at THIS LEVEL would have anchored on. 1 sentence. Reference 1-2 specific IB concepts an A answer would have hit.
+
+The 'feedback' string itself stays a 1-2 sentence summary that opens with the verdict (e.g. "Solid framework but you left out the dilution step."). It will be shown right above the rubric, so it must NOT duplicate the rubric content word-for-word.
+
+STRENGTHS / WEAKNESSES BULLETS:
+  - 1 to 3 items each (NEVER empty unless F/non-answer, in which case strengths may be empty but weaknesses must still name what was needed).
+  - Each item: <= 15 words.
+  - Each item must reference an IB concept, a quoted candidate phrase, or a specific mechanic. Banned generic items: "good thinking", "good structure", "work on clarity", "be more concise", "needs more depth".
+  - Bad: "Good structure". Good: "Named both DCF and trading comps, anchored on EV/EBITDA bridge."
+  - Bad: "Work on clarity". Good: "Skipped the dilution step (treasury stock method) when sizing the option overhang."
+Detect "Case Study" category and walk them through it like a real case.`;
 
 export function buildTurnUserPrompt(ctx: TurnContext): string {
   const transcriptLines = ctx.transcript.map(t => {
@@ -234,7 +263,7 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
 export const TURN_SCHEMA: Record<string, unknown> = {
   type: 'object',
   additionalProperties: false,
-  required: ['kind', 'message_type', 'reasoning', 'reply', 'follow_up_question', 'grade', 'feedback', 'strengths', 'weaknesses'],
+  required: ['kind', 'message_type', 'reasoning', 'reply', 'follow_up_question', 'grade', 'feedback', 'feedback_detail', 'strengths', 'weaknesses'],
   properties: {
     kind: {
       type: 'string',
@@ -265,17 +294,31 @@ export const TURN_SCHEMA: Record<string, unknown> = {
     },
     feedback: {
       type: 'string',
-      description: 'Used ONLY when kind=close_block. 2-4 sentences of feedback to the candidate about this block. Empty string otherwise.',
+      description: 'Used ONLY when kind=close_block. 1-2 sentence verdict summary, must not be generic. Empty string otherwise. See FEEDBACK RUBRIC in the system prompt.',
+    },
+    feedback_detail: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['what_worked', 'what_was_missing', 'how_to_improve', 'model_answer_pointer'],
+      description: 'Used ONLY when kind=close_block. Structured 4-part rubric feedback per the FEEDBACK RUBRIC in the system prompt. All four fields are empty strings when kind!=close_block.',
+      properties: {
+        what_worked: { type: 'string', description: '1-2 sentences. Specific strength tied to a quoted phrase or named IB concept. "Nothing usable" if F/non-answer.' },
+        what_was_missing: { type: 'string', description: '1-2 sentences. The specific IB mechanic/formula/edge case they did NOT address, named explicitly.' },
+        how_to_improve: { type: 'string', description: '1-2 sentences. Concrete drillable next step. Banned: study more / be structured / go deeper / review fundamentals.' },
+        model_answer_pointer: { type: 'string', description: '1 sentence. What an A-grade answer at THIS LEVEL would have anchored on, referencing 1-2 specific concepts.' },
+      },
     },
     strengths: {
       type: 'array',
       items: { type: 'string' },
-      description: 'Used ONLY when kind=close_block. 0-3 short bullet strengths. Empty array otherwise.',
+      maxItems: 3,
+      description: 'Used ONLY when kind=close_block. 0-3 specific strength bullets (<=15 words each). Each MUST reference an IB concept, a quoted candidate phrase, or a specific mechanic. Banned generics: good thinking, good structure, clear delivery, nice framing. Empty array allowed only for F/non-answer.',
     },
     weaknesses: {
       type: 'array',
       items: { type: 'string' },
-      description: 'Used ONLY when kind=close_block. 0-3 short bullet weaknesses to work on. Empty array otherwise.',
+      maxItems: 3,
+      description: 'Used ONLY when kind=close_block. 1-3 specific weakness bullets (<=15 words each). Each MUST name a concrete missing IB mechanic/formula/edge case or quote what was vague. Banned generics: needs depth, work on clarity, be more structured, study more. Empty array only allowed if kind!=close_block.',
     },
   },
 };
@@ -288,6 +331,12 @@ export type TurnAIResult = {
   follow_up_question: string;
   grade: '' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D' | 'F';
   feedback: string;
+  feedback_detail: {
+    what_worked: string;
+    what_was_missing: string;
+    how_to_improve: string;
+    model_answer_pointer: string;
+  };
   strengths: string[];
   weaknesses: string[];
 };
@@ -302,12 +351,20 @@ You MUST output a hire_recommendation using exactly one of these four values, wi
 - "leaning_hire": passable; a few concerns but the fundamentals and motivation are there.
 - "hire": strong performance for this level; would advance to next round / extend offer.
 
-The overall_score (0-100) must be internally consistent with the hire_recommendation: 0-39 -> no_hire, 40-59 -> leaning_no_hire, 60-79 -> leaning_hire, 80-100 -> hire.`;
+
+
+SPECIFICITY REQUIREMENTS (final scorecard):
+  - In 'overall_strengths' and 'overall_weaknesses' you MUST reference at least 2 specific blocks by their order_index ("On Block 04 (DCF), ...", "Block 09 (LBO)..."). Generic praise/criticism without block references is rejected.
+  - You MUST name at least 2 specific IB concepts/mechanics in 'overall_weaknesses' (e.g. "FCF-to-firm vs FCF-to-equity bridge", "minority interest treatment in EV", "PIK vs cash interest in LBO returns").
+  - 'final_feedback' (4-7 sentences): wrap up the verdict. Reference 1-2 strongest moments AND 1-2 weakest moments by block. Close with where to focus prep first.
+  - 'next_steps_plan' (2-4 items): each item is a concrete, drillable prep action of 8-20 words. Banned: "study more", "review fundamentals", "practice cases". Required: name the topic AND the form of practice. Example: "Walk through 5 LBO returns problems with explicit MOIC and IRR per tranche", "Re-derive the EV-to-Equity bridge from scratch on paper".
+  - 'weakest_block_label': short label naming the single weakest block, format "Q{order_index} ({category}) - {one-line reason}".
+  - 'strongest_moment': one short sentence quoting or summarizing the candidate's best moment, with block reference.`;
 
 export const FINALIZE_SCHEMA: Record<string, unknown> = {
   type: 'object',
   additionalProperties: false,
-  required: ['overall_score', 'overall_strengths', 'overall_weaknesses', 'final_feedback', 'hire_recommendation'],
+  required: ['overall_score', 'overall_strengths', 'overall_weaknesses', 'final_feedback', 'hire_recommendation', 'next_steps_plan', 'weakest_block_label', 'strongest_moment'],
   properties: {
     overall_score: {
       type: 'number',
@@ -315,20 +372,35 @@ export const FINALIZE_SCHEMA: Record<string, unknown> = {
     },
     overall_strengths: {
       type: 'string',
-      description: 'A short paragraph (3-5 sentences) on what the candidate did well across the interview.',
+      description: 'A 3-5 sentence paragraph on what the candidate did well. MUST reference at least 2 specific blocks by order_index and at least 1 specific IB concept.',
     },
     overall_weaknesses: {
       type: 'string',
-      description: 'A short paragraph (3-5 sentences) on what the candidate must work on. Concrete, not generic.',
+      description: 'A 3-5 sentence paragraph of weaknesses. MUST name at least 2 specific blocks AND 2 specific IB concepts/mechanics. Banned: needs depth, work on clarity, study more.',
     },
     final_feedback: {
       type: 'string',
-      description: '4-7 sentences of overall feedback and recommended next steps for prep.',
+      description: '4-7 sentences. Verdict + 1-2 strongest blocks + 1-2 weakest blocks + where to focus prep first. Block references required.',
     },
     hire_recommendation: {
       type: 'string',
       enum: ['no_hire', 'leaning_no_hire', 'leaning_hire', 'hire'],
       description: 'Final hire recommendation, must be one of: no_hire | leaning_no_hire | leaning_hire | hire. Must be consistent with overall_score per the bands in the system prompt.',
+    },
+    next_steps_plan: {
+      type: 'array',
+      items: { type: 'string' },
+      minItems: 2,
+      maxItems: 4,
+      description: 'Drillable prep actions, 2-4 items, each 8-20 words. Must name the topic AND the form of practice. Banned: study more, review fundamentals, practice cases.',
+    },
+    weakest_block_label: {
+      type: 'string',
+      description: 'Single weakest block in format "Q{order_index} ({category}) - {one-line reason}". Example: "Q07 (DCF) - confused on terminal-value growth cap".',
+    },
+    strongest_moment: {
+      type: 'string',
+      description: 'One short sentence with a block reference, summarizing or quoting the strongest moment. Example: "On Q03 (Behavioral), clean STAR with quantified outcome on the M&A diligence project."',
     },
   },
 };
@@ -339,4 +411,7 @@ export type FinalizeAIResult = {
   overall_weaknesses: string;
   final_feedback: string;
   hire_recommendation: 'no_hire' | 'leaning_no_hire' | 'leaning_hire' | 'hire';
+  next_steps_plan: string[];
+  weakest_block_label: string;
+  strongest_moment: string;
 };

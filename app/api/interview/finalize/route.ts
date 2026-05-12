@@ -104,7 +104,12 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
       overall_score: score,
       overall_strengths: ai.overall_strengths,
       overall_weaknesses: ai.overall_weaknesses,
-      final_feedback: ai.final_feedback,
+      final_feedback: JSON.stringify({
+        summary: ai.final_feedback,
+        next_steps_plan: Array.isArray(ai.next_steps_plan) ? ai.next_steps_plan : [],
+        weakest_block_label: ai.weakest_block_label ?? '',
+        strongest_moment: ai.strongest_moment ?? '',
+      }),
       hire_recommendation: ai.hire_recommendation,
       tokens_used: tokens,
     })

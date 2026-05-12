@@ -21,10 +21,18 @@ type StepRow = {
   questions: { question: string; category: string; subtopic: string | null } | null;
 };
 
+type FeedbackDetail = {
+  what_worked?: string;
+  what_was_missing?: string;
+  how_to_improve?: string;
+  model_answer_pointer?: string;
+};
+
 type ParsedFeedback = {
   summary?: string;
   strengths?: string[];
   weaknesses?: string[];
+  detail?: FeedbackDetail | null;
 };
 
 function formatPace(step: { created_at: string | null; answered_at: string | null; time_limit_seconds: number | null; was_overtime: boolean | null; }): { text: string; over: boolean } | null {
@@ -43,17 +51,19 @@ function formatPace(step: { created_at: string | null; answered_at: string | nul
   return { text: fmt(elapsed), over };
 }
 
-function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[] } | null {
+function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[]; detail: FeedbackDetail | null } | null {
   if (!raw) return null;
   try {
     const j = JSON.parse(raw) as ParsedFeedback;
+    const d = (j && typeof j === 'object' && j.detail && typeof j.detail === 'object') ? j.detail as FeedbackDetail : null;
     return {
       summary: typeof j.summary === 'string' ? j.summary : '',
       strengths: Array.isArray(j.strengths) ? j.strengths : [],
       weaknesses: Array.isArray(j.weaknesses) ? j.weaknesses : [],
+      detail: d,
     };
   } catch {
-    return { summary: raw, strengths: [], weaknesses: [] };
+    return { summary: raw, strengths: [], weaknesses: [], detail: null };
   }
 }
 
@@ -223,10 +233,38 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                 <p className="text-[#11161E]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
                   {s.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}
                 </p>
-                {fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0) && (
+                {fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0 || fb.detail) && (
                   <div className="mt-5">
                     <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— FEEDBACK</div>
                     {fb.summary && <p className="text-[#11161E]/85 text-[14px] leading-[1.6] mb-3">{fb.summary}</p>}
+                    {fb.detail && (fb.detail.what_worked || fb.detail.what_was_missing || fb.detail.how_to_improve || fb.detail.model_answer_pointer) && (
+                      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 mb-4">
+                        {fb.detail.what_worked && (
+                          <div>
+                            <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">WHAT WORKED</div>
+                            <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.what_worked}</p>
+                          </div>
+                        )}
+                        {fb.detail.what_was_missing && (
+                          <div>
+                            <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WHAT WAS MISSING</div>
+                            <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.what_was_missing}</p>
+                          </div>
+                        )}
+                        {fb.detail.how_to_improve && (
+                          <div>
+                            <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-1">HOW TO IMPROVE</div>
+                            <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.how_to_improve}</p>
+                          </div>
+                        )}
+                        {fb.detail.model_answer_pointer && (
+                          <div>
+                            <div className="text-[10px] tracking-[0.22em] text-[#11161E]/55 mb-1">MODEL ANSWER POINTER</div>
+                            <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.model_answer_pointer}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     {fb.strengths.length > 0 && (
                       <div className="mb-2">
                         <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">— STRENGTHS</div>
