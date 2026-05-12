@@ -2,6 +2,7 @@
 import Brand from '@/app/_components/Brand';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { parseApiError, formatApiError, type ApiErrorShape } from '@/lib/observability/api-client';
 
 type Question = {
   id: number;
@@ -519,14 +520,19 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ stepId: activeBase.id, message: text }),
       });
-      const data = await r.json();
       if (!r.ok) {
-        const friendly = data.friendly || data.error || 'The interviewer is unavailable right now. Please try again later.';
-        const err = new Error(friendly);
-        // attach raw for debugging
-        (err as any).raw = data.error;
+        const shape: ApiErrorShape = await parseApiError(r);
+        const friendly =
+          ((shape.raw as { friendly?: string } | undefined)?.friendly) ||
+          shape.message ||
+          'The interviewer is unavailable right now. Please try again later.';
+        const finalShape: ApiErrorShape = { ...shape, message: friendly };
+        const err = new Error(formatApiError(finalShape));
+        (err as Error & { requestId?: string | null; raw?: unknown }).requestId = shape.requestId;
+        (err as Error & { requestId?: string | null; raw?: unknown }).raw = shape.raw;
         throw err;
       }
+      const data = await r.json();
 
       // Re-fetch fresh steps + answers via a tiny refresh call (simpler than mutating in place).
       await refreshState();
