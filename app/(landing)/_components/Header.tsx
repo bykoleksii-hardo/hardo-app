@@ -4,9 +4,10 @@ import Brand from '@/app/_components/Brand';
 type Props = {
   signedIn?: boolean;
   isAdmin?: boolean;
+  isPaid?: boolean;
 };
 
-export default function LandingHeader({ signedIn = false, isAdmin = false }: Props) {
+export default function LandingHeader({ signedIn = false, isAdmin = false, isPaid = false }: Props) {
   return (
     <header className="border-b border-line bg-paper/80 backdrop-blur sticky top-0 z-40">
       <div className="max-w-page mx-auto px-6 h-16 flex items-center justify-between">
@@ -14,7 +15,9 @@ export default function LandingHeader({ signedIn = false, isAdmin = false }: Pro
         <nav className="hidden md:flex items-center gap-7 text-[13.5px] text-ink-2">
           <a href="/#how" className="hover:text-ink">How it works</a>
           <a href="/#voice" className="hover:text-ink">Voice mode</a>
-          <a href="/#pricing" className="hover:text-ink">Pricing</a>
+          {!isPaid && (
+            <a href="/#pricing" className="hover:text-ink">Pricing</a>
+          )}
           <Link href="/knowledge" className="hover:text-ink">Knowledge Hub</Link>
           <a href="/#faq" className="hover:text-ink">FAQ</a>
         </nav>

@@ -24,10 +24,11 @@ export default async function Page() {
   const signedIn = viewer.plan !== 'anon';
   const role = signedIn ? await getUserRole() : 'user';
   const isAdmin = role === 'admin' || role === 'editor';
+  const isPaid = viewer.plan === 'paid';
 
   return (
     <>
-      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} />
+      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} />
       <main>
         {viewer.plan === 'anon' && <AnonHero />}
         {viewer.plan === 'free' && <FreeHero remaining={viewer.interviews_remaining ?? 0} />}
@@ -41,7 +42,7 @@ export default async function Page() {
         <FAQ showPricing={viewer.plan !== 'paid'} />
         <BottomCTA plan={viewer.plan} />
       </main>
-      <LandingFooter />
+      <LandingFooter signedIn={signedIn} isPaid={isPaid} />
     </>
   );
 }
