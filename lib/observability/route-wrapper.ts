@@ -8,17 +8,30 @@ type RouteHandler<TReq extends AnyRequest = Request> = (
 ) => Promise<Response>;
 
 /**
+ * Add an x-request-id header by cloning the response.
+ * Avoids the "headers immutable" issue some runtimes have with mutating
+ * a NextResponse/Response after it has been returned from a handler.
+ */
+function withRequestId(res: Response, requestId: string): Response {
+  try {
+    // Fast path: try mutating first
+    res.headers.set('x-request-id', requestId);
+    return res;
+  } catch {
+    // Headers immutable — clone with new headers
+    const headers = new Headers(res.headers);
+    headers.set('x-request-id', requestId);
+    return new Response(res.body, {
+      status: res.status,
+      statusText: res.statusText,
+      headers,
+    });
+  }
+}
+
+/**
  * Wrap a Next.js Route Handler with structured error logging
- * and an x-request-id header.
- *
- * - Generates a short requestId per call
- * - Catches unhandled exceptions, logs via logger.error
- * - Returns { error, requestId } 500 JSON for unhandled cases
- * - Logs slow requests (>5s) as warnings
- * - Always sets x-request-id on the response
- *
- * Existing routes that manage their own try/catch can also adopt this:
- * the inner try/catch still runs; withLogging only catches what bubbles past it.
+ * and an x-request-id header on every response.
  *
  * Usage:
  *   export const POST = withLogging('POST /api/foo', async (req, { requestId }) => {
@@ -35,11 +48,6 @@ export function withLogging<TReq extends AnyRequest = Request>(
     const start = Date.now();
     try {
       const res = await handler(req, { requestId });
-      try {
-        res.headers.set('x-request-id', requestId);
-      } catch {
-        // Response headers may be immutable in some runtimes — ignore.
-      }
       const dur = Date.now() - start;
       if (dur > 5000) {
         logger.warn('slow request', {
@@ -49,7 +57,7 @@ export function withLogging<TReq extends AnyRequest = Request>(
           status: res.status,
         });
       }
-      return res;
+      return withRequestId(res, requestId);
     } catch (e) {
       const dur = Date.now() - start;
       logger.error('unhandled exception in route', e, {
