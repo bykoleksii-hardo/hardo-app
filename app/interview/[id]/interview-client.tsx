@@ -1,6 +1,7 @@
 'use client';
 import Brand from '@/app/_components/Brand';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import AudioWaveform from './AudioWaveform';
 import { useRouter } from 'next/navigation';
 import { parseApiError, formatApiError, type ApiErrorShape } from '@/lib/observability/api-client';
 
@@ -199,6 +200,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
 
   // Voice / STT state (mode is fixed at interview start; user cannot toggle mid-interview)
   const [recState, setRecState] = useState<'idle' | 'recording' | 'transcribing'>('idle');
+  const [liveStream, setLiveStream] = useState<MediaStream | null>(null);
   const [recError, setRecError] = useState<string | null>(null);
   const [recElapsedSec, setRecElapsedSec] = useState(0);
   const [micPermission, setMicPermission] = useState<'unknown' | 'granted' | 'denied'>('unknown');
@@ -229,6 +231,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
         if (cancelled) { stream.getTracks().forEach(t => t.stop()); return; }
         persistentStreamRef.current = stream;
+        setLiveStream(stream);
         setMicPermission('granted');
       } catch {
         if (!cancelled) setMicPermission('denied');
@@ -247,6 +250,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
       const ps = persistentStreamRef.current;
       if (ps) ps.getTracks().forEach(t => t.stop());
       persistentStreamRef.current = null;
+      setLiveStream(null);
     };
   }, []);
 
@@ -260,11 +264,13 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
       // Tracks died, drop and re-acquire
       tracks.forEach(t => t.stop());
       persistentStreamRef.current = null;
+      setLiveStream(null);
     }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return null;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
       persistentStreamRef.current = stream;
+        setLiveStream(stream);
       setMicPermission('granted');
       return stream;
     } catch {
@@ -826,7 +832,10 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                           <span className="text-[11px] tracking-[0.18em] text-[#11161E]/55 font-mono">
                             {String(Math.floor(recElapsedSec / 60)).padStart(2, '0')}:{String(recElapsedSec % 60).padStart(2, '0')}
                           </span>
-                          <span className="text-[10px] tracking-[0.18em] text-[#11161E]/35">RECORDING - tap STOP when done</span>
+                          <span className="text-[10px] tracking-[0.18em] text-[#11161E]/35">RECORDING</span>
+                          <div className="flex-1 min-w-[140px] max-w-[260px]">
+                            <AudioWaveform stream={liveStream} active={recState === 'recording'} />
+                          </div>
                         </>
                       )}
                       {recState === 'transcribing' && (
