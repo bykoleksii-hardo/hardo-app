@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getUserRole } from '@/lib/auth/roles';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -63,7 +62,7 @@ export async function POST(req: Request) {
   const rand = Math.random().toString(36).slice(2, 8);
   const key = `articles/${stamp}-${rand}-${base}.${ext}`;
 
-  const buf = Buffer.from(await file.arrayBuffer());
+  const buf = new Uint8Array(await file.arrayBuffer());
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.storage.from(BUCKET).upload(key, buf, {

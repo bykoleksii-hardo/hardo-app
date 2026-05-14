@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ARTICLE_CATEGORIES, type ArticleCategory } from '@/lib/knowledge/queries';
+import { ARTICLE_CATEGORIES, type ArticleCategory } from '@/lib/knowledge/categories';
 
 type EditorProps = {
   initial?: {

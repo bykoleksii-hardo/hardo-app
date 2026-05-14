@@ -1,11 +1,8 @@
 import { getSupabaseServer } from '@/lib/supabase/server';
+import type { ArticleCategory } from './categories';
 
-export const ARTICLE_CATEGORIES = ['HARDO News', 'Industry Insights', 'Knowledge Hub'] as const;
-export type ArticleCategory = typeof ARTICLE_CATEGORIES[number];
-
-export function isArticleCategory(v: unknown): v is ArticleCategory {
-  return typeof v === 'string' && (ARTICLE_CATEGORIES as readonly string[]).includes(v);
-}
+export { ARTICLE_CATEGORIES, isArticleCategory } from './categories';
+export type { ArticleCategory } from './categories';
 
 export type KnowledgeArticle = {
   id: string;

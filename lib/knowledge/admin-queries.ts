@@ -1,5 +1,6 @@
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { ARTICLE_CATEGORIES, isArticleCategory, type ArticleCategory, type KnowledgeArticle } from './queries';
+import { ARTICLE_CATEGORIES, isArticleCategory, type ArticleCategory } from './categories';
+import type { KnowledgeArticle } from './queries';
 
 export async function listAllArticles(): Promise<KnowledgeArticle[]> {
   const supabase = await getSupabaseServer();
