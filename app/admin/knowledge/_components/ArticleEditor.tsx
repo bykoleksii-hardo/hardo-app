@@ -31,6 +31,23 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
 
   const [title, setTitle] = useState(initial?.title ?? '');
   const [slug, setSlug] = useState(initial?.slug ?? '');
+  const [slugEdited, setSlugEdited] = useState(Boolean(initial?.slug));
+  const [slugLocked, setSlugLocked] = useState(true);
+
+  // Auto-derive slug from title unless user has manually edited it.
+  useEffect(() => {
+    if (slugEdited) return;
+    const auto = title
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .slice(0, 80);
+    setSlug(auto);
+  }, [title, slugEdited]);
   const [description, setDescription] = useState(initial?.description ?? '');
   const [body, setBody] = useState(initial?.body_md ?? '');
   const [tags, setTags] = useState((initial?.tags ?? []).join(', '));
@@ -253,33 +270,39 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
               </select>
             </Field>
 
-            <Field label="Slug" hint="auto from title">
-              <input
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                className="w-full font-mono text-[14px] bg-transparent border border-line focus:border-ink outline-none px-3 py-2 rounded"
-                placeholder="my-article-slug"
-              />
+            <Field label="URL slug" hint={slugLocked ? 'auto from title' : 'editing — be careful, changes the public URL'}>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-[12px] text-ink/50 shrink-0">/knowledge/</span>
+                <input
+                  value={slug}
+                  readOnly={slugLocked}
+                  onChange={(e) => { setSlug(e.target.value); setSlugEdited(true); }}
+                  className={`w-full font-mono text-[13px] bg-transparent border focus:outline-none px-3 py-2 rounded ${slugLocked ? 'border-line/60 text-ink/60 cursor-default' : 'border-ink text-ink'}`}
+                  placeholder="auto-generated-from-title"
+                />
+                <button
+                  type="button"
+                  onClick={() => setSlugLocked((v) => !v)}
+                  className="shrink-0 text-[11px] uppercase tracking-[0.12em] text-ink/60 hover:text-ink border border-line hover:border-ink px-2 py-1 rounded transition"
+                >
+                  {slugLocked ? 'Edit' : 'Lock'}
+                </button>
+              </div>
             </Field>
           </div>
 
-          <Field label="Description" hint="1-2 sentences for the index card">
+          <Field label="SEO description" hint="≤160 chars — shows in Google and link previews (LinkedIn, Telegram, etc.)">
             <textarea
               value={description ?? ''}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               className="w-full text-[14px] leading-relaxed bg-transparent border border-line focus:border-ink outline-none px-3 py-2 rounded resize-y"
-              placeholder="Why this article matters"
+              placeholder="One or two sentences that make someone want to click. Keep it under 160 characters."
             />
-          </Field>
-
-          <Field label="Tags" hint="comma-separated, first tag becomes the kicker">
-            <input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              className="w-full font-mono text-[13px] bg-transparent border border-line focus:border-ink outline-none px-3 py-2 rounded"
-              placeholder="technicals, valuation"
-            />
+            <div className="mt-1 text-[11px] font-mono text-ink/40 flex justify-end">
+              <span className={(description ?? '').length > 160 ? 'text-red-600' : ''}>{(description ?? '').length}/160</span>
+            </div>
+          
           </Field>
 
           <Field label="Cover image" hint="optional, displayed on the article header">
