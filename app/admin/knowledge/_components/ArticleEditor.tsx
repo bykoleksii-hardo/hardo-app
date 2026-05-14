@@ -391,7 +391,7 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
             <div className="kicker">Live preview</div>
             <div className="text-[11px] font-mono uppercase tracking-widest text-muted">{wordCount} words {'\u00b7'} {readMins} min read</div>
           </div>
-          <div className="border border-line rounded p-6 bg-[#0a1422] min-h-[400px] sticky top-20 max-h-[80vh] overflow-y-auto">
+          <div className="border border-line rounded p-6 bg-paper min-h-[400px] sticky top-20 max-h-[80vh] overflow-y-auto">
             {previewHtml ? (
               <article className="prose-hardo" dangerouslySetInnerHTML={{ __html: previewHtml }} />
             ) : (
