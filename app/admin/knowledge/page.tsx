@@ -9,6 +9,12 @@ function fmtDate(s: string | null) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+const CATEGORY_BADGE: Record<string, string> = {
+  'HARDO News': 'bg-[#d4a04a]/15 text-[#9c6c1f] border-[#d4a04a]/40',
+  'Industry Insights': 'bg-[#0a1422]/8 text-ink border-line',
+  'Knowledge Hub': 'bg-cream text-ink-2 border-line',
+};
+
 export default async function AdminKnowledgeIndex() {
   const articles = await listAllArticles();
 
@@ -47,6 +53,7 @@ export default async function AdminKnowledgeIndex() {
             <thead className="bg-cream font-mono text-[10.5px] uppercase tracking-widest text-muted">
               <tr>
                 <th className="text-left px-5 py-3 font-normal">Title</th>
+                <th className="text-left px-5 py-3 font-normal w-44">Category</th>
                 <th className="text-left px-5 py-3 font-normal w-32">Status</th>
                 <th className="text-left px-5 py-3 font-normal w-40">Updated</th>
                 <th className="text-left px-5 py-3 font-normal w-40">Published</th>
@@ -59,6 +66,11 @@ export default async function AdminKnowledgeIndex() {
                   <td className="px-5 py-4">
                     <div className="font-serif text-[16.5px] font-medium leading-snug text-ink">{a.title}</div>
                     <div className="text-[12px] text-muted mt-0.5 font-mono">{a.slug}</div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className={`inline-block text-[10.5px] font-mono uppercase tracking-widest px-2 py-0.5 rounded border ${CATEGORY_BADGE[a.category] ?? 'border-line text-muted'}`}>
+                      {a.category ?? '\u2014'}
+                    </span>
                   </td>
                   <td className="px-5 py-4">
                     <span className={

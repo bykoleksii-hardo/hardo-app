@@ -1,5 +1,5 @@
 import { getSupabaseServer } from '@/lib/supabase/server';
-import type { KnowledgeArticle } from './queries';
+import { ARTICLE_CATEGORIES, isArticleCategory, type ArticleCategory, type KnowledgeArticle } from './queries';
 
 export async function listAllArticles(): Promise<KnowledgeArticle[]> {
   const supabase = await getSupabaseServer();
@@ -29,6 +29,7 @@ export type ArticleInput = {
   body_md: string;
   cover_url: string | null;
   tags: string[];
+  category: ArticleCategory;
   status: 'draft' | 'published';
 };
 
@@ -50,7 +51,19 @@ export function normalizeInput(raw: ArticleInput): ArticleInput {
   };
 }
 
+function validate(input: ArticleInput): string | null {
+  if (!input.title.trim()) return 'Title is required';
+  if (!input.body_md.trim()) return 'Body is required';
+  if (!isArticleCategory(input.category)) {
+    return `Category must be one of: ${ARTICLE_CATEGORIES.join(', ')}`;
+  }
+  return null;
+}
+
 export async function createArticle(input: ArticleInput): Promise<{ id?: string; error?: string }> {
+  const v = validate(input);
+  if (v) return { error: v };
+
   const supabase = await getSupabaseServer();
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return { error: 'Not authenticated' };
@@ -63,6 +76,7 @@ export async function createArticle(input: ArticleInput): Promise<{ id?: string;
     body_md: norm.body_md,
     cover_url: norm.cover_url,
     tags: norm.tags,
+    category: norm.category,
     status: norm.status,
     author_id: userData.user.id,
   };
@@ -78,6 +92,9 @@ export async function createArticle(input: ArticleInput): Promise<{ id?: string;
 }
 
 export async function updateArticle(id: string, input: ArticleInput): Promise<{ error?: string }> {
+  const v = validate(input);
+  if (v) return { error: v };
+
   const supabase = await getSupabaseServer();
   const norm = normalizeInput(input);
 
@@ -91,6 +108,7 @@ export async function updateArticle(id: string, input: ArticleInput): Promise<{ 
     body_md: norm.body_md,
     cover_url: norm.cover_url,
     tags: norm.tags,
+    category: norm.category,
     status: norm.status,
   };
 

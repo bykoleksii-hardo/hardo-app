@@ -44,6 +44,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
     headline: article.title,
     description: article.description,
     datePublished: article.published_at,
+    articleSection: article.category,
     author: { '@type': 'Organization', name: 'HARDO' },
   };
 
@@ -58,9 +59,16 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             </Link>
           </div>
 
-          {tag && (
-            <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted">{tag}</div>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-[10.5px] uppercase tracking-widest text-paper bg-[#d4a04a] px-2 py-0.5 rounded">{article.category}</span>
+            {tag && (
+              <>
+                <span className="text-muted">{'\u00b7'}</span>
+                <span className="font-mono text-[10.5px] uppercase tracking-widest text-muted">{tag}</span>
+              </>
+            )}
+          </div>
+
           <h1 className="mt-3 font-serif text-[40px] md:text-[52px] font-light leading-[1.05] tracking-[-0.022em]">
             {article.title}
           </h1>
@@ -70,6 +78,15 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           <div className="mt-6 font-mono text-[10.5px] uppercase tracking-widest text-muted">
             {fmtDate(article.published_at)}
           </div>
+
+          {article.cover_url && (
+            <img
+              src={article.cover_url}
+              alt=""
+              className="mt-10 w-full rounded border border-line"
+              loading="lazy"
+            />
+          )}
 
           <div
             className="prose-hardo mt-10"

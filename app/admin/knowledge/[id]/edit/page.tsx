@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import ArticleEditor from '../../_components/ArticleEditor';
 import { getArticleById, updateArticle, deleteArticle, type ArticleInput } from '@/lib/knowledge/admin-queries';
+import { isArticleCategory, type ArticleCategory } from '@/lib/knowledge/queries';
 import { renderMarkdown } from '@/lib/knowledge/markdown';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +16,8 @@ export default async function EditArticlePage({ params }: { params: Promise<Para
   async function saveAction(formData: FormData) {
     'use server';
     const aid = String(formData.get('id') ?? '');
+    const rawCat = String(formData.get('category') ?? 'Knowledge Hub');
+    const category: ArticleCategory = isArticleCategory(rawCat) ? rawCat : 'Knowledge Hub';
     const input: ArticleInput = {
       title: String(formData.get('title') ?? ''),
       slug: String(formData.get('slug') ?? ''),
@@ -22,6 +25,7 @@ export default async function EditArticlePage({ params }: { params: Promise<Para
       body_md: String(formData.get('body_md') ?? ''),
       cover_url: (String(formData.get('cover_url') ?? '') || null),
       tags: String(formData.get('tags') ?? '').split(',').map((t) => t.trim()).filter(Boolean),
+      category,
       status: (String(formData.get('status') ?? 'draft') === 'published' ? 'published' : 'draft'),
     };
     const r = await updateArticle(aid, input);
@@ -49,6 +53,7 @@ export default async function EditArticlePage({ params }: { params: Promise<Para
         body_md: article.body_md,
         cover_url: article.cover_url,
         tags: article.tags ?? [],
+        category: article.category,
         status: article.status,
       }}
       saveAction={saveAction}
