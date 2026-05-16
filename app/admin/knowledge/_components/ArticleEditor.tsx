@@ -59,6 +59,19 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
   const fileRef = useRef<HTMLInputElement | null>(null);
   const coverFileRef = useRef<HTMLInputElement | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [pendingPos, setPendingPos] = useState<{ start: number; end: number } | null>(null);
+
+  // Restore selection AFTER React commits the textarea value to the DOM.
+  // requestAnimationFrame races with React's controlled-input value sync and the cursor
+  // ends up at the end of the textarea. useLayoutEffect runs synchronously after commit.
+  useEffect(() => {
+    if (pendingPos && bodyRef.current) {
+      const ta = bodyRef.current;
+      ta.focus();
+      ta.setSelectionRange(pendingPos.start, pendingPos.end);
+      setPendingPos(null);
+    }
+  }, [pendingPos]);
 
   // Debounced live preview.
   useEffect(() => {
@@ -122,15 +135,10 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
     const selected = hasSel ? body.slice(start, end) : '';
     const next = body.slice(0, start) + before + selected + after + body.slice(end);
     setBody(next);
-    requestAnimationFrame(() => {
-      ta.focus();
-      // If a selection existed we wrapped it; place cursor at end of wrapped text.
-      // If no selection, place cursor BETWEEN the two markers so user types into the empty wrap.
-      const pos = hasSel
-        ? start + before.length + selected.length + after.length
-        : start + before.length;
-      ta.setSelectionRange(pos, pos);
-    });
+    // If selection existed: position cursor right after wrapped content (no inner highlight to keep things calm).
+    // If no selection: cursor lands BETWEEN the markers so the user immediately types into the empty wrap.
+    const innerEnd = start + before.length + selected.length;
+    setPendingPos(hasSel ? { start: innerEnd, end: innerEnd } : { start: start + before.length, end: start + before.length });
   }
 
   function applyLinePrefix(prefix: string, _placeholder: string) {
@@ -142,8 +150,6 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
     const segEnd = end;
     const segRaw = body.slice(lineStart, segEnd);
     const segIsEmpty = segRaw.length === 0;
-    // For empty segment: just place prefix and leave cursor after it (no placeholder word).
-    // For non-empty: prefix every non-empty line; keep empty lines as is.
     const transformed = segIsEmpty
       ? prefix
       : segRaw
@@ -152,11 +158,8 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
           .join('\n');
     const next = body.slice(0, lineStart) + transformed + body.slice(segEnd);
     setBody(next);
-    requestAnimationFrame(() => {
-      ta.focus();
-      const pos = lineStart + transformed.length;
-      ta.setSelectionRange(pos, pos);
-    });
+    const pos = lineStart + transformed.length;
+    setPendingPos({ start: pos, end: pos });
   }
 
   function insertBlock(snippet: string) {
@@ -168,11 +171,8 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
     const prefix = needsLead ? '\n\n' : '';
     const next = body.slice(0, start) + prefix + snippet + body.slice(end);
     setBody(next);
-    requestAnimationFrame(() => {
-      ta.focus();
-      const pos = start + prefix.length + snippet.length;
-      ta.setSelectionRange(pos, pos);
-    });
+    const pos = start + prefix.length + snippet.length;
+    setPendingPos({ start: pos, end: pos });
   }
 
   async function uploadImage(file: File, into: 'body' | 'cover') {
