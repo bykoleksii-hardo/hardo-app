@@ -113,33 +113,43 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
   }
 
   // Toolbar helpers — manipulate the body textarea selection.
-  function applyAround(before: string, after: string, placeholder = '') {
+  function applyAround(before: string, after: string, _placeholder = '') {
     const ta = bodyRef.current;
     if (!ta) return;
     const start = ta.selectionStart ?? body.length;
     const end = ta.selectionEnd ?? body.length;
-    const selected = body.slice(start, end) || placeholder;
+    const hasSel = end > start;
+    const selected = hasSel ? body.slice(start, end) : '';
     const next = body.slice(0, start) + before + selected + after + body.slice(end);
     setBody(next);
     requestAnimationFrame(() => {
       ta.focus();
-      const pos = start + before.length + selected.length + after.length;
+      // If a selection existed we wrapped it; place cursor at end of wrapped text.
+      // If no selection, place cursor BETWEEN the two markers so user types into the empty wrap.
+      const pos = hasSel
+        ? start + before.length + selected.length + after.length
+        : start + before.length;
       ta.setSelectionRange(pos, pos);
     });
   }
 
-  function applyLinePrefix(prefix: string, placeholder: string) {
+  function applyLinePrefix(prefix: string, _placeholder: string) {
     const ta = bodyRef.current;
     if (!ta) return;
     const start = ta.selectionStart ?? body.length;
     const end = ta.selectionEnd ?? body.length;
     const lineStart = body.lastIndexOf('\n', start - 1) + 1;
     const segEnd = end;
-    const seg = body.slice(lineStart, segEnd) || placeholder;
-    const transformed = seg
-      .split('\n')
-      .map((l) => (l.length ? prefix + l : prefix + placeholder))
-      .join('\n');
+    const segRaw = body.slice(lineStart, segEnd);
+    const segIsEmpty = segRaw.length === 0;
+    // For empty segment: just place prefix and leave cursor after it (no placeholder word).
+    // For non-empty: prefix every non-empty line; keep empty lines as is.
+    const transformed = segIsEmpty
+      ? prefix
+      : segRaw
+          .split('\n')
+          .map((l) => (l.length ? prefix + l : l))
+          .join('\n');
     const next = body.slice(0, lineStart) + transformed + body.slice(segEnd);
     setBody(next);
     requestAnimationFrame(() => {
