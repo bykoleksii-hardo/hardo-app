@@ -1,18 +1,22 @@
 import { getSupabaseServer } from '@/lib/supabase/server';
 
+export type Region = 'US' | 'EMEA' | 'Global';
+export const REGIONS: Region[] = ['US', 'EMEA', 'Global'];
+
 export type AdminQuestion = {
   id: number;
   question: string;
   category: string;
   subtopic: string | null;
   difficulty: number | null;
+  region: Region;
 };
 
 export async function listAllQuestions(): Promise<AdminQuestion[]> {
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase
     .from('questions')
-    .select('id, question, category, subtopic, difficulty')
+    .select('id, question, category, subtopic, difficulty, region')
     .order('category', { ascending: true })
     .order('difficulty', { ascending: true, nullsFirst: false })
     .order('id', { ascending: true });
@@ -24,7 +28,7 @@ export async function getQuestionById(id: number): Promise<AdminQuestion | null>
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase
     .from('questions')
-    .select('id, question, category, subtopic, difficulty')
+    .select('id, question, category, subtopic, difficulty, region')
     .eq('id', id)
     .maybeSingle();
   if (error || !data) return null;

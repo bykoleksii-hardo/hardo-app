@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AdminQuestion } from '@/lib/admin/questions';
+import type { AdminQuestion, Region } from '@/lib/admin/questions';
 
 type Level = 'intern' | 'analyst' | 'associate';
 type Kind = 'clarification_response' | 'follow_up' | 'close_block';
@@ -38,6 +38,34 @@ const LEVELS: Level[] = ['intern', 'analyst', 'associate'];
 
 export default function QuestionLab({ question }: { question: AdminQuestion }) {
   const [level, setLevel] = useState<Level>('analyst');
+  const [region, setRegion] = useState<Region>(question.region);
+  const [savingRegion, setSavingRegion] = useState(false);
+  const [regionError, setRegionError] = useState<string | null>(null);
+
+  async function saveRegion(next: Region) {
+    if (next === region) return;
+    const prev = region;
+    setRegion(next);
+    setSavingRegion(true);
+    setRegionError(null);
+    try {
+      const res = await fetch(`/api/admin/questions/${question.id}/region`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ region: next }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setRegionError(j.error || `HTTP ${res.status}`);
+        setRegion(prev);
+      }
+    } catch (err) {
+      setRegionError(err instanceof Error ? err.message : 'network_error');
+      setRegion(prev);
+    } finally {
+      setSavingRegion(false);
+    }
+  }
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [candidateInput, setCandidateInput] = useState('');
@@ -111,17 +139,38 @@ export default function QuestionLab({ question }: { question: AdminQuestion }) {
     <div className="grid gap-10 lg:grid-cols-[1fr_420px]">
       <div>
         {/* Question header */}
-        <div className="kicker mb-2">Question · ID {question.id}</div>
+        <div className="kicker mb-2">Question Â· ID {question.id}</div>
         <h1 className="font-serif text-[28px] leading-snug font-medium mb-4">{question.question}</h1>
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-muted mb-8">
           <span>{question.category}</span>
-          {question.subtopic && <><span>·</span><span>{question.subtopic}</span></>}
-          {question.difficulty !== null && <><span>·</span><span>Difficulty {question.difficulty}</span></>}
+          {question.subtopic && <><span>Â·</span><span>{question.subtopic}</span></>}
+          {question.difficulty !== null && <><span>Â·</span><span>Difficulty {question.difficulty}</span></>}
         </div>
 
         {/* Level selector */}
         <div className="mb-6">
-          <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted mb-2">Candidate level</div>
+          <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted mb-2">Region (admin only)</div>
+                    <div className="inline-flex border border-line rounded overflow-hidden mb-6">
+                      {(["US","EMEA","Global"] as const).map((rg) => (
+                        <button
+                          key={rg}
+                          type="button"
+                          onClick={() => saveRegion(rg)}
+                          disabled={savingRegion}
+                          className={`px-4 py-2 text-[12.5px] uppercase tracking-widest font-mono transition ${
+                            region === rg ? 'bg-ink text-paper' : 'text-ink-2 hover:text-ink'
+                          } ${savingRegion ? 'opacity-50 cursor-wait' : ''}`}
+                        >
+                          {rg}
+                        </button>
+                      ))}
+                    </div>
+                    {regionError && (
+                      <div className="mb-4 text-[11px] text-[#c2410c] font-mono">
+                        Region save failed: {regionError}
+                      </div>
+                    )}
+                    <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted mb-2">Candidate level</div>
           <div className="inline-flex border border-line rounded overflow-hidden">
             {LEVELS.map((lv) => (
               <button
@@ -152,8 +201,8 @@ export default function QuestionLab({ question }: { question: AdminQuestion }) {
               <div key={i} className="text-[14px] leading-relaxed">
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">
                   {t.role === 'candidate'
-                    ? (t.kind === 'clarification' ? 'You · clarification' : 'You · answer')
-                    : (t.kind === 'follow_up' ? 'Interviewer · follow-up' : 'Interviewer · clarification reply')}
+                    ? (t.kind === 'clarification' ? 'You Â· clarification' : 'You Â· answer')
+                    : (t.kind === 'follow_up' ? 'Interviewer Â· follow-up' : 'Interviewer Â· clarification reply')}
                 </div>
                 <div className={t.role === 'ai' ? 'text-ink' : 'text-ink-2'}>{t.text}</div>
               </div>

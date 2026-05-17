@@ -72,6 +72,7 @@ export interface UserProfile {
   cv_summary: string | null;
   bio: string | null;
   use_in_persona: boolean;
+  interview_region: 'US' | 'EMEA' | 'Global' | null;
   created_at: string;
   updated_at: string;
 }

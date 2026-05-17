@@ -19,6 +19,7 @@ const ALLOWED_KEYS = [
   'cv_summary',
   'bio',
   'use_in_persona',
+  'interview_region',
 ] as const;
 
 type AllowedKey = (typeof ALLOWED_KEYS)[number];
@@ -53,6 +54,17 @@ export const PATCH = withLogging('profile.update', async (request: Request, _ctx
     }
   }
 
+
+  if ('interview_region' in update) {
+    const v = update.interview_region;
+    if (v === null || v === '') {
+      update.interview_region = null;
+    } else if (typeof v === 'string' && (v === 'US' || v === 'EMEA' || v === 'Global')) {
+      update.interview_region = v;
+    } else {
+      return NextResponse.json({ error: 'invalid_interview_region' }, { status: 400 });
+    }
+  }
   if ('use_in_persona' in update) {
     update.use_in_persona = Boolean(update.use_in_persona);
   }
