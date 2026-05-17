@@ -23,13 +23,35 @@ export default function LandingHeader({ signedIn = false, isAdmin = false, isPai
         </nav>
         <div className="flex items-center gap-3">
           {isAdmin && (
-            <Link
-              href="/admin/knowledge"
-              className="hidden sm:inline text-[11px] tracking-[0.18em] uppercase text-[#B88736] border border-[#B88736]/40 px-2 py-1 rounded-sm hover:border-[#B88736] transition-colors"
-              title="Admin: Knowledge Hub"
-            >
-              Admin
-            </Link>
+            <div className="hidden sm:block relative group">
+              <button
+                type="button"
+                className="text-[11px] tracking-[0.18em] uppercase text-[#B88736] border border-[#B88736]/40 px-2 py-1 rounded-sm hover:border-[#B88736] transition-colors inline-flex items-center gap-1.5"
+                aria-haspopup="true"
+              >
+                Admin
+                <span aria-hidden className="text-[9px] leading-none">{'\u25BE'}</span>
+              </button>
+              {/* Hover bridge prevents the menu from closing when the cursor moves down */}
+              <div className="absolute right-0 top-full w-56 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible focus-within:opacity-100 focus-within:visible transition-opacity z-50">
+                <div className="bg-paper border border-line rounded shadow-lg overflow-hidden">
+                  <Link
+                    href="/admin/knowledge"
+                    className="block px-4 py-2.5 text-[12.5px] text-ink hover:bg-cream/60"
+                  >
+                    Knowledge Hub
+                    <span className="block font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">Articles & posts</span>
+                  </Link>
+                  <Link
+                    href="/admin/questions"
+                    className="block px-4 py-2.5 text-[12.5px] text-ink hover:bg-cream/60 border-t border-line"
+                  >
+                    Question Lab
+                    <span className="block font-mono text-[10px] uppercase tracking-widest text-muted mt-0.5">Test a question + answer</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
           )}
           {signedIn ? (
             <Link href="/profile" className="text-[13.5px] text-ink-2 hover:text-ink">Profile</Link>

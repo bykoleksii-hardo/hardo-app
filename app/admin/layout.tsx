@@ -19,6 +19,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Brand size="sm" />
             <nav className="flex items-center gap-5 text-[13px] text-ink-2">
               <Link href="/admin/knowledge" className="hover:text-ink">Knowledge</Link>
+              {role === 'admin' && (
+                <Link href="/admin/questions" className="hover:text-ink">Question Lab</Link>
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-3 text-[12px] font-mono uppercase tracking-widest text-muted">
