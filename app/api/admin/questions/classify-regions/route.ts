@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUserRole } from '@/lib/auth/roles';
-import { getSupabaseServer } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { chatJSON } from '@/lib/openai';
 
 export const dynamic = 'force-dynamic';
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   const dryRun = body.dryRun === true;
   const offset = Math.max(0, body.offset ?? 0);
 
-  const supabase = await getSupabaseServer();
+  const supabase = getSupabaseAdmin();
 
   let query = supabase
     .from('questions')

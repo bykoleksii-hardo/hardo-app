@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getUserRole } from '@/lib/auth/roles';
-import { getSupabaseServer } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -34,7 +34,8 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
     return NextResponse.json({ error: 'invalid_region' }, { status: 400 });
   }
 
-  const supabase = await getSupabaseServer();
+  // questions table has only a read-RLS policy; use service-role client (admin-gated above)
+  const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from('questions')
     .update({ region: region as Region })
