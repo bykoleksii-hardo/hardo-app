@@ -26,21 +26,21 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://hardo-app.bykoleksii.workers.dev'),
   title: 'HARDO \u2014 AI mock interviews for IB',
-  description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
+  description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
   applicationName: 'HARDO',
   openGraph: {
     type: 'website',
     title: 'HARDO \u2014 AI mock interviews for IB',
-    description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
+    description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
     images: ['/og.png'],
     siteName: 'HARDO',
-    images: ['/og.png'],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'HARDO \u2014 AI mock interviews for IB',
-    description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
+    description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
   },
+  alternates: { canonical: '/' },
   robots: { index: true, follow: true },
   icons: { apple: '/apple-touch-icon.png' },
 };

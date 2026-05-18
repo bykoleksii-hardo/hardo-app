@@ -10,7 +10,7 @@ const baseItems: Item[] = [
 ];
 
 const pricingItems: Item[] = [
-  { q: 'How much does HARDO cost?', a: '$12 per month, billed monthly, cancel anytime. One full interview is free, no card required.' },
+  { q: 'How much does HARDO cost?', a: '$12.99 per month, billed monthly. Cancel anytime. One full interview is free, no card required.' },
   { q: 'Do I need a card to try it?', a: 'No card on the free interview. You only enter payment when you choose to subscribe.' },
 ];
 

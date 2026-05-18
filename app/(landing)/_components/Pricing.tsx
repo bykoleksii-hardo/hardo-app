@@ -54,7 +54,7 @@ export default function Pricing() {
               href="/login?plan=paid"
               className="mt-8 inline-flex items-center gap-1.5 bg-ink text-paper text-[13.5px] px-5 py-2.5 rounded-full hover:bg-navy transition-colors"
             >
-              Get HARDO <span aria-hidden>{'\u2192'}</span>
+              Unlock unlimited access <span aria-hidden>{'\u2192'}</span>
             </Link>
           </div>
         </div>
