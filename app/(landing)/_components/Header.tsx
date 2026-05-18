@@ -62,7 +62,7 @@ export default function LandingHeader({ signedIn = false, isAdmin = false, isPai
             href={signedIn ? '/interview/setup' : '/login'}
             className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 rounded-full hover:bg-navy transition-colors"
           >
-            {signedIn ? 'Start interview' : 'Try free'}
+            {signedIn ? 'Start interview' : 'Start free'}
             <span aria-hidden>{'\u2192'}</span>
           </Link>
         </div>
