@@ -51,7 +51,7 @@ export default function Pricing() {
               <li>Full history and trend tracking</li>
             </ul>
             <Link
-              href="/login?plan=paid"
+              href="/upgrade"
               className="mt-8 inline-flex items-center gap-1.5 bg-ink text-paper text-[13.5px] px-5 py-2.5 rounded-full hover:bg-navy transition-colors"
             >
               Unlock unlimited access <span aria-hidden>{'\u2192'}</span>

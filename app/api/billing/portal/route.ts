@@ -21,9 +21,9 @@ export const POST = withLogging('POST /api/billing/portal', async (_req: Request
   }
 
   const { data: row, error } = await supabase
-    .from('users')
+    .from('user_entitlements')
     .select('lemonsqueezy_customer_id')
-    .eq('id', user.id)
+    .eq('user_id', user.id)
     .maybeSingle();
 
   if (error) {

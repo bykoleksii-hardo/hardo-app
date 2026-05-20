@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { getViewerPlan } from '@/lib/quota/server';
 import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
+import { CheckoutButton } from '@/app/_components/CheckoutButton';
+import { ManagePlanButton } from '@/app/profile/account/billing-buttons';
 
 export const metadata: Metadata = {
   title: 'Upgrade \u2014 HARDO',
@@ -56,12 +58,7 @@ export default async function UpgradePage() {
 
               {isPaid ? (
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <a
-                    href="mailto:hello@hardo.app?subject=Manage%20HARDO%20subscription"
-                    className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13.5px] px-5 py-2.5 rounded-full hover:bg-navy transition-colors"
-                  >
-                    Manage subscription <span aria-hidden>{'\u2192'}</span>
-                  </a>
+                  <ManagePlanButton />
                   <Link
                     href="/profile"
                     className="inline-flex items-center text-[13.5px] text-ink-2 hover:text-ink"
@@ -71,12 +68,7 @@ export default async function UpgradePage() {
                 </div>
               ) : (
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <a
-                    href="mailto:hello@hardo.app?subject=Upgrade%20to%20HARDO"
-                    className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13.5px] px-5 py-2.5 rounded-full hover:bg-navy transition-colors"
-                  >
-                    Get HARDO <span aria-hidden>{'\u2192'}</span>
-                  </a>
+                  <CheckoutButton />
                   <Link
                     href="/interview/setup"
                     className="inline-flex items-center text-[13.5px] text-ink-2 hover:text-ink"
