@@ -77,6 +77,28 @@ export default function LoginClient() {
       return;
     }
     setLoading(true);
+    // Pre-flight: check if email is already registered. Supabase's signUp
+    // silently no-ops for existing users (anti-enumeration), which leaves
+    // the user staring at a "we sent a code" screen that will never arrive.
+    try {
+      const r = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (r.ok) {
+        const j = (await r.json()) as { exists?: boolean };
+        if (j.exists) {
+          setLoading(false);
+          setError('This email is already registered. Sign in instead.');
+          setMode('signin');
+          return;
+        }
+      }
+    } catch {
+      // If the pre-check fails for any reason, fall through to signUp so we
+      // never block account creation on a transient error.
+    }
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -167,7 +189,7 @@ export default function LoginClient() {
           </h1>
           <p className="text-[#11161E]/70 mb-10 leading-relaxed">
             {mode === 'signin' && 'Pick up where you left off.'}
-            {mode === 'signup' && 'Eight characters minimum. No SSO yet — keep it simple.'}
+            {mode === 'signup' && 'Eight characters minimum. No SSO yet â keep it simple.'}
             {mode === 'verify' && `We sent a code to ${email}. Enter it below.`}
           </p>
 
@@ -381,11 +403,11 @@ export default function LoginClient() {
           </h2>
 
           <p className="text-[#11161E]/70 leading-relaxed mb-12">
-            Sharp answers. Unscripted follow-ups. A scorecard graded against bulge brackets and elite boutiques — not a generic rubric.
+            Sharp answers. Unscripted follow-ups. A scorecard graded against bulge brackets and elite boutiques â not a generic rubric.
           </p>
 
           <ol className="space-y-6 text-sm">
-            <Step n="01" title="Pick a vertical">M&amp;A, LBO, restructuring, valuation — or random.</Step>
+            <Step n="01" title="Pick a vertical">M&amp;A, LBO, restructuring, valuation â or random.</Step>
             <Step n="02" title="Run the drill">Typed answers, technicals, fit. The interviewer presses back.</Step>
             <Step n="03" title="Read the scorecard">Specific feedback on math, structure, and what an MD would actually say.</Step>
           </ol>
