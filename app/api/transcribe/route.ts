@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { transcribeAudio, GroqError } from '@/lib/groq-client';
+import { transcribeAudioWithFallback, STTError } from '@/lib/stt';
 import { withLogging } from '@/lib/observability';
 
 // Soft monthly cap: ~30 hours of recorded audio per user.
@@ -73,9 +73,9 @@ export const POST = withLogging('POST /api/transcribe', async (req: NextRequest,
     // Transcribe via Groq.
     let result;
     try {
-      result = await transcribeAudio({ audio, mimeType: audio.type || 'audio/webm', filename: 'audio.webm' });
+      result = await transcribeAudioWithFallback({ audio, mimeType: audio.type || 'audio/webm', filename: 'audio.webm' });
     } catch (e) {
-      if (e instanceof GroqError) {
+      if (e instanceof STTError) {
         const status = e.status === 0 ? 503 : e.status === 429 ? 503 : e.status;
         return NextResponse.json({ error: e.message, friendly: e.friendly, code: e.code }, { status });
       }
