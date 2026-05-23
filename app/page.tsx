@@ -68,7 +68,7 @@ function AnonHero() {
             </Link>
             <a href="#how" className="text-[14px] text-ink-2 hover:text-ink">How it works</a>
           </div>
-          <p className="mt-3 text-[13px] text-muted">Email + 6-digit code. No password to remember.</p>
+          <p className="mt-3 text-[13px] text-muted">Email + password. Verification code on first sign-up.</p>
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-muted">
             <span>No card required.</span>
             <span>{'\u2022'} 12 questions / session</span>
