@@ -33,7 +33,7 @@ export default async function UpgradePage() {
             <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
               {isPaid
                 ? 'Your subscription is active. Manage billing or cancel anytime below \u2014 access continues through the end of the current period.'
-                : 'One plan, $12 a month, billed monthly. Cancel anytime. No annual lock-in.'}
+                : 'One plan, $14.99 a month, billed monthly. Cancel anytime. No annual lock-in.'}
             </p>
           </div>
         </section>
@@ -46,7 +46,7 @@ export default async function UpgradePage() {
               </div>
               <div className="font-mono text-[11px] uppercase tracking-widest text-muted">HARDO</div>
               <div className="mt-5 flex items-baseline gap-2">
-                <span className="font-serif text-[56px] font-light leading-none">$12</span>
+                <span className="font-serif text-[56px] font-light leading-none">$14.99</span>
                 <span className="text-[13px] text-muted">/ month {'\u00b7'} cancel anytime</span>
               </div>
               <ul className="mt-8 space-y-3 text-[14.5px] text-ink-2">
@@ -91,7 +91,7 @@ export default async function UpgradePage() {
                 <li>{'\u2022'} 3 rooms vs. 1</li>
                 <li>{'\u2022'} Up to 5 follow-ups on the case (vs. 2 on standard)</li>
                 <li>{'\u2022'} Trend tracking session-over-session</li>
-                <li>{'\u2022'} $12 {'\u00b7'} less than one hour with a tutor.</li>
+                <li>{'\u2022'} $14.99 {'\u00b7'} less than one hour with a tutor.</li>
               </ul>
             </div>
           </div>

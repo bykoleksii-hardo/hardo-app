@@ -14,7 +14,7 @@ import Scorecard from './(landing)/_components/Scorecard';
 
 export const metadata: Metadata = {
   title: 'HARDO \u2014 AI mock interviews for IB',
-  description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
+  description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -81,7 +81,7 @@ function AnonHero() {
       <div className="md:hidden fixed inset-x-0 bottom-0 z-50 border-t border-line bg-paper/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3">
         <span className="text-[12px] font-mono uppercase tracking-widest text-muted">No card required</span>
         <Link href="/login" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 rounded-full">
-          Start free <span aria-hidden>{'\u2192'}</span>
+          Try free <span aria-hidden>{'\u2192'}</span>
         </Link>
       </div>
     </section>
@@ -110,7 +110,7 @@ function FreeHero({ remaining }: { remaining: number }) {
               </Link>
             ) : (
               <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
-                Upgrade to HARDO {'\u00b7'} $12.99/mo
+                Upgrade to HARDO {'\u00b7'} $14.99/mo
               </Link>
             )}
             <Link href="/profile" className="text-[14px] text-ink-2 hover:text-ink">View profile</Link>

@@ -42,7 +42,7 @@ export function ManagePlanButton() {
         disabled={status === 'loading'}
         className="bg-[#11161E] text-[#FBF7EE] font-medium tracking-[0.05em] px-6 py-3 rounded-sm hover:bg-[#1F2530] transition-colors text-[12px] uppercase disabled:opacity-50 disabled:cursor-not-allowed self-start"
       >
-        {status === 'loading' ? 'Opening…' : 'Manage plan'}
+        {status === 'loading' ? 'Openingâ¦' : 'Manage plan'}
       </button>
       {status === 'error' && msg && (
         <p className="text-[11px] text-[#9C2E2E] tracking-[0.04em]">{msg}</p>
@@ -88,7 +88,7 @@ export function UpgradeButton() {
         disabled={status === 'loading'}
         className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-6 py-3 rounded-sm hover:bg-[#9C6F1E] transition-colors text-[12px] uppercase disabled:opacity-50 disabled:cursor-not-allowed self-start"
       >
-        {status === 'loading' ? 'Loading…' : 'Upgrade — $12.99 / mo'}
+        {status === 'loading' ? 'Loadingâ¦' : 'Upgrade â $14.99 / mo'}
       </button>
       {status === 'error' && msg && (
         <p className="text-[11px] text-[#9C2E2E] tracking-[0.04em]">{msg}</p>
