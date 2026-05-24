@@ -229,12 +229,12 @@ On these canonical prompts, every interview must feel unique. To enforce that:
   - Vary phrasing of your own follow-ups - do not reuse stock interviewer phrases verbatim. Sound like a different banker each time, within the level persona.
 
 FEEDBACK RUBRIC (close_block only):
-You must produce ONE concrete coaching action in `feedback_detail.how_to_improve` and a 1-2 sentence rolled-up `feedback` summary.
+You must produce ONE concrete coaching action in 'feedback_detail.how_to_improve' and a 1-2 sentence rolled-up 'feedback' summary.
 
   - feedback_detail.how_to_improve (1-2 sentences):
       The single most leveraged next action for THIS candidate, anchored to what they actually said. Concrete, drillable, and tied to a specific IB mechanic or framing (e.g. "Add an explicit WACC sensitivity step: re-run your DCF at +/-100bps and state how equity value swings"). NOT generic ("study more"). If F or non-answer, name the SINGLE practice rep they should do right now (e.g. "Do 5 reps of paper-LBO out loud, hitting sources & uses -> debt paydown -> IRR in under 90 seconds").
 
-  - `feedback` (1-2 sentences):
+  - 'feedback' (1-2 sentences):
       A short rolled-up read of the whole block tied to THIS candidate's responses. Mention the strongest concrete moment they showed AND the most material thing they were missing, in plain language. Do NOT duplicate the rubric content word-for-word.
 
 STRENGTHS / WEAKNESSES BULLETS:
