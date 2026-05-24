@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import FeedbackButtons from './FeedbackButtons';
 
 type StepRow = {
@@ -78,8 +78,8 @@ const ALL = '__ALL__';
 export default function SummaryQuestions({ steps, isCompleted, initialFeedback }: Props) {
   const [cat, setCat] = useState<string>(ALL);
   const [grade, setGrade] = useState<string>(ALL);
-
-  const mainSteps = useMemo(() => steps.filter((s) => !s.is_follow_up), [steps]);
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+  const detailsRefs = useRef<Map<string, HTMLDetailsElement | null>>(new Map());
 
   const followUpsByParent = useMemo(() => {
     const map = new Map<string, StepRow[]>();
@@ -96,6 +96,8 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
     }
     return map;
   }, [steps]);
+
+  const mainSteps = useMemo(() => steps.filter((s) => !s.is_follow_up), [steps]);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -133,50 +135,90 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
   const showFilters = mainSteps.length > 1 && (categories.length > 1 || grades.length > 1);
   const hasFilters = cat !== ALL || grade !== ALL;
 
+  const allFilteredIds = useMemo(() => filteredSteps.map(s => s.id), [filteredSteps]);
+  const allOpen = allFilteredIds.length > 0 && allFilteredIds.every(id => openIds.has(id));
+  const anyOpen = allFilteredIds.some(id => openIds.has(id));
+
+  function toggle(id: string, isOpen: boolean) {
+    setOpenIds(prev => {
+      const next = new Set(prev);
+      if (isOpen) next.add(id); else next.delete(id);
+      return next;
+    });
+  }
+
+  function expandAll() {
+    setOpenIds(new Set(allFilteredIds));
+  }
+
+  function collapseAll() {
+    setOpenIds(new Set());
+  }
+
+  // Keep <details> open state in sync with React state (controlled-ish behavior)
+  useEffect(() => {
+    for (const [id, el] of detailsRefs.current.entries()) {
+      if (!el) continue;
+      const shouldOpen = openIds.has(id);
+      if (el.open !== shouldOpen) el.open = shouldOpen;
+    }
+  }, [openIds]);
+
   return (
     <>
       <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
         <h2 className="font-playfair text-2xl">Question by question</h2>
-        {showFilters && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] tracking-[0.22em] text-[#11161E]/45">FILTER</span>
-            {categories.length > 1 && (
-              <select
-                value={cat}
-                onChange={(e) => setCat(e.target.value)}
-                aria-label="Filter by category"
-                className="text-[12px] bg-transparent border border-[#11161E]/20 px-2 py-1 hover:border-[#B88736] focus:outline-none focus:border-[#B88736]"
-              >
-                <option value={ALL}>All categories</option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>{c.toUpperCase()}</option>
-                ))}
-              </select>
-            )}
-            {grades.length > 1 && (
-              <select
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                aria-label="Filter by grade"
-                className="text-[12px] bg-transparent border border-[#11161E]/20 px-2 py-1 hover:border-[#B88736] focus:outline-none focus:border-[#B88736]"
-              >
-                <option value={ALL}>All grades</option>
-                {grades.map((g) => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-            )}
-            {hasFilters && (
-              <button
-                type="button"
-                onClick={() => { setCat(ALL); setGrade(ALL); }}
-                className="text-[11px] tracking-[0.22em] text-[#11161E]/55 hover:text-[#B88736] underline-offset-4 hover:underline"
-              >
-                CLEAR
-              </button>
-            )}
-          </div>
-        )}
+        <div className="flex items-center gap-3 flex-wrap">
+          {filteredSteps.length > 0 && (
+            <button
+              type="button"
+              onClick={() => (allOpen ? collapseAll() : expandAll())}
+              className="text-[11px] tracking-[0.22em] text-[#11161E]/55 hover:text-[#B88736] underline-offset-4 hover:underline"
+            >
+              {allOpen ? 'COLLAPSE ALL' : 'EXPAND ALL'}
+            </button>
+          )}
+          {showFilters && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] tracking-[0.22em] text-[#11161E]/45">FILTER</span>
+              {categories.length > 1 && (
+                <select
+                  value={cat}
+                  onChange={(e) => setCat(e.target.value)}
+                  aria-label="Filter by category"
+                  className="text-[12px] bg-transparent border border-[#11161E]/20 px-2 py-1 hover:border-[#B88736] focus:outline-none focus:border-[#B88736]"
+                >
+                  <option value={ALL}>All categories</option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>{c.toUpperCase()}</option>
+                  ))}
+                </select>
+              )}
+              {grades.length > 1 && (
+                <select
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                  aria-label="Filter by grade"
+                  className="text-[12px] bg-transparent border border-[#11161E]/20 px-2 py-1 hover:border-[#B88736] focus:outline-none focus:border-[#B88736]"
+                >
+                  <option value={ALL}>All grades</option>
+                  {grades.map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
+              )}
+              {hasFilters && (
+                <button
+                  type="button"
+                  onClick={() => { setCat(ALL); setGrade(ALL); }}
+                  className="text-[11px] tracking-[0.22em] text-[#11161E]/55 hover:text-[#B88736] underline-offset-4 hover:underline"
+                >
+                  CLEAR
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {filteredSteps.length === 0 ? (
@@ -194,115 +236,129 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
           </button>
         </div>
       ) : (
-        <ol className="space-y-6">
+        <ol className="space-y-3">
 
           {filteredSteps.map((s) => {
             const followUps = followUpsByParent.get(s.id) ?? [];
             const fb = parseFeedback(s.ai_feedback);
-            const grade = s.ai_grade ?? s.ai_score;
+            const qGrade = s.ai_grade ?? s.ai_score;
+            const p = formatPace(s);
+            const g = (qGrade ?? '').toString().trim();
+            const tone = !g ? 'border-[#11161E]/20 text-[#11161E]/55'
+              : g.startsWith('A') ? 'border-[#1F6F3D]/40 text-[#1F6F3D] bg-[#1F6F3D]/8'
+              : g.startsWith('B') ? 'border-[#3F7A4A]/40 text-[#3F7A4A] bg-[#3F7A4A]/8'
+              : g.startsWith('C') ? 'border-[#A85A1F]/40 text-[#A85A1F] bg-[#A85A1F]/8'
+              : g === 'D' ? 'border-[#9C2E2E]/40 text-[#9C2E2E] bg-[#9C2E2E]/8'
+              : g === 'F' ? 'border-[#7A1F1F]/50 text-[#7A1F1F] bg-[#7A1F1F]/10'
+              : 'border-[#11161E]/20 text-[#11161E]/55';
+            const followUpCount = followUps.length;
+            const hasDetail = !!(fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0 || (fb.detail && (fb.detail.what_worked || fb.detail.what_was_missing || fb.detail.how_to_improve || fb.detail.model_answer_pointer))));
+            const isOpen = openIds.has(s.id);
             return (
-              <li key={s.id} className="border border-[#11161E]/10 bg-[#F2ECDF]/30 p-6">
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div>
-                    <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-2 flex items-center gap-3">
-                      <span>Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}</span>
-                      {(() => { const p = formatPace(s); if (!p) return null; return (
-                        <span className={p.over ? 'text-[#d47a7a]' : 'text-[#9ab87a]'}>{p.over ? 'OVERTIME ' : ''}{p.text}</span>
-                      ); })()}
+              <li key={s.id}>
+                <details
+                  ref={(el) => { detailsRefs.current.set(s.id, el); }}
+                  open={isOpen}
+                  onToggle={(e) => toggle(s.id, (e.currentTarget as HTMLDetailsElement).open)}
+                  className="group border border-[#11161E]/10 bg-[#F2ECDF]/30 hover:border-[#11161E]/20 transition-colors"
+                >
+                  <summary className="list-none cursor-pointer p-5 flex items-start gap-4 select-none">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-2 flex items-center gap-3 flex-wrap">
+                        <span>Q{String(s.order_index).padStart(2,'0')}{' · '}{(s.questions?.category ?? '').toUpperCase()}</span>
+                        {p && (
+                          <span className={p.over ? 'text-[#9C2E2E]' : 'text-[#3F7A4A]'}>{p.over ? 'OVERTIME ' : ''}{p.text}</span>
+                        )}
+                        {followUpCount > 0 && (
+                          <span className="text-[#B88736]">{followUpCount} FOLLOW-UP{followUpCount === 1 ? '' : 'S'}</span>
+                        )}
+                      </div>
+                      <p className="font-playfair text-[17px] leading-[1.45] text-[#11161E] line-clamp-2 group-open:line-clamp-none">{s.questions?.question}</p>
                     </div>
-                    <p className="font-playfair text-lg leading-[1.5]">{s.questions?.question}</p>
-                  </div>
-                  {isCompleted && (() => {
-                    const g = (grade ?? '').toString().trim();
-                    const tone = !g ? 'border-[#11161E]/20 text-[#11161E]/55'
-                      : g.startsWith('A') ? 'border-[#1F6F3D]/40 text-[#1F6F3D] bg-[#1F6F3D]/8'
-                      : g.startsWith('B') ? 'border-[#3F7A4A]/40 text-[#3F7A4A] bg-[#3F7A4A]/8'
-                      : g.startsWith('C') ? 'border-[#A85A1F]/40 text-[#A85A1F] bg-[#A85A1F]/8'
-                      : g === 'D' ? 'border-[#9C2E2E]/40 text-[#9C2E2E] bg-[#9C2E2E]/8'
-                      : g === 'F' ? 'border-[#7A1F1F]/50 text-[#7A1F1F] bg-[#7A1F1F]/10'
-                      : 'border-[#11161E]/20 text-[#11161E]/55';
-                    return (
-                      <div className={`shrink-0 border ${tone} px-4 py-2 text-center min-w-[60px]`}>
-                        <div className="font-playfair text-2xl leading-none">{g || 'N/A'}</div>
-                        <div className="text-[9px] tracking-[0.22em] mt-1 opacity-75">— GRADE</div>
-                      </div>
-                    );
-                  })()}
-                </div>
-                <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— YOUR ANSWER</div>
-                <p className="text-[#11161E]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
-                  {s.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}
-                </p>
-                {fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0 || fb.detail) && (
-                  <div className="mt-5">
-                    <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— FEEDBACK</div>
-                    {fb.summary && <p className="text-[#11161E]/85 text-[14px] leading-[1.6] mb-3">{fb.summary}</p>}
-                    {fb.detail && (fb.detail.what_worked || fb.detail.what_was_missing || fb.detail.how_to_improve || fb.detail.model_answer_pointer) && (
-                      <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 mb-4">
-                        {fb.detail.what_worked && (
-                          <div>
-                            <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">WHAT WORKED</div>
-                            <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.what_worked}</p>
+                    <div className={`shrink-0 border ${tone} px-3 py-1.5 text-center min-w-[52px]`}>
+                      <div className="font-playfair text-xl leading-none">{g || 'N/A'}</div>
+                      <div className="text-[8.5px] tracking-[0.22em] mt-1 opacity-75">GRADE</div>
+                    </div>
+                    <div className="shrink-0 text-[#11161E]/40 text-[18px] leading-none mt-1.5 transition-transform group-open:rotate-90" aria-hidden="true">›</div>
+                  </summary>
+
+                  <div className="px-5 pb-5 border-t border-[#11161E]/10">
+                    <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2 mt-4">— YOUR ANSWER</div>
+                    <p className="text-[#11161E]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
+                      {s.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}
+                    </p>
+                    {hasDetail && fb && (
+                      <div className="mt-5">
+                        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— FEEDBACK</div>
+                        {fb.summary && <p className="text-[#11161E]/85 text-[14px] leading-[1.6] mb-3">{fb.summary}</p>}
+                        {fb.detail && (fb.detail.what_worked || fb.detail.what_was_missing || fb.detail.how_to_improve || fb.detail.model_answer_pointer) && (
+                          <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 mb-4">
+                            {fb.detail.what_worked && (
+                              <div>
+                                <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">WHAT WORKED</div>
+                                <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.what_worked}</p>
+                              </div>
+                            )}
+                            {fb.detail.what_was_missing && (
+                              <div>
+                                <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WHAT WAS MISSING</div>
+                                <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.what_was_missing}</p>
+                              </div>
+                            )}
+                            {fb.detail.how_to_improve && (
+                              <div>
+                                <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-1">HOW TO IMPROVE</div>
+                                <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.how_to_improve}</p>
+                              </div>
+                            )}
+                            {fb.detail.model_answer_pointer && (
+                              <div>
+                                <div className="text-[10px] tracking-[0.22em] text-[#11161E]/55 mb-1">MODEL ANSWER POINTER</div>
+                                <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.model_answer_pointer}</p>
+                              </div>
+                            )}
                           </div>
                         )}
-                        {fb.detail.what_was_missing && (
-                          <div>
-                            <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WHAT WAS MISSING</div>
-                            <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.what_was_missing}</p>
+                        {fb.strengths.length > 0 && (
+                          <div className="mb-2">
+                            <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">— STRENGTHS</div>
+                            <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
+                              {fb.strengths.map((s,i) => <li key={i}>{s}</li>)}
+                            </ul>
                           </div>
                         )}
-                        {fb.detail.how_to_improve && (
+                        {fb.weaknesses.length > 0 && (
                           <div>
-                            <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-1">HOW TO IMPROVE</div>
-                            <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.how_to_improve}</p>
-                          </div>
-                        )}
-                        {fb.detail.model_answer_pointer && (
-                          <div>
-                            <div className="text-[10px] tracking-[0.22em] text-[#11161E]/55 mb-1">MODEL ANSWER POINTER</div>
-                            <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.model_answer_pointer}</p>
+                            <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">— WEAKNESSES</div>
+                            <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
+                              {fb.weaknesses.map((w,i) => <li key={i}>{w}</li>)}
+                            </ul>
                           </div>
                         )}
                       </div>
                     )}
-                    {fb.strengths.length > 0 && (
-                      <div className="mb-2">
-                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">— STRENGTHS</div>
-                        <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
-                          {fb.strengths.map((s,i) => <li key={i}>{s}</li>)}
-                        </ul>
+                    {followUps.length > 0 && (
+                      <div className="mt-5 border-l border-[#B88736]/40 pl-4 space-y-4">
+                        <div className="text-[10px] tracking-[0.22em] text-[#B88736]">— FOLLOW-UPS</div>
+                        {followUps.map(f => (
+                          <div key={f.id} className="text-[13px]">
+                            <p className="font-playfair italic text-[#11161E]/75 mb-1">{f.custom_question ?? f.questions?.question}</p>
+                            <p className="text-[#11161E]/85 leading-[1.6] whitespace-pre-wrap">{f.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}</p>
+                          </div>
+                        ))}
                       </div>
                     )}
-                    {fb.weaknesses.length > 0 && (
-                      <div>
-                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">— WEAKNESSES</div>
-                        <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
-                          {fb.weaknesses.map((w,i) => <li key={i}>{w}</li>)}
-                        </ul>
+                    {isCompleted && (
+                      <div className="mt-5 pt-4 border-t border-[#11161E]/10 flex items-center justify-end">
+                        <FeedbackButtons stepId={s.id} initialRating={initialFeedback?.[s.id] ?? 0} />
                       </div>
                     )}
                   </div>
-                )}
-                {followUps.length > 0 && (
-                  <div className="mt-5 border-l border-[#B88736]/40 pl-4 space-y-4">
-                    <div className="text-[10px] tracking-[0.22em] text-[#B88736]">— FOLLOW-UPS</div>
-                    {followUps.map(f => (
-                      <div key={f.id} className="text-[13px]">
-                        <p className="font-playfair italic text-[#11161E]/75 mb-1">{f.custom_question ?? f.questions?.question}</p>
-                        <p className="text-[#11161E]/85 leading-[1.6] whitespace-pre-wrap">{f.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {isCompleted && (
-                  <div className="mt-5 pt-4 border-t border-[#11161E]/10 flex items-center justify-end">
-                    <FeedbackButtons stepId={s.id} initialRating={initialFeedback?.[s.id] ?? 0} />
-                  </div>
-                )}
+                </details>
               </li>
             );
           })}
-                </ol>
+        </ol>
       )}
     </>
   );
