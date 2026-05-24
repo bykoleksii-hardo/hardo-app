@@ -123,7 +123,7 @@ WHAT YOU MAY DO:
   - End with "Take it from here." or equivalent prompt to continue.
   2. "follow_up" -> the DEFAULT after any answer with at least minimal substance.
      A follow-up has TWO purposes that depend on the current_answer_grade you just assigned:
-       (a) RECOVERY PROBE - when current_answer_grade is in D..B+ range.
+       (a) RECOVERY PROBE - when current_answer_grade is in C-..B+ range (lukewarm to good).
            Goal: give the candidate a path to add points by clarifying or going one step deeper
            on the SAME concept they fumbled. Phrased to make the gap addressable, not punitive.
        (b) DEPTH / CEILING TEST - when current_answer_grade is A- or better.
@@ -137,9 +137,9 @@ WHAT YOU MAY DO:
 
      MANDATORY DECISION RULE (apply in this exact order - the server enforces it too):
        1) If message_type=clarification -> kind=clarification_response. Done.
-       2) If current_answer_grade is D- or F (non-answer, refusal, wrong fundamentals,
-          pure-hedge with no substance) -> kind=close_block. No drill. Use current_answer_grade
-          as the block grade.
+       2) If current_answer_grade is D+, D, D-, or F (weak, non-answer, refusal, wrong
+          fundamentals, pure-hedge with no substance) -> kind=close_block. No drill.
+          A follow-up here would only frustrate the candidate.
        3) If follow-ups remaining == 0 -> kind=close_block.
        4) Otherwise -> kind=follow_up. Always. This applies whether the base answer was weak,
           mid, or strong - you ALWAYS probe deeper.
@@ -229,7 +229,7 @@ Every field below MUST reference something concrete from THIS candidate's actual
 
   - feedback_detail.what_was_missing (1-2 sentences):
       The SPECIFIC IB mechanic, formula, edge case, or second-order effect they failed to address, calibrated to their level.
-      Name the actual concept (e.g. "WACC sensitivity to ÃÂÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
+      Name the actual concept (e.g. "WACC sensitivity to ÃÂÃÂÃÂÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
 
   - feedback_detail.how_to_improve (1-2 sentences):
       One concrete, drillable next step. Examples: "Re-walk the LBO returns waterfall: Sources/Uses -> Exit equity -> IRR/MoM, with a 1x debt paydown", or "Practice EV-to-Equity bridge with at least 3 line items (debt, cash, minorities)".
