@@ -20,6 +20,7 @@ type StepRow = {
   parent_step_id: string | null;
   question_id: number | null;
   custom_question: string | null;
+  delivered_question: string | null;
   user_answer: string | null;
   answered_at: string | null;
   ai_status: string | null;
@@ -69,7 +70,7 @@ function QuestionTimer(props: { startedAt: string | null; limitSeconds: number; 
   const ratio = elapsedSec / Math.max(1, limitSeconds);
   // green < 70%, gold 70-100%, red > 100%
   const color = isOver ? '#d47a7a' : ratio >= 0.7 ? '#B88736' : '#9ab87a';
-  // Urgent: last 10s of overtime — pulse.
+  // Urgent: last 10s of overtime â pulse.
   const urgent = isOver && overtimeRemain <= 10;
   const label = isOver ? 'OVERTIME' : 'TIME LEFT';
   const display = isOver ? '+' + formatMMSS(overtimeElapsed) : formatMMSS(Math.max(0, remainSec));
@@ -138,13 +139,14 @@ function shortLabel(q: Question | null, idx: number) {
   return `Q${String(idx).padStart(2, '0')} - ${tail}`;
 }
 function lockedLabel(idx: number) {
-  return `Q${String(idx).padStart(2, '0')} - âââââ`;
+  return `Q${String(idx).padStart(2, '0')} - Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ`;
 }
 
 function buildBlockTranscript(baseStep: StepRow, allSteps: StepRow[], allAnswers: AnswerRow[]): ChatMsg[] {
   const out: ChatMsg[] = [];
-  if (baseStep.questions?.question) {
-    out.push({ role: 'ai', kind: 'question', text: baseStep.questions.question, stepId: baseStep.id });
+  const baseQuestionText = baseStep.delivered_question || baseStep.questions?.question || null;
+  if (baseQuestionText) {
+    out.push({ role: 'ai', kind: 'question', text: baseQuestionText, stepId: baseStep.id });
   }
   // Walk children in order, interleaving each step's question (if FU) and its answers chronologically.
   const orderedSteps: StepRow[] = [baseStep, ...allSteps.filter(s => s.parent_step_id === baseStep.id).sort((a, b) => a.order_index - b.order_index)];
