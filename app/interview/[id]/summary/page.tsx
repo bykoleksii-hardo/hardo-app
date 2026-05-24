@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Brand from '@/app/_components/Brand';
 import ShareLinkButton from './share-button';
 import SummaryQuestions from './SummaryQuestions';
+import NextStepsCard from './NextStepsCard';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -111,7 +112,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
   const { data: interview } = await supabase
     .from('interviews')
-    .select('id, candidate_level, total_questions, status, started_at, finished_at, final_score')
+    .select('id, candidate_level, total_questions, status, started_at, finished_at, final_score, input_mode')
     .eq('id', id)
     .maybeSingle();
 
@@ -268,11 +269,10 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         <SummaryQuestions steps={steps} isCompleted={isCompleted} initialFeedback={initialFeedback} />
 
-        <div className="mt-12 text-center">
-          <a href="/interview/setup" className="inline-block bg-[#B88736] text-[#FBF7EE] tracking-wide px-8 py-3 font-medium hover:bg-[#B88736]">
-            Run another interview {'—'}
-          </a>
-        </div>
+        <NextStepsCard
+          level={interview.candidate_level as 'intern' | 'analyst' | 'associate'}
+          inputMode={(interview.input_mode === 'voice' ? 'voice' : 'text') as 'text' | 'voice'}
+        />
       </div>
     </div>
   );
