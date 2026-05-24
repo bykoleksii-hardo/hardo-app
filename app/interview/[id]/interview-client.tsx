@@ -471,6 +471,15 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     return () => clearInterval(id);
   }, [reviewActive]);
 
+  // Tick nowMs during answering phase to drive the overtime auto-lock check.
+  useEffect(() => {
+    if (!roundKey || prepActive) return;
+    const phase = roundPhase[roundKey] ?? 'answering';
+    if (phase !== 'answering') return;
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [roundKey, prepActive, roundPhase]);
+
   useEffect(() => {
     if (!reviewActive || !roundKey) return;
     if (recState === 'transcribing') return;
