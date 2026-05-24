@@ -217,6 +217,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   const [reviewStartedAt, setReviewStartedAt] = useState<Record<string, number>>({});
   const REVIEW_SECONDS = 10;
   const autoStopArmedRef = useRef<Record<string, boolean>>({});
+  const autoSubmittedRef = useRef<Record<string, boolean>>({});
   const autoRecordArmedRef = useRef<Record<string, boolean>>({});
 
   // Ask for mic permission once at interview start (voice mode only).
@@ -476,9 +477,15 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     const startedAt = reviewStartedAt[roundKey];
     if (!startedAt) return;
     if ((nowMs - startedAt) / 1000 >= REVIEW_SECONDS) {
+      const alreadyLocked = roundPhase[roundKey] === 'locked';
       setRoundPhase(prev => prev[roundKey] === 'locked' ? prev : { ...prev, [roundKey]: 'locked' });
+      // Auto-submit once review window elapses (even if draft is empty).
+      if (!alreadyLocked && !autoSubmittedRef.current[roundKey]) {
+        autoSubmittedRef.current[roundKey] = true;
+        void handleSubmit();
+      }
     }
-  }, [reviewActive, roundKey, reviewStartedAt, nowMs, recState]);
+  }, [reviewActive, roundKey, reviewStartedAt, nowMs, recState, roundPhase]);
 
   // Timer info (server start vs prep-done start: whichever is later).
   // Timer info (server start vs prep-done start: whichever is later).
@@ -539,10 +546,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
 
   async function handleSubmit() {
     if (!activeBase) return;
-    if (draft.trim().length < 1) {
-      setError('Write something first.');
-      return;
-    }
+    // (empty-text guard removed: auto-submit must be able to send empty answers)
     if (blockClosed) return;
     setError(null);
     setSubmitting(true);
@@ -577,6 +581,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         setReviewStartedAt(prev => { const next = { ...prev }; delete next[roundKey]; return next; });
         autoRecordArmedRef.current[roundKey] = false;
         autoStopArmedRef.current[roundKey] = false;
+        autoSubmittedRef.current[roundKey] = false;
       }
 
       if (data.kind === 'close_block') {
@@ -893,7 +898,6 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         return (
                           <button
                             onClick={handleSubmit}
-                            disabled={draft.trim().length < 1}
                             className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-[#B88736]"
                           >
                             Send
