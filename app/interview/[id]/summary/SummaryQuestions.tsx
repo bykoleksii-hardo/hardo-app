@@ -252,7 +252,6 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
               : g === 'F' ? 'border-[#7A1F1F]/50 text-[#7A1F1F] bg-[#7A1F1F]/10'
               : 'border-[#11161E]/20 text-[#11161E]/55';
             const followUpCount = followUps.length;
-            const hasDetail = !!(fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0 || (fb.detail && (fb.detail.what_worked || fb.detail.what_was_missing || fb.detail.how_to_improve || fb.detail.model_answer_pointer))));
             const isOpen = openIds.has(s.id);
             return (
               <li key={s.id}>
@@ -282,59 +281,49 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                     <div className="shrink-0 text-[#11161E]/40 text-[18px] leading-none mt-1.5 transition-transform group-open:rotate-90" aria-hidden="true">›</div>
                   </summary>
 
-                  <div className="px-5 pb-5 border-t border-[#11161E]/10">
-                    <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2 mt-4">— YOUR ANSWER</div>
-                    <p className="text-[#11161E]/85 text-[14px] leading-[1.6] whitespace-pre-wrap">
-                      {s.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}
-                    </p>
-                    {hasDetail && fb && (
+                  <div className="px-5 pb-5">
+                    <div className="mt-4 border-l-2 border-[#B88736]/60 bg-[#11161E]/[0.03] pl-4 pr-3 py-3">
+                      <div className="text-[10px] tracking-[0.22em] text-[#B88736]/90 mb-2">— TRANSCRIPT</div>
+                      <p className="text-[#11161E]/85 text-[14px] leading-[1.65] whitespace-pre-wrap italic">
+                        {s.user_answer ?? <span className="text-[#11161E]/35 not-italic">not answered</span>}
+                      </p>
+                    </div>
+                    {fb && fb.summary && (
                       <div className="mt-5">
                         <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-2">— FEEDBACK</div>
-                        {fb.summary && <p className="text-[#11161E]/85 text-[14px] leading-[1.6] mb-3">{fb.summary}</p>}
-                        {fb.detail && (fb.detail.what_worked || fb.detail.what_was_missing || fb.detail.how_to_improve || fb.detail.model_answer_pointer) && (
-                          <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3 mb-4">
-                            {fb.detail.what_worked && (
-                              <div>
-                                <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">WHAT WORKED</div>
-                                <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.what_worked}</p>
-                              </div>
-                            )}
-                            {fb.detail.what_was_missing && (
-                              <div>
-                                <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WHAT WAS MISSING</div>
-                                <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.what_was_missing}</p>
-                              </div>
-                            )}
-                            {fb.detail.how_to_improve && (
-                              <div>
-                                <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-1">HOW TO IMPROVE</div>
-                                <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.how_to_improve}</p>
-                              </div>
-                            )}
-                            {fb.detail.model_answer_pointer && (
-                              <div>
-                                <div className="text-[10px] tracking-[0.22em] text-[#11161E]/55 mb-1">MODEL ANSWER POINTER</div>
-                                <p className="text-[#11161E]/80 text-[13px] leading-[1.55]">{fb.detail.model_answer_pointer}</p>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                        {fb.strengths.length > 0 && (
-                          <div className="mb-2">
-                            <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">— STRENGTHS</div>
-                            <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
-                              {fb.strengths.map((s,i) => <li key={i}>{s}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                        {fb.weaknesses.length > 0 && (
-                          <div>
-                            <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">— WEAKNESSES</div>
-                            <ul className="list-disc list-inside text-[13px] text-[#11161E]/80 space-y-1">
-                              {fb.weaknesses.map((w,i) => <li key={i}>{w}</li>)}
-                            </ul>
-                          </div>
-                        )}
+                        <p className="text-[#11161E]/85 text-[14.5px] leading-[1.65]">{fb.summary}</p>
+                      </div>
+                    )}
+                    {fb && fb.strengths.length > 0 && (
+                      <div className="mt-5">
+                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-2">— WHAT WENT WELL</div>
+                        <ul className="space-y-1.5 text-[13.5px] text-[#11161E]/85 leading-[1.55]">
+                          {fb.strengths.map((x, i) => (
+                            <li key={i} className="flex gap-2.5">
+                              <span className="text-[#1F6F3D] shrink-0 leading-[1.55]">+</span>
+                              <span>{x}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {fb && fb.weaknesses.length > 0 && (
+                      <div className="mt-5">
+                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-2">— WHAT TO FIX</div>
+                        <ul className="space-y-1.5 text-[13.5px] text-[#11161E]/85 leading-[1.55]">
+                          {fb.weaknesses.map((x, i) => (
+                            <li key={i} className="flex gap-2.5">
+                              <span className="text-[#9C2E2E] shrink-0 leading-[1.55]">−</span>
+                              <span>{x}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {fb && fb.detail && fb.detail.how_to_improve && (
+                      <div className="mt-5 border border-[#B88736]/30 bg-[#B88736]/[0.05] rounded-sm px-4 py-3">
+                        <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-1.5">— PRACTICE</div>
+                        <p className="text-[#11161E]/85 text-[13.5px] leading-[1.6]">{fb.detail.how_to_improve}</p>
                       </div>
                     )}
                     {followUps.length > 0 && (
