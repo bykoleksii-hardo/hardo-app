@@ -196,18 +196,18 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         <div className="border border-[#11161E]/15 bg-[#F2ECDF]/40 p-8 mb-12 grid grid-cols-3 gap-8">
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">â OVERALL</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— OVERALL</div>
             <div className="font-playfair text-4xl text-[#11161E]">{summary?.overall_score ?? interview.final_score ?? '-'}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">{isCompleted ? 'out of 100' : 'awaiting AI review'}</div>
           </div>
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">â QUESTIONS</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— QUESTIONS</div>
             <div className="font-playfair text-4xl">{answeredCount} / {interview.total_questions}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">answered</div>
           </div>
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">â RECOMMENDATION</div>
-            <div className={`font-playfair text-4xl ${hireToneClass}`}>{hireMeta?.label ?? 'â'}</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— RECOMMENDATION</div>
+            <div className={`font-playfair text-4xl ${hireToneClass}`}>{hireMeta?.label ?? '—'}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">
               {interview.finished_at ? new Date(interview.finished_at).toLocaleString() : (isCompleted ? '' : interview.status?.toString().toUpperCase())}
             </div>
@@ -216,7 +216,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         {isCompleted && summary && (
           <div className="border border-[#B88736]/30 bg-[#F2ECDF]/30 p-6 mb-12">
-            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">â OVERALL FEEDBACK</div>
+            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">— OVERALL FEEDBACK</div>
             {(() => {
               const final = parseFinalFeedback(summary.final_feedback);
               return (
@@ -255,11 +255,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
             })()}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">â STRENGTHS</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">— STRENGTHS</div>
                 <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_strengths}</p>
               </div>
               <div>
-                <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">â WEAKNESSES</div>
+                <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">— WEAKNESSES</div>
                 <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_weaknesses}</p>
               </div>
             </div>
@@ -270,7 +270,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
         <div className="mt-12 text-center">
           <a href="/interview/setup" className="inline-block bg-[#B88736] text-[#FBF7EE] tracking-wide px-8 py-3 font-medium hover:bg-[#B88736]">
-            Run another interview {'âÂÂ'}
+            Run another interview {'—'}
           </a>
         </div>
       </div>
