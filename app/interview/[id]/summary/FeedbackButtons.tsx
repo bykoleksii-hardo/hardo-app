@@ -47,7 +47,7 @@ export default function FeedbackButtons({ stepId, initialRating }: Props) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-[10px] tracking-[0.22em] text-[#11161E]/45 mr-1">
-        WAS THIS QUESTION HELPFUL?
+        DID YOU LIKE THIS QUESTION BLOCK?
       </span>
       <button
         type="button"
