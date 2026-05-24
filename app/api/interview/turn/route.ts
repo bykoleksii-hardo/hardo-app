@@ -208,12 +208,24 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
       ai.grade = cag || 'D';
       if (!ai.feedback) ai.feedback = 'Closing the block - the answer did not give enough signal to drill deeper.';
     } else if (ai.kind === 'close_block' && hasRoom && !isLowFloor && cag) {
-      console.warn('[turn] forcing follow_up: AI closed early with room remaining and grade >= D', { cag, baseStepId, followUpsSoFar, maxFollowUps });
-      ai.kind = 'follow_up';
-      if (!ai.follow_up_question || !ai.follow_up_question.trim()) {
-        // Best-effort fallback prompt. The persona-flavored generation would have been ideal but
-        // the model already returned close_block; we still need a question to keep going.
-        ai.follow_up_question = 'Can you go one level deeper on what you just said - either with a specific number, an edge case, or a real-world example?';
+      // Only force a follow_up when the base step would otherwise be closed prematurely.
+      // For the BASE step (no FUs yet) we always want at least one drill -> recovery probe (C-..B+) or ceiling test (A-..A+).
+      // Once we are already on a follow-up step, accept the AI's close_block decision: the spec is
+      // "up to 2 follow-ups", not "exactly 2".
+      const isBaseStep = followUpsSoFar === 0;
+      const isRecoveryRange = cag === 'C-' || cag === 'C' || cag === 'C+' || cag === 'B-' || cag === 'B' || cag === 'B+';
+      const isCeilingRange = cag === 'A-' || cag === 'A' || cag === 'A+';
+      const shouldForce = isBaseStep && (isRecoveryRange || isCeilingRange);
+      if (shouldForce) {
+        console.warn('[turn] forcing follow_up on base step', { cag, baseStepId, followUpsSoFar, maxFollowUps, kind: isCeilingRange ? 'ceiling' : 'recovery' });
+        ai.kind = 'follow_up';
+        if (!ai.follow_up_question || !ai.follow_up_question.trim()) {
+          // Best-effort fallback prompt. The persona-flavored generation would have been ideal but
+          // the model already returned close_block; we still need a question to keep going.
+          ai.follow_up_question = isCeilingRange
+            ? 'Push your last answer one level further - give a specific number, an edge case, or a concrete real-world example that tests your conviction.'
+            : 'Take another pass at the original question - what would you add or sharpen to make your answer stronger?';
+        }
       }
     }
   }
@@ -297,7 +309,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     if (followUpsSoFar >= maxFollowUps) {
       ai.kind = 'close_block';
       ai.grade = ai.grade || 'B';
-      ai.feedback = ai.feedback || 'Closing the block ÃÂ¢ÃÂÃÂ follow-up limit reached.';
+      ai.feedback = ai.feedback || 'Closing the block ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ follow-up limit reached.';
     } else {
       const { data: insertResult, error: insertErr } = await supabase.rpc('insert_followup_step', {
         p_interview_id: interviewId,
