@@ -71,7 +71,7 @@ function QuestionTimer(props: { startedAt: string | null; limitSeconds: number; 
   const ratio = elapsedSec / Math.max(1, limitSeconds);
   // green < 70%, gold 70-100%, red > 100%
   const color = isOver ? '#d47a7a' : ratio >= 0.7 ? '#B88736' : '#9ab87a';
-  // Urgent: last 10s of overtime â pulse.
+  // Urgent: last 10s of overtime — pulse.
   const urgent = isOver && overtimeRemain <= 10;
   const label = isOver ? 'OVERTIME' : 'TIME LEFT';
   const display = isOver ? '+' + formatMMSS(overtimeElapsed) : formatMMSS(Math.max(0, remainSec));
@@ -140,7 +140,7 @@ function shortLabel(q: Question | null, idx: number) {
   return `Q${String(idx).padStart(2, '0')} - ${tail}`;
 }
 function lockedLabel(idx: number) {
-  return `Q${String(idx).padStart(2, '0')} - âââââ`;
+  return `Q${String(idx).padStart(2, '0')} - ─────`;
 }
 
 function buildBlockTranscript(baseStep: StepRow, allSteps: StepRow[], allAnswers: AnswerRow[]): ChatMsg[] {
