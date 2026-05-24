@@ -229,25 +229,13 @@ On these canonical prompts, every interview must feel unique. To enforce that:
   - Vary phrasing of your own follow-ups - do not reuse stock interviewer phrases verbatim. Sound like a different banker each time, within the level persona.
 
 FEEDBACK RUBRIC (close_block only):
-You must produce a 4-part structured feedback in 'feedback_detail' and a 1-2 sentence rolled-up 'feedback' summary.
-Every field below MUST reference something concrete from THIS candidate's actual answer (a quoted phrase, a specific IB concept, a number they gave, or - if they gave nothing - explicitly state "no usable substance").
-
-  - feedback_detail.what_worked (1-2 sentences):
-      What this candidate actually did well, in their own framing. Quote one specific phrase or call out one concrete IB concept they named.
-      If F or non-answer, say "Nothing usable - no answer was attempted." Do not invent strengths.
-
-  - feedback_detail.what_was_missing (1-2 sentences):
-      The SPECIFIC IB mechanic, formula, edge case, or second-order effect they failed to address, calibrated to their level.
-      Name the actual concept (e.g. "WACC sensitivity to ÃÂÃÂÃÂÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
+You must produce ONE concrete coaching action in `feedback_detail.how_to_improve` and a 1-2 sentence rolled-up `feedback` summary.
 
   - feedback_detail.how_to_improve (1-2 sentences):
-      One concrete, drillable next step. Examples: "Re-walk the LBO returns waterfall: Sources/Uses -> Exit equity -> IRR/MoM, with a 1x debt paydown", or "Practice EV-to-Equity bridge with at least 3 line items (debt, cash, minorities)".
-      Banned: "study more", "be more structured", "work on clarity", "go deeper", "review fundamentals".
+      The single most leveraged next action for THIS candidate, anchored to what they actually said. Concrete, drillable, and tied to a specific IB mechanic or framing (e.g. "Add an explicit WACC sensitivity step: re-run your DCF at +/-100bps and state how equity value swings"). NOT generic ("study more"). If F or non-answer, name the SINGLE practice rep they should do right now (e.g. "Do 5 reps of paper-LBO out loud, hitting sources & uses -> debt paydown -> IRR in under 90 seconds").
 
-  - feedback_detail.model_answer_pointer (1 sentence):
-      Sketch what an A-grade answer at THIS LEVEL would have anchored on. 1 sentence. Reference 1-2 specific IB concepts an A answer would have hit.
-
-The 'feedback' string itself stays a 1-2 sentence summary that opens with the verdict (e.g. "Solid framework but you left out the dilution step."). It will be shown right above the rubric, so it must NOT duplicate the rubric content word-for-word.
+  - `feedback` (1-2 sentences):
+      A short rolled-up read of the whole block tied to THIS candidate's responses. Mention the strongest concrete moment they showed AND the most material thing they were missing, in plain language. Do NOT duplicate the rubric content word-for-word.
 
 STRENGTHS / WEAKNESSES BULLETS:
   - 1 to 3 items each (NEVER empty unless F/non-answer, in which case strengths may be empty but weaknesses must still name what was needed).
@@ -325,13 +313,10 @@ export const TURN_SCHEMA: Record<string, unknown> = {
     feedback_detail: {
       type: 'object',
       additionalProperties: false,
-      required: ['what_worked', 'what_was_missing', 'how_to_improve', 'model_answer_pointer'],
-      description: 'Used ONLY when kind=close_block. 4-part rubric for the WHOLE BLOCK. All four are empty strings when kind!=close_block.',
+      required: ['how_to_improve'],
+      description: 'Used ONLY when kind=close_block. Single coaching action for the WHOLE BLOCK. Empty string when kind!=close_block.',
       properties: {
-        what_worked: { type: 'string', description: '1-2 sentences. Specific strength tied to a quoted phrase or named IB concept. "Nothing usable" if F/non-answer. Empty when kind!=close_block.' },
-        what_was_missing: { type: 'string', description: '1-2 sentences. The specific IB mechanic/formula/edge case they did NOT address. Empty when kind!=close_block.' },
-        how_to_improve: { type: 'string', description: '1-2 sentences. Concrete drillable next step naming the topic AND form of practice. Empty when kind!=close_block.' },
-        model_answer_pointer: { type: 'string', description: '1 sentence. What a full-marks answer at THIS level would have anchored on. Empty when kind!=close_block.' },
+        how_to_improve: { type: 'string', description: '1-2 sentences. The single most leveraged next coaching action for THIS candidate, anchored to what they said. Concrete and drillable. Empty when kind!=close_block.' },
       },
     },
     strengths: {
@@ -353,13 +338,10 @@ export const TURN_SCHEMA: Record<string, unknown> = {
     current_answer_feedback_detail: {
       type: 'object',
       additionalProperties: false,
-      required: ['what_worked', 'what_was_missing', 'how_to_improve', 'model_answer_pointer'],
-      description: 'Per-answer 4-part rubric for the candidate latest message. Set ALWAYS when message_type=answer. All four are empty strings when message_type=clarification.',
+      required: ['how_to_improve'],
+      description: 'Per-answer single coaching action for the candidate latest message. Set ALWAYS when the candidate sent a usable message. Empty string when kind!=continue or when the candidate did not produce a substantive answer.',
       properties: {
-        what_worked: { type: 'string', description: '1-2 sentences. Specific strength tied to a quoted phrase or named IB concept. "Nothing usable" if 0 score. Empty when message_type=clarification.' },
-        what_was_missing: { type: 'string', description: '1-2 sentences. The specific IB mechanic/formula/edge case they did NOT address, named explicitly. Empty when message_type=clarification.' },
-        how_to_improve: { type: 'string', description: '1-2 sentences. Concrete drillable next step naming the topic AND form of practice. Banned generics. Empty when message_type=clarification.' },
-        model_answer_pointer: { type: 'string', description: '1 sentence. What a top-of-range answer at THIS level would have anchored on. Empty when message_type=clarification.' },
+        how_to_improve: { type: 'string', description: '1-2 sentences. The single most leveraged next coaching action tied to the latest answer. Concrete and drillable.' },
       },
     },
   },
@@ -376,19 +358,13 @@ export type TurnAIResult = {
   grade: LetterGrade;
   feedback: string;
   feedback_detail: {
-    what_worked: string;
-    what_was_missing: string;
     how_to_improve: string;
-    model_answer_pointer: string;
   };
   strengths: string[];
   weaknesses: string[];
   current_answer_grade: LetterGrade;
   current_answer_feedback_detail: {
-    what_worked: string;
-    what_was_missing: string;
     how_to_improve: string;
-    model_answer_pointer: string;
   };
 };
 
