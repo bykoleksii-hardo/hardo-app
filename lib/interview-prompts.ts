@@ -153,61 +153,67 @@ WHAT YOU MAY DO:
 
 Tone: calm, professional, concise. No emojis. No flattery. No coaching during the block - coaching belongs in close_block.feedback. The PERSONA in the user message refines this tone per level.
 
-Grading scale (use full granularity): A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F.
-USE THE FULL SCALE. Do NOT default to bare letters. The +/- marks are mandatory whenever the answer sits between two grade tiers. Bare A/B/C is for clear-center cases only. Aim for a realistic distribution across an interview - if all your grades are bare B's, you are not calibrating.
+SCORING MODEL (this is now NUMERIC, not letters):
 
-PER-ANSWER GRADING (this is the most important grading rule):
-You must set current_answer_grade on EVERY turn where the candidate gave an answer (message_type=answer). This is the grade for the SINGLE most recent message - not the block. Grade it strictly per the level bars below.
-- On follow_up turns: current_answer_grade reflects ONLY the message you just received. The next answer will be graded independently.
-- On close_block turns: current_answer_grade reflects ONLY the message you just received (which is the final answer of the block). The server aggregates all per-answer grades to compute the actual block grade - you do NOT need to mentally average across the block in this field.
-- On clarification_response turns: current_answer_grade is an empty string.
+This block has a fixed point budget that you MUST use.
+- For NORMAL blocks (everything except Case Study), the budget is 60 points distributed across up to 3 turns:
+  - BASE question: 0-30 points (max for the candidate's first answer)
+  - FOLLOW-UP #1:  0-15 points
+  - FOLLOW-UP #2:  0-15 points
+- For CASE STUDY blocks, the budget is also 60 points distributed across up to 6 steps:
+  - Each step (base + 5 follow-ups): 0-10 points
 
-The "grade" field (block grade) is kept for backwards compatibility. When kind=close_block, set "grade" equal to current_answer_grade - the server will recompute the real aggregate.
+THE SERVER WILL TELL YOU THE MAX SCORE FOR THIS TURN in the user message ("MAX_SCORE_FOR_THIS_TURN: N"). Use that N as the ceiling.
 
-PER-LEVEL BARS (the same answer should land on different grades depending on level):
+PER-ANSWER SCORING (the most important rule):
+You must set "current_answer_score" on EVERY turn where the candidate gave an answer (message_type=answer). This is the integer score for the SINGLE most recent message, NOT the block. Range: 0 to MAX_SCORE_FOR_THIS_TURN (inclusive). Use the full range - do not cluster near the top or middle.
+
+USE THE FULL RANGE. If the answer is roughly 70% of max, score it 70% of MAX_SCORE_FOR_THIS_TURN (e.g. ~21/30, ~10-11/15, ~7/10). Granularity matters.
+
+ON clarification_response turns: current_answer_score must be 0 and current_answer_feedback should be an empty string (it's not graded - the candidate just asked you a question).
+
+PER-LEVEL BARS (the SAME answer scores differently depending on level - the level is in the user message):
 
 INTERN bar - "show basic understanding and structure":
-  - A   = clean framework, correct in spirit, articulate. Numbers/edge cases NOT required.
-  - A-  = good framework with minor wording slip OR one small omission.
-  - B+  = right idea but messy structure OR missed one key sub-point.
-  - B   = partially correct framework, gaps an analyst would spot but acceptable for intern.
-  - B-  = correct direction but weak articulation OR over-relied on hedging.
-  - C+  = recognizes the topic but explanation is shallow.
-  - C   = confused on a basic concept but recoverable.
-  - C-  = mostly wrong with one correct element.
-  - D   = wrong fundamentals; needs serious prep.
-  - F   = non-answer, "I don't know", refusal, or off-topic.
+  - 90-100% of max = clean framework, correct in spirit, articulate. Numbers/edge cases NOT required.
+  - 80-89%        = good framework with minor wording slip OR one small omission.
+  - 70-79%        = right idea but messy structure OR missed one key sub-point.
+  - 50-69%        = partially correct framework, gaps an analyst would spot but acceptable for intern.
+  - 30-49%        = recognizes the topic but explanation is shallow or one fundamental confusion.
+  - 1-29%         = wrong fundamentals; needs serious prep.
+  - 0            = non-answer, "I don't know", refusal, or off-topic.
 
 ANALYST bar - "mechanics + edge cases + connections":
-  - A   = correct mechanics, names key formulas/inputs, addresses 1-2 edge cases or second-order effects, connects to other concepts.
-  - A-  = strong mechanics + edge cases, but one minor formula/definition slip.
-  - B+  = mechanics correct, missed edge cases / nuance an analyst should know.
-  - B   = correct framework but mostly textbook recall, no depth, no edge cases.
-  - B-  = framework correct but one mechanic wrong OR vague on inputs.
-  - C+  = framework gist right, but several mechanics wrong or missing.
-  - C   = confused on mechanics; got the topic but not how it actually works.
-  - C-  = wrong on a core IB concept that an analyst must own.
-  - D   = fundamentally wrong; would mislead a real model/deal.
-  - F   = non-answer or refusal.
+  - 90-100% of max = correct mechanics, names key formulas/inputs, addresses 1-2 edge cases or second-order effects.
+  - 80-89%        = correct mechanics with one minor gap or missing edge case.
+  - 70-79%        = mechanics mostly right but lacks edge cases or second-order thinking.
+  - 50-69%        = partial mechanics, can describe but cannot quantify or connect.
+  - 30-49%        = recognizes the topic but mechanics shaky.
+  - 1-29%         = wrong mechanics or significant confusion.
+  - 0            = non-answer, refusal, or off-topic.
 
-ASSOCIATE bar - "MD-level intuition + numbers + nuance + deal context":
-  - A   = mechanics + numerical sensitivity + second-order effects + deal context + acknowledges what usually breaks. Reads like someone who has lived through deals.
-  - A-  = MD-level reasoning with one missing nuance.
-  - B+  = correct + thoughtful but missing real-world deal context or sensitivity discussion.
-  - B   = textbook-correct, no nuance. Would not impress at the associate seat.
-  - B-  = correct framework but obvious gaps in deal mechanics or quantification.
-  - C+  = right gist but multiple mechanics/nuances missed.
-  - C   = topic right, mechanics shaky for associate level.
-  - C-  = wrong on something an associate must know cold.
-  - D   = fundamentally wrong; would not pass MD scrutiny on day one.
-  - F   = non-answer or refusal.
+ASSOCIATE bar - "mechanics + business judgment + scenario thinking + push-back handling":
+  - 90-100% of max = clean mechanics, articulates trade-offs, anticipates scenarios, handles push-back with conviction.
+  - 80-89%        = strong but missing one of: scenario thinking, push-back handling, business judgment.
+  - 70-79%        = mechanics good but business judgment shallow.
+  - 50-69%        = mechanics-only response - reads like an analyst, not an associate.
+  - 30-49%        = mechanics gaps or unable to take a position under push-back.
+  - 1-29%         = wrong fundamentals or evasive.
+  - 0            = non-answer or refusal.
 
-CALIBRATION RULES:
-  - The SAME answer at different levels gets DIFFERENT grades. A textbook-correct framework with no edge cases = A for intern, B for analyst, B-/C+ for associate.
-  - When borderline between two adjacent grades, prefer the +/- variant (e.g. B+ over bare B if it leans up; B- over bare B if it leans down). Bare letters mean "solidly in the middle of this tier".
-  - F is reserved for non-answer ("I don't know", "skip", refusal, off-topic ramble). Wrong but engaged answer = D, not F.
-  - Non-answer / refusal is ALWAYS F regardless of level. Do not give D for "I don't know" - that is F.
-  - For Case Study (Q10-Q12) at any level, weight quantitative reasoning and second-order thinking more heavily than for normal blocks.
+DECISION RULE (kind selection based on the score you just assigned):
+
+Compute pct = current_answer_score / MAX_SCORE_FOR_THIS_TURN.
+
+  - pct < 30%   -> emit "close_block". The candidate cannot recover this block; do not drill further. Set "feedback" to a short honest close-out.
+  - 30% <= pct < 80% -> emit "follow_up" UNLESS no follow-ups remain (then "close_block"). Your follow_up_question must give the candidate a chance to REBUILD or CLARIFY: same difficulty as the base, a different angle, or an opening that lets them recover the missed points. Be concrete, reference what they actually said. DO NOT make it harder. DO NOT use generic prompts like "go one level deeper".
+  - pct >= 80%  -> emit "follow_up" UNLESS no follow-ups remain (then "close_block"). Your follow_up_question must DEEPEN: a harder edge case, a scenario, a number, a sensitivity, a conviction test. Concrete and tied to what they said. NEVER generic.
+
+When you emit "close_block" because no follow-ups remain (limit reached), say so naturally in the feedback - the candidate did everything they could in the block.
+
+When you emit "follow_up", "follow_up_question" must be a CONCRETE, SPECIFIC question that builds directly off the candidate's last answer. NEVER emit a generic prompt. Reference at least one specific concept, number, or claim from their answer.
+
+CASE STUDY follow-ups: in a Case Study block you may have up to 5 follow-ups (6 steps total). The same decision rule applies on each step: <30% closes the case; 30-79% rebuilds at same level; >=80% pushes harder.
 
 Always be flexible: do not follow a script, formulate follow-ups based on what the candidate
 actually said. 
@@ -229,7 +235,7 @@ Every field below MUST reference something concrete from THIS candidate's actual
 
   - feedback_detail.what_was_missing (1-2 sentences):
       The SPECIFIC IB mechanic, formula, edge case, or second-order effect they failed to address, calibrated to their level.
-      Name the actual concept (e.g. "WACC sensitivity to ÃÂÃÂÃÂÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
+      Name the actual concept (e.g. "WACC sensitivity to ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
 
   - feedback_detail.how_to_improve (1-2 sentences):
       One concrete, drillable next step. Examples: "Re-walk the LBO returns waterfall: Sources/Uses -> Exit equity -> IRR/MoM, with a 1x debt paydown", or "Practice EV-to-Equity bridge with at least 3 line items (debt, cash, minorities)".
@@ -284,12 +290,12 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
 export const TURN_SCHEMA: Record<string, unknown> = {
   type: 'object',
   additionalProperties: false,
-  required: ['kind', 'message_type', 'reasoning', 'reply', 'follow_up_question', 'grade', 'feedback', 'feedback_detail', 'strengths', 'weaknesses', 'current_answer_grade', 'current_answer_feedback_detail'],
+  required: ['kind', 'message_type', 'reasoning', 'reply', 'follow_up_question', 'feedback', 'feedback_detail', 'strengths', 'weaknesses', 'current_answer_score', 'current_answer_feedback_detail'],
   properties: {
     kind: {
       type: 'string',
       enum: ['clarification_response', 'follow_up', 'close_block'],
-      description: 'Which of the three actions you are taking this turn.',
+      description: 'Which of the three actions you are taking this turn. SELECT per the DECISION RULE in the system prompt based on current_answer_score / MAX_SCORE_FOR_THIS_TURN.',
     },
     message_type: {
       type: 'string',
@@ -306,12 +312,7 @@ export const TURN_SCHEMA: Record<string, unknown> = {
     },
     follow_up_question: {
       type: 'string',
-      description: 'Used ONLY when kind=follow_up. The next probing question. Empty string otherwise.',
-    },
-    grade: {
-      type: 'string',
-      enum: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', ''],
-      description: 'Used ONLY when kind=close_block. Letter grade for the whole block calibrated to the candidate level per the system prompt. Use the FULL scale - bare A/B/C are for clear-center answers only; prefer A-/B+/B-/C+/C- when the answer leans between tiers. Empty string when kind is not close_block.',
+      description: 'Used ONLY when kind=follow_up. Must be CONCRETE and tied to what the candidate just said: reference at least one specific concept/number/claim from their last answer. NEVER use generic prompts like "go one level deeper". For pct<80% scores: same-difficulty REBUILD/CLARIFY question. For pct>=80% scores: harder DEEPENING question (edge case, scenario, conviction test). Empty string when kind is not follow_up.',
     },
     feedback: {
       type: 'string',
@@ -321,41 +322,40 @@ export const TURN_SCHEMA: Record<string, unknown> = {
       type: 'object',
       additionalProperties: false,
       required: ['what_worked', 'what_was_missing', 'how_to_improve', 'model_answer_pointer'],
-      description: 'Used ONLY when kind=close_block. Structured 4-part rubric feedback per the FEEDBACK RUBRIC in the system prompt. All four fields are empty strings when kind!=close_block.',
+      description: 'Used ONLY when kind=close_block. 4-part rubric for the WHOLE BLOCK. All four are empty strings when kind!=close_block.',
       properties: {
-        what_worked: { type: 'string', description: '1-2 sentences. Specific strength tied to a quoted phrase or named IB concept. "Nothing usable" if F/non-answer.' },
-        what_was_missing: { type: 'string', description: '1-2 sentences. The specific IB mechanic/formula/edge case they did NOT address, named explicitly.' },
-        how_to_improve: { type: 'string', description: '1-2 sentences. Concrete drillable next step. Banned: study more / be structured / go deeper / review fundamentals.' },
-        model_answer_pointer: { type: 'string', description: '1 sentence. What an A-grade answer at THIS LEVEL would have anchored on, referencing 1-2 specific concepts.' },
+        what_worked: { type: 'string', description: '1-2 sentences. Specific strength tied to a quoted phrase or named IB concept. "Nothing usable" if F/non-answer. Empty when kind!=close_block.' },
+        what_was_missing: { type: 'string', description: '1-2 sentences. The specific IB mechanic/formula/edge case they did NOT address. Empty when kind!=close_block.' },
+        how_to_improve: { type: 'string', description: '1-2 sentences. Concrete drillable next step naming the topic AND form of practice. Empty when kind!=close_block.' },
+        model_answer_pointer: { type: 'string', description: '1 sentence. What a full-marks answer at THIS level would have anchored on. Empty when kind!=close_block.' },
       },
     },
     strengths: {
       type: 'array',
       items: { type: 'string' },
-      maxItems: 3,
-      description: 'Used ONLY when kind=close_block. 0-3 specific strength bullets (<=15 words each). Each MUST reference an IB concept, a quoted candidate phrase, or a specific mechanic. Banned generics: good thinking, good structure, clear delivery, nice framing. Empty array allowed only for F/non-answer.',
+      description: 'Used ONLY when kind=close_block. 1-3 specific strength bullets (<=15 words each). Banned generics. Empty array only allowed if kind!=close_block.',
     },
     weaknesses: {
       type: 'array',
       items: { type: 'string' },
-      maxItems: 3,
       description: 'Used ONLY when kind=close_block. 1-3 specific weakness bullets (<=15 words each). Each MUST name a concrete missing IB mechanic/formula/edge case or quote what was vague. Banned generics: needs depth, work on clarity, be more structured, study more. Empty array only allowed if kind!=close_block.',
     },
-    current_answer_grade: {
-      type: 'string',
-      enum: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', ''],
-      description: 'Per-answer grade for the candidate latest message. ALWAYS set when message_type=answer (including on follow_up and close_block). Empty string when message_type=clarification. Used by the server to aggregate the block grade and to enforce the follow-up decision rule. Use the FULL scale with +/- modifiers - do not default to bare letters.',
+    current_answer_score: {
+      type: 'integer',
+      minimum: 0,
+      maximum: 30,
+      description: 'Per-answer NUMERIC score for the candidate latest message. Range: 0 to MAX_SCORE_FOR_THIS_TURN inclusive (server tells you N in the user message; N is 30 for the base turn of a normal block, 15 for each follow-up turn of a normal block, 10 for any step of a Case Study block). The server enforces the upper bound. Use the FULL range - do not cluster at the top. Set 0 when message_type=clarification.',
     },
     current_answer_feedback_detail: {
       type: 'object',
       additionalProperties: false,
       required: ['what_worked', 'what_was_missing', 'how_to_improve', 'model_answer_pointer'],
-      description: 'Per-answer 4-part rubric for the candidate latest message. Set ALWAYS when message_type=answer. All four are empty strings when message_type=clarification. Same content rules as the block feedback_detail but scoped to THIS answer only.',
+      description: 'Per-answer 4-part rubric for the candidate latest message. Set ALWAYS when message_type=answer. All four are empty strings when message_type=clarification.',
       properties: {
-        what_worked: { type: 'string', description: '1-2 sentences. Specific strength tied to a quoted phrase or named IB concept. "Nothing usable" if F/non-answer. Empty when message_type=clarification.' },
+        what_worked: { type: 'string', description: '1-2 sentences. Specific strength tied to a quoted phrase or named IB concept. "Nothing usable" if 0 score. Empty when message_type=clarification.' },
         what_was_missing: { type: 'string', description: '1-2 sentences. The specific IB mechanic/formula/edge case they did NOT address, named explicitly. Empty when message_type=clarification.' },
         how_to_improve: { type: 'string', description: '1-2 sentences. Concrete drillable next step naming the topic AND form of practice. Banned generics. Empty when message_type=clarification.' },
-        model_answer_pointer: { type: 'string', description: '1 sentence. What an A-grade answer at THIS level would have anchored on. Empty when message_type=clarification.' },
+        model_answer_pointer: { type: 'string', description: '1 sentence. What a top-of-range answer at THIS level would have anchored on. Empty when message_type=clarification.' },
       },
     },
   },
@@ -585,12 +585,88 @@ export function buildRephrasePrompt(ctx: RephraseContext): string {
 
 
 // ============================================================
-// BLOCK GRADE AGGREGATION - Phase C
+// BLOCK SCORE AGGREGATION - Phase E
 // ============================================================
-// Letter <-> numeric conversion and weighted aggregation across a block
-// (base + follow-ups). The server uses this to compute the persisted
-// block grade instead of relying on the AI to mentally average.
+// All scoring lives in numeric points. Letters are computed ONLY at the
+// final render step (scorecard) by mapping the aggregated percentage.
 
+// Max score per turn within a block (used by server and prompt).
+export const NORMAL_BLOCK_MAX_SCORES = [30, 15, 15] as const; // base, fu1, fu2
+export const CASE_BLOCK_MAX_SCORES   = [10, 10, 10, 10, 10, 10] as const; // base + 5 fus
+export const NORMAL_BLOCK_BUDGET = 60;
+export const CASE_BLOCK_BUDGET   = 60;
+
+// Decision-rule thresholds (as fractions of MAX_SCORE for the turn).
+export const ADVANCE_THRESHOLD = 0.30;  // <30% -> close_block
+export const DEEPEN_THRESHOLD  = 0.80;  // >=80% -> AI must deepen; otherwise rebuild/clarify
+
+/**
+ * Resolve the MAX_SCORE for the turn the candidate just answered.
+ * stepIndex: 0 = base, 1 = first follow-up, 2 = second follow-up, etc.
+ */
+export function maxScoreForTurn(stepIndex: number, isCase: boolean): number {
+  if (isCase) {
+    return CASE_BLOCK_MAX_SCORES[Math.min(stepIndex, CASE_BLOCK_MAX_SCORES.length - 1)] ?? 10;
+  }
+  return NORMAL_BLOCK_MAX_SCORES[Math.min(stepIndex, NORMAL_BLOCK_MAX_SCORES.length - 1)] ?? 15;
+}
+
+/**
+ * Aggregate per-step numeric scores into a block result:
+ *   total      = sum of per-step scores  (capped by the budget)
+ *   pct        = total / budget          (0..1)
+ *   letter     = letter rendered for the candidate (final scorecard only)
+ *   breakdown  = the input score list (kept for storage / display)
+ *
+ * Returns null when there are no usable scores.
+ */
+export function aggregateBlockScore(
+  perAnswerScores: Array<number | null | undefined>,
+  isCase: boolean,
+): { total: number; budget: number; pct: number; letter: LetterGrade; breakdown: number[] } | null {
+  const cleaned: number[] = [];
+  for (const s of perAnswerScores) {
+    if (typeof s === 'number' && Number.isFinite(s)) cleaned.push(Math.max(0, Math.round(s)));
+  }
+  if (cleaned.length === 0) return null;
+  const budget = isCase ? CASE_BLOCK_BUDGET : NORMAL_BLOCK_BUDGET;
+  const total = Math.min(cleaned.reduce((a, b) => a + b, 0), budget);
+  const pct = budget > 0 ? total / budget : 0;
+  return { total, budget, pct, letter: percentToLetter(pct), breakdown: cleaned };
+}
+
+/**
+ * Convert a 0..1 percentage of points earned into a letter grade for display.
+ * Schedule:
+ *   90-100%  -> A+
+ *   80-89%   -> A
+ *   70-79%   -> A-
+ *   60-69%   -> B+
+ *   50-59%   -> B
+ *   40-49%   -> C+
+ *   30-39%   -> C
+ *   20-29%   -> D
+ *   <20%     -> F
+ */
+export function percentToLetter(pct: number): LetterGrade {
+  const p = Math.max(0, Math.min(1, pct));
+  const hundred = Math.round(p * 100);
+  if (hundred >= 90) return 'A+';
+  if (hundred >= 80) return 'A';
+  if (hundred >= 70) return 'A-';
+  if (hundred >= 60) return 'B+';
+  if (hundred >= 50) return 'B';
+  if (hundred >= 40) return 'C+';
+  if (hundred >= 30) return 'C';
+  if (hundred >= 20) return 'D';
+  return 'F';
+}
+
+// ============================================================
+// LEGACY: letter-grade conversion (kept for backwards-compat with any
+// callers that still pass letters in from older sessions). New code should
+// use numeric scores directly via aggregateBlockScore().
+// ============================================================
 const GRADE_TO_NUMERIC: Record<string, number> = {
   'A+': 98, 'A': 95, 'A-': 92,
   'B+': 88, 'B': 85, 'B-': 82,
@@ -599,68 +675,29 @@ const GRADE_TO_NUMERIC: Record<string, number> = {
   'F': 40,
 };
 
-// Inverse table: numeric thresholds map to the highest letter at-or-below.
-// Ordered from highest to lowest.
-const NUMERIC_TO_GRADE: Array<{ min: number; letter: LetterGrade }> = [
-  { min: 96.5, letter: 'A+' },
-  { min: 93.5, letter: 'A' },
-  { min: 90,   letter: 'A-' },
-  { min: 86.5, letter: 'B+' },
-  { min: 83.5, letter: 'B' },
-  { min: 80,   letter: 'B-' },
-  { min: 76.5, letter: 'C+' },
-  { min: 73.5, letter: 'C' },
-  { min: 70,   letter: 'C-' },
-  { min: 66.5, letter: 'D+' },
-  { min: 63.5, letter: 'D' },
-  { min: 60,   letter: 'D-' },
-  { min: 0,    letter: 'F' },
-];
-
-export function gradeToNumeric(letter: string | null | undefined): number | null {
-  if (!letter) return null;
-  const v = GRADE_TO_NUMERIC[letter];
+export function gradeToNumeric(g: string | null | undefined): number | null {
+  if (!g) return null;
+  const v = GRADE_TO_NUMERIC[g];
   return typeof v === 'number' ? v : null;
 }
 
-export function numericToGrade(value: number): LetterGrade {
-  for (const row of NUMERIC_TO_GRADE) {
-    if (value >= row.min) return row.letter;
-  }
-  return 'F';
-}
-
-// Aggregate a block's per-answer grades into a single block grade.
-// - Normal block: weights 50% (base) / 25% (fu1) / 25% (fu2).
-//   If only base answered: 100% base. If base + fu1 only: 67/33 (renormalized 50/25).
-// - Case study (isCase=true): equal weights across all N answers.
-// Returns null if no usable grades.
+/**
+ * @deprecated Use aggregateBlockScore with numeric per-answer scores.
+ * Keeps existing letter-based call sites working by translating each letter
+ * to its nominal percentage and re-aggregating through aggregateBlockScore.
+ */
 export function aggregateBlockGrade(
   perAnswerGrades: Array<string | null | undefined>,
   isCase: boolean,
 ): { grade: LetterGrade; numeric: number; breakdown: number[] } | null {
-  const numerics: number[] = [];
-  for (const g of perAnswerGrades) {
-    const n = gradeToNumeric(g);
-    if (n !== null) numerics.push(n);
-  }
-  if (numerics.length === 0) return null;
-
-  let weights: number[];
-  if (isCase) {
-    // Equal split across all answered turns in the block.
-    weights = numerics.map(() => 1 / numerics.length);
-  } else {
-    // Fixed schedule for normal blocks: base, fu1, fu2. Use only the prefix that has answers.
-    const fullWeights = [0.5, 0.25, 0.25];
-    const take = fullWeights.slice(0, numerics.length);
-    const sum = take.reduce((a, b) => a + b, 0);
-    weights = take.map(w => w / sum); // renormalize so weights sum to 1
-  }
-  const score = numerics.reduce((acc, n, i) => acc + n * weights[i], 0);
-  return {
-    grade: numericToGrade(score),
-    numeric: Math.round(score * 10) / 10,
-    breakdown: numerics,
-  };
+  const asScores: Array<number | null> = perAnswerGrades.map((g, i) => {
+    const num = gradeToNumeric(g);
+    if (num === null) return null;
+    const maxScore = maxScoreForTurn(i, isCase);
+    // map letter's 0-100 to 0-maxScore proportionally
+    return Math.round((num / 100) * maxScore);
+  });
+  const agg = aggregateBlockScore(asScores, isCase);
+  if (!agg) return null;
+  return { grade: agg.letter, numeric: Math.round(agg.pct * 100), breakdown: agg.breakdown };
 }
