@@ -5,8 +5,10 @@ import {
   TURN_SYSTEM_PROMPT,
   TURN_SCHEMA,
   buildTurnUserPrompt,
+  aggregateBlockGrade,
   type TurnAIResult,
   type TurnContext,
+  type LetterGrade,
 } from '@/lib/interview-prompts';
 import { getTimeLimitSeconds } from '@/lib/timer-config';
 import { withLogging } from '@/lib/observability';
@@ -187,6 +189,32 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     return NextResponse.json({ error: (e as Error).message, friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
+  // Decision rule enforcement (Phase C).
+  // The AI is instructed to follow the decision rule, but we enforce it server-side too.
+  // - If kind=follow_up but current_answer_grade is D-/F -> force close_block (no drill).
+  // - If kind=close_block but follow-ups remain and current_answer_grade is >= D -> force follow_up
+  //   (the AI tried to close early on a recoverable / strong answer; we want the ceiling test).
+  // Skipped entirely for clarification_response.
+  if (ai.message_type === 'answer') {
+    const cag = (ai.current_answer_grade || ai.grade || '') as LetterGrade;
+    const isLowFloor = cag === 'D-' || cag === 'F';
+    const hasRoom = followUpsSoFar < maxFollowUps;
+    if (ai.kind === 'follow_up' && isLowFloor) {
+      console.warn('[turn] forcing close_block: AI emitted follow_up on D-/F answer', { cag, baseStepId });
+      ai.kind = 'close_block';
+      ai.grade = cag || 'D';
+      if (!ai.feedback) ai.feedback = 'Closing the block - the answer did not give enough signal to drill deeper.';
+    } else if (ai.kind === 'close_block' && hasRoom && !isLowFloor && cag) {
+      console.warn('[turn] forcing follow_up: AI closed early with room remaining and grade >= D', { cag, baseStepId, followUpsSoFar, maxFollowUps });
+      ai.kind = 'follow_up';
+      if (!ai.follow_up_question || !ai.follow_up_question.trim()) {
+        // Best-effort fallback prompt. The persona-flavored generation would have been ideal but
+        // the model already returned close_block; we still need a question to keep going.
+        ai.follow_up_question = 'Can you go one level deeper on what you just said - either with a specific number, an edge case, or a real-world example?';
+      }
+    }
+  }
+
   // 6. Persist the candidate's message.
   const candidateAnswerType = ai.message_type === 'clarification' ? 'clarification' : 'answer';
   const { error: candAnsErr } = await supabase.from('answers').insert({
@@ -253,11 +281,20 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   }
 
   if (ai.kind === 'follow_up') {
+    // Phase C: save the per-answer grade for the step the candidate just answered.
+    // currentStepId is either baseStepId (first turn) or a previous follow-up step id.
+    if (ai.current_answer_grade) {
+      const { error: cagErr } = await supabase
+        .from('interview_steps')
+        .update({ ai_grade: ai.current_answer_grade })
+        .eq('id', currentStepId);
+      if (cagErr) console.warn('[turn] failed to persist current_answer_grade on follow_up', cagErr);
+    }
     // Guard: if we're already at the limit, force a close instead.
     if (followUpsSoFar >= maxFollowUps) {
       ai.kind = 'close_block';
       ai.grade = ai.grade || 'B';
-      ai.feedback = ai.feedback || 'Closing the block â follow-up limit reached.';
+      ai.feedback = ai.feedback || 'Closing the block Ã¢ÂÂ follow-up limit reached.';
     } else {
       const { data: insertResult, error: insertErr } = await supabase.rpc('insert_followup_step', {
         p_interview_id: interviewId,
@@ -286,14 +323,58 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     }
   }
 
-  // close_block path
-  const grade = ai.grade || 'B';
+  // close_block path (Phase C: per-answer grading + server-side aggregation)
+  // 7c.1. Persist the per-answer grade for the step the candidate just answered.
+  if (ai.current_answer_grade) {
+    const { error: lastGradeErr } = await supabase
+      .from('interview_steps')
+      .update({ ai_grade: ai.current_answer_grade })
+      .eq('id', currentStepId);
+    if (lastGradeErr) console.warn('[turn] failed to persist current_answer_grade on close_block', lastGradeErr);
+  }
+
+  // 7c.2. Aggregate per-answer grades across the whole block.
+  // Pull base step grade + all follow-up grades in chronological order.
+  const { data: blockSteps } = await supabase
+    .from('interview_steps')
+    .select('id, is_follow_up, parent_step_id, order_index, ai_grade, created_at')
+    .or(`id.eq.${baseStepId},parent_step_id.eq.${baseStepId}`)
+    .order('created_at', { ascending: true });
+  const orderedGrades: string[] = [];
+  // base first
+  const baseRow = (blockSteps || []).find((r: any) => r.id === baseStepId);
+  if (baseRow && baseRow.ai_grade) orderedGrades.push(baseRow.ai_grade);
+  else if (!baseRow?.is_follow_up && ai.current_answer_grade && currentStepId === baseStepId) {
+    // The base step's ai_grade is the one we just set above.
+    orderedGrades.push(ai.current_answer_grade);
+  }
+  // then follow-ups in chronological order
+  const fuRows = (blockSteps || []).filter((r: any) => r.is_follow_up && r.parent_step_id === baseStepId);
+  for (const fu of fuRows) {
+    if (fu.ai_grade) orderedGrades.push(fu.ai_grade);
+    else if (fu.id === currentStepId && ai.current_answer_grade) {
+      // The FU we just answered - its ai_grade was set above.
+      orderedGrades.push(ai.current_answer_grade);
+    }
+  }
+
+  const aggregate = aggregateBlockGrade(orderedGrades, isCase);
+  // Fallback: if aggregate could not be computed, use ai.grade or 'B' (legacy behavior).
+  const grade = aggregate?.grade || ai.grade || ai.current_answer_grade || 'B';
+  console.log('[turn] block grade aggregate', { baseStepId, perAnswer: orderedGrades, isCase, aggregate, finalGrade: grade });
+
+  // 7c.3. Build feedback payload (now includes the per-answer grades + numeric aggregate).
   const feedbackPayload = JSON.stringify({
     summary: ai.feedback,
     strengths: ai.strengths,
     weaknesses: ai.weaknesses,
     detail: ai.feedback_detail ?? null,
+    per_answer_grades: orderedGrades,
+    aggregate_numeric: aggregate?.numeric ?? null,
+    is_case: isCase,
   });
+
+  // 7c.4. Persist the aggregate as the block grade via apply_ai_grade (which also sets ai_status=done).
   const { data: gradeResult, error: gradeErr } = await supabase.rpc('apply_ai_grade', {
     p_step_id: baseStepId,
     p_grade: grade,
