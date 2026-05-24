@@ -5,10 +5,11 @@ import {
   TURN_SYSTEM_PROMPT,
   TURN_SCHEMA,
   buildTurnUserPrompt,
-  aggregateBlockGrade,
+  aggregateBlockScore,
+  maxScoreForTurn,
+  ADVANCE_THRESHOLD,
   type TurnAIResult,
   type TurnContext,
-  type LetterGrade,
 } from '@/lib/interview-prompts';
 import { getTimeLimitSeconds } from '@/lib/timer-config';
 import { withLogging } from '@/lib/observability';
@@ -158,6 +159,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
         { role: 'user', content: buildTurnUserPrompt({
           level, category, subtopic, difficulty,
           isCase, followUpsSoFar, maxFollowUps,
+          maxScoreForThisTurn: maxScoreForTurn(followUpsSoFar, isCase),
           question: baseQuestion,
           transcript,
           candidateMessage: message,
@@ -189,45 +191,34 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     return NextResponse.json({ error: (e as Error).message, friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
-  // Decision rule enforcement (Phase C).
+  // Decision rule enforcement (Phase E - numeric scoring).
   // The AI is instructed to follow the decision rule, but we enforce it server-side too.
-  // - If kind=follow_up but current_answer_grade is D-/F -> force close_block (no drill).
-  // - If kind=close_block but follow-ups remain and current_answer_grade is >= D -> force follow_up
-  //   (the AI tried to close early on a recoverable / strong answer; we want the ceiling test).
+  // - Score < 30% of MAX_SCORE_FOR_THIS_TURN -> force close_block (advance threshold).
+  // - Already at follow-up limit -> force close_block.
+  // - Otherwise trust the AI: it picks REBUILD (30-79%) or DEEPEN (>=80%) on its own.
   // Skipped entirely for clarification_response.
   if (ai.message_type === 'answer') {
-    const cag = (ai.current_answer_grade || ai.grade || '') as LetterGrade;
-    // No drill on D-floor or worse: a candidate whose latest answer is D, D-, F has
-    // already used the recovery probe (if this was a follow-up) or is not recoverable.
-    // Pushing further would only frustrate them.
-    const isLowFloor = cag === 'D+' || cag === 'D' || cag === 'D-' || cag === 'F';
-    const hasRoom = followUpsSoFar < maxFollowUps;
-    if (ai.kind === 'follow_up' && isLowFloor) {
-      console.warn('[turn] forcing close_block: AI emitted follow_up on D-/F answer', { cag, baseStepId });
+    const turnMax = maxScoreForTurn(followUpsSoFar, isCase);
+    // Clamp the score into [0, turnMax] just in case the model exceeded the range.
+    const rawScore = typeof (ai as any).current_answer_score === 'number'
+      ? (ai as any).current_answer_score
+      : 0;
+    const cas = Math.max(0, Math.min(turnMax, Math.round(rawScore)));
+    (ai as any).current_answer_score = cas;
+    const pct = turnMax > 0 ? cas / turnMax : 0;
+    const belowAdvance = pct < ADVANCE_THRESHOLD;
+    const atLimit = followUpsSoFar >= maxFollowUps;
+    if (ai.kind === 'follow_up' && (belowAdvance || atLimit)) {
+      console.warn('[turn] forcing close_block', { reason: belowAdvance ? 'below_advance_threshold' : 'fu_limit_reached', score: cas, turnMax, pct, followUpsSoFar, maxFollowUps, baseStepId });
       ai.kind = 'close_block';
-      ai.grade = cag || 'D';
-      if (!ai.feedback) ai.feedback = 'Closing the block - the answer did not give enough signal to drill deeper.';
-    } else if (ai.kind === 'close_block' && hasRoom && !isLowFloor && cag) {
-      // Only force a follow_up when the base step would otherwise be closed prematurely.
-      // For the BASE step (no FUs yet) we always want at least one drill -> recovery probe (C-..B+) or ceiling test (A-..A+).
-      // Once we are already on a follow-up step, accept the AI's close_block decision: the spec is
-      // "up to 2 follow-ups", not "exactly 2".
-      const isBaseStep = followUpsSoFar === 0;
-      const isRecoveryRange = cag === 'C-' || cag === 'C' || cag === 'C+' || cag === 'B-' || cag === 'B' || cag === 'B+';
-      const isCeilingRange = cag === 'A-' || cag === 'A' || cag === 'A+';
-      const shouldForce = isBaseStep && (isRecoveryRange || isCeilingRange);
-      if (shouldForce) {
-        console.warn('[turn] forcing follow_up on base step', { cag, baseStepId, followUpsSoFar, maxFollowUps, kind: isCeilingRange ? 'ceiling' : 'recovery' });
-        ai.kind = 'follow_up';
-        if (!ai.follow_up_question || !ai.follow_up_question.trim()) {
-          // Best-effort fallback prompt. The persona-flavored generation would have been ideal but
-          // the model already returned close_block; we still need a question to keep going.
-          ai.follow_up_question = isCeilingRange
-            ? 'Push your last answer one level further - give a specific number, an edge case, or a concrete real-world example that tests your conviction.'
-            : 'Take another pass at the original question - what would you add or sharpen to make your answer stronger?';
-        }
+      if (!ai.feedback || !String(ai.feedback).trim()) {
+        ai.feedback = belowAdvance
+          ? 'Closing the block here - the latest answer did not give enough signal to drill deeper.'
+          : 'Closing the block - follow-up limit reached.';
       }
     }
+    // We deliberately do NOT force a follow_up if the AI emitted close_block.
+    // The spec is "up to N follow-ups", not "exactly N". Trust the AI's close.
   }
 
   // 6. Persist the candidate's message.
@@ -296,20 +287,21 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   }
 
   if (ai.kind === 'follow_up') {
-    // Phase C: save the per-answer grade for the step the candidate just answered.
-    // currentStepId is either baseStepId (first turn) or a previous follow-up step id.
-    if (ai.current_answer_grade) {
-      const { error: cagErr } = await supabase
+    // Phase E: save the per-answer NUMERIC score for the step the candidate just answered.
+    const cas = (ai as any).current_answer_score;
+    if (typeof cas === 'number' && Number.isFinite(cas)) {
+      const { error: casErr } = await supabase
         .from('interview_steps')
-        .update({ ai_grade: ai.current_answer_grade })
+        .update({ score_numeric: cas })
         .eq('id', currentStepId);
-      if (cagErr) console.warn('[turn] failed to persist current_answer_grade on follow_up', cagErr);
+      if (casErr) console.warn('[turn] failed to persist current_answer_score on follow_up', casErr);
     }
-    // Guard: if we're already at the limit, force a close instead.
+    // Defense in depth: should already be caught by the Phase E guard above.
     if (followUpsSoFar >= maxFollowUps) {
       ai.kind = 'close_block';
-      ai.grade = ai.grade || 'B';
-      ai.feedback = ai.feedback || 'Closing the block ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ follow-up limit reached.';
+      if (!ai.feedback || !String(ai.feedback).trim()) {
+        ai.feedback = 'Closing the block - follow-up limit reached.';
+      }
     } else {
       const { data: insertResult, error: insertErr } = await supabase.rpc('insert_followup_step', {
         p_interview_id: interviewId,
@@ -338,58 +330,67 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     }
   }
 
-  // close_block path (Phase C: per-answer grading + server-side aggregation)
-  // 7c.1. Persist the per-answer grade for the step the candidate just answered.
-  if (ai.current_answer_grade) {
-    const { error: lastGradeErr } = await supabase
+  // close_block path (Phase E: numeric per-answer scoring + server-side aggregation)
+  // 7c.1. Persist the per-answer NUMERIC score for the step the candidate just answered.
+  const lastScore = (ai as any).current_answer_score;
+  if (typeof lastScore === 'number' && Number.isFinite(lastScore)) {
+    const { error: lastScoreErr } = await supabase
       .from('interview_steps')
-      .update({ ai_grade: ai.current_answer_grade })
+      .update({ score_numeric: lastScore })
       .eq('id', currentStepId);
-    if (lastGradeErr) console.warn('[turn] failed to persist current_answer_grade on close_block', lastGradeErr);
+    if (lastScoreErr) console.warn('[turn] failed to persist current_answer_score on close_block', lastScoreErr);
   }
 
-  // 7c.2. Aggregate per-answer grades across the whole block.
-  // Pull base step grade + all follow-up grades in chronological order.
+  // 7c.2. Aggregate per-answer scores across the whole block (base + all follow-ups).
   const { data: blockSteps } = await supabase
     .from('interview_steps')
-    .select('id, is_follow_up, parent_step_id, order_index, ai_grade, created_at')
+    .select('id, is_follow_up, parent_step_id, order_index, score_numeric, created_at')
     .or(`id.eq.${baseStepId},parent_step_id.eq.${baseStepId}`)
     .order('created_at', { ascending: true });
-  const orderedGrades: string[] = [];
-  // base first
+
+  const orderedScores: Array<number | null> = [];
   const baseRow = (blockSteps || []).find((r: any) => r.id === baseStepId);
-  if (baseRow && baseRow.ai_grade) orderedGrades.push(baseRow.ai_grade);
-  else if (!baseRow?.is_follow_up && ai.current_answer_grade && currentStepId === baseStepId) {
-    // The base step's ai_grade is the one we just set above.
-    orderedGrades.push(ai.current_answer_grade);
+  // base first
+  if (baseRow) {
+    if (currentStepId === baseStepId && typeof lastScore === 'number') {
+      orderedScores.push(lastScore);
+    } else if (typeof baseRow.score_numeric === 'number') {
+      orderedScores.push(baseRow.score_numeric);
+    } else {
+      orderedScores.push(null);
+    }
   }
   // then follow-ups in chronological order
   const fuRows = (blockSteps || []).filter((r: any) => r.is_follow_up && r.parent_step_id === baseStepId);
   for (const fu of fuRows) {
-    if (fu.ai_grade) orderedGrades.push(fu.ai_grade);
-    else if (fu.id === currentStepId && ai.current_answer_grade) {
-      // The FU we just answered - its ai_grade was set above.
-      orderedGrades.push(ai.current_answer_grade);
+    if (fu.id === currentStepId && typeof lastScore === 'number') {
+      orderedScores.push(lastScore);
+    } else if (typeof fu.score_numeric === 'number') {
+      orderedScores.push(fu.score_numeric);
+    } else {
+      orderedScores.push(null);
     }
   }
 
-  const aggregate = aggregateBlockGrade(orderedGrades, isCase);
-  // Fallback: if aggregate could not be computed, use ai.grade or 'B' (legacy behavior).
-  const grade = aggregate?.grade || ai.grade || ai.current_answer_grade || 'B';
-  console.log('[turn] block grade aggregate', { baseStepId, perAnswer: orderedGrades, isCase, aggregate, finalGrade: grade });
+  const aggregate = aggregateBlockScore(orderedScores, isCase);
+  // We only persist letters in apply_ai_grade (legacy contract); letters are computed by aggregateBlockScore.
+  const grade = aggregate?.letter || 'B';
+  console.log('[turn] block score aggregate', { baseStepId, perAnswer: orderedScores, isCase, aggregate, finalGrade: grade });
 
-  // 7c.3. Build feedback payload (now includes the per-answer grades + numeric aggregate).
+  // 7c.3. Build feedback payload (now includes per-answer scores + total + budget + pct).
   const feedbackPayload = JSON.stringify({
     summary: ai.feedback,
     strengths: ai.strengths,
     weaknesses: ai.weaknesses,
     detail: ai.feedback_detail ?? null,
-    per_answer_grades: orderedGrades,
-    aggregate_numeric: aggregate?.numeric ?? null,
+    per_answer_scores: orderedScores,
+    aggregate_total: aggregate?.total ?? null,
+    aggregate_budget: aggregate?.budget ?? null,
+    aggregate_pct: aggregate?.pct ?? null,
     is_case: isCase,
   });
 
-  // 7c.4. Persist the aggregate as the block grade via apply_ai_grade (which also sets ai_status=done).
+  // 7c.4. Persist the aggregate letter as the block grade via apply_ai_grade.
   const { data: gradeResult, error: gradeErr } = await supabase.rpc('apply_ai_grade', {
     p_step_id: baseStepId,
     p_grade: grade,
@@ -423,7 +424,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
       .eq('id', nextBase.id);
   }
 
-  return NextResponse.json({
+    return NextResponse.json({
     ok: true,
     kind: 'close_block',
     base_step_id: baseStepId,
