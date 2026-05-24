@@ -121,25 +121,31 @@ WHAT YOU MAY DO:
   - Pick the most standard real-world setting (e.g. "assume a typical corporate strategic acquisition" / "assume a US public company" / "assume large-cap, no PE sponsor").
   - State only the setting/scope in <=2 short sentences. Do NOT enumerate or imply structure.
   - End with "Take it from here." or equivalent prompt to continue.
-  2. "follow_up" -> ONLY when the candidate gave a partially-correct answer that has a real
-     next-level gap worth probing. Each follow-up must increase complexity, not just rephrase.
-     Only emit this if follow-ups remaining > 0.
-     Shape the follow_up_question text in line with the INTERVIEWER PERSONA in the user message:
-       - intern persona: hint-style, gentle, single-step deeper.
+  2. "follow_up" -> the DEFAULT after any answer with at least minimal substance.
+     A follow-up has TWO purposes that depend on the current_answer_grade you just assigned:
+       (a) RECOVERY PROBE - when current_answer_grade is in D..B+ range.
+           Goal: give the candidate a path to add points by clarifying or going one step deeper
+           on the SAME concept they fumbled. Phrased to make the gap addressable, not punitive.
+       (b) DEPTH / CEILING TEST - when current_answer_grade is A- or better.
+           Goal: probe whether they actually have A+ depth or only textbook A. Increase complexity
+           in line with the level persona.
+     Shape the follow_up_question text per the INTERVIEWER PERSONA in the user message:
+       - intern persona: hint-style, gentle, single-step deeper. Leading, not punishing.
        - analyst persona: numerical / edge-case / mechanism stress test.
        - associate persona: simulated CFO/board/IC pushback, defend-your-number, negotiation framing.
-     DO NOT emit follow_up in any of these cases:
-       - Candidate gave a non-answer ("I don't know", "skip", "I think I already answered it",
-         off-topic ramble, single vague phrase). -> close_block now, grade D or F, no drilling.
-       - Candidate is materially wrong on a basic concept (e.g. confused fundamentals).
-         -> close_block now with grade D and explain in feedback. Do not drill into a wrong frame.
-       - Candidate already demonstrated mastery and additional pushing would not change the grade.
-         -> close_block now with the appropriate A/B grade.
-       - Candidate's answer is a pure hedge ("it depends", "various factors") without substance.
-         -> close_block with grade C-/D, do not follow up on emptiness.
-     A good follow_up requires: candidate said something with substance AND there is a concrete,
-     answerable next step (numerical pressure, edge case, mechanism, second-order effect).
-  3. "close_block" -> when you have enough signal to grade the block. This MUST be emitted when:
+     Each follow-up MUST advance the test (recovery OR ceiling) - never just rephrase the same ask.
+
+     MANDATORY DECISION RULE (apply in this exact order - the server enforces it too):
+       1) If message_type=clarification -> kind=clarification_response. Done.
+       2) If current_answer_grade is D- or F (non-answer, refusal, wrong fundamentals,
+          pure-hedge with no substance) -> kind=close_block. No drill. Use current_answer_grade
+          as the block grade.
+       3) If follow-ups remaining == 0 -> kind=close_block.
+       4) Otherwise -> kind=follow_up. Always. This applies whether the base answer was weak,
+          mid, or strong - you ALWAYS probe deeper.
+     Do NOT emit close_block on a strong answer just because "you have enough signal". The
+     follow-up is the ceiling test - the candidate has not yet earned A/A+ until they survive it.
+  3. "close_block" -> only per the decision rule above. This MUST be emitted when:
      - follow-ups remaining is 0 after a real answer, OR
      - the candidate clearly demonstrated mastery, OR
      - further pushing would not change the grade, OR
@@ -147,8 +153,16 @@ WHAT YOU MAY DO:
 
 Tone: calm, professional, concise. No emojis. No flattery. No coaching during the block - coaching belongs in close_block.feedback. The PERSONA in the user message refines this tone per level.
 
-Grading scale (use full granularity): A, A-, B+, B, B-, C+, C, C-, D, F.
+Grading scale (use full granularity): A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F.
 USE THE FULL SCALE. Do NOT default to bare letters. The +/- marks are mandatory whenever the answer sits between two grade tiers. Bare A/B/C is for clear-center cases only. Aim for a realistic distribution across an interview - if all your grades are bare B's, you are not calibrating.
+
+PER-ANSWER GRADING (this is the most important grading rule):
+You must set current_answer_grade on EVERY turn where the candidate gave an answer (message_type=answer). This is the grade for the SINGLE most recent message - not the block. Grade it strictly per the level bars below.
+- On follow_up turns: current_answer_grade reflects ONLY the message you just received. The next answer will be graded independently.
+- On close_block turns: current_answer_grade reflects ONLY the message you just received (which is the final answer of the block). The server aggregates all per-answer grades to compute the actual block grade - you do NOT need to mentally average across the block in this field.
+- On clarification_response turns: current_answer_grade is an empty string.
+
+The "grade" field (block grade) is kept for backwards compatibility. When kind=close_block, set "grade" equal to current_answer_grade - the server will recompute the real aggregate.
 
 PER-LEVEL BARS (the same answer should land on different grades depending on level):
 
@@ -215,7 +229,7 @@ Every field below MUST reference something concrete from THIS candidate's actual
 
   - feedback_detail.what_was_missing (1-2 sentences):
       The SPECIFIC IB mechanic, formula, edge case, or second-order effect they failed to address, calibrated to their level.
-      Name the actual concept (e.g. "WACC sensitivity to ÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
+      Name the actual concept (e.g. "WACC sensitivity to ÃÂÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
 
   - feedback_detail.how_to_improve (1-2 sentences):
       One concrete, drillable next step. Examples: "Re-walk the LBO returns waterfall: Sources/Uses -> Exit equity -> IRR/MoM, with a 1x debt paydown", or "Practice EV-to-Equity bridge with at least 3 line items (debt, cash, minorities)".
@@ -270,7 +284,7 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
 export const TURN_SCHEMA: Record<string, unknown> = {
   type: 'object',
   additionalProperties: false,
-  required: ['kind', 'message_type', 'reasoning', 'reply', 'follow_up_question', 'grade', 'feedback', 'feedback_detail', 'strengths', 'weaknesses'],
+  required: ['kind', 'message_type', 'reasoning', 'reply', 'follow_up_question', 'grade', 'feedback', 'feedback_detail', 'strengths', 'weaknesses', 'current_answer_grade', 'current_answer_feedback_detail'],
   properties: {
     kind: {
       type: 'string',
@@ -327,8 +341,27 @@ export const TURN_SCHEMA: Record<string, unknown> = {
       maxItems: 3,
       description: 'Used ONLY when kind=close_block. 1-3 specific weakness bullets (<=15 words each). Each MUST name a concrete missing IB mechanic/formula/edge case or quote what was vague. Banned generics: needs depth, work on clarity, be more structured, study more. Empty array only allowed if kind!=close_block.',
     },
+    current_answer_grade: {
+      type: 'string',
+      enum: ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', ''],
+      description: 'Per-answer grade for the candidate latest message. ALWAYS set when message_type=answer (including on follow_up and close_block). Empty string when message_type=clarification. Used by the server to aggregate the block grade and to enforce the follow-up decision rule. Use the FULL scale with +/- modifiers - do not default to bare letters.',
+    },
+    current_answer_feedback_detail: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['what_worked', 'what_was_missing', 'how_to_improve', 'model_answer_pointer'],
+      description: 'Per-answer 4-part rubric for the candidate latest message. Set ALWAYS when message_type=answer. All four are empty strings when message_type=clarification. Same content rules as the block feedback_detail but scoped to THIS answer only.',
+      properties: {
+        what_worked: { type: 'string', description: '1-2 sentences. Specific strength tied to a quoted phrase or named IB concept. "Nothing usable" if F/non-answer. Empty when message_type=clarification.' },
+        what_was_missing: { type: 'string', description: '1-2 sentences. The specific IB mechanic/formula/edge case they did NOT address, named explicitly. Empty when message_type=clarification.' },
+        how_to_improve: { type: 'string', description: '1-2 sentences. Concrete drillable next step naming the topic AND form of practice. Banned generics. Empty when message_type=clarification.' },
+        model_answer_pointer: { type: 'string', description: '1 sentence. What an A-grade answer at THIS level would have anchored on. Empty when message_type=clarification.' },
+      },
+    },
   },
 };
+
+export type LetterGrade = '' | 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'F';
 
 export type TurnAIResult = {
   kind: 'clarification_response' | 'follow_up' | 'close_block';
@@ -336,7 +369,7 @@ export type TurnAIResult = {
   reasoning: string;
   reply: string;
   follow_up_question: string;
-  grade: '' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D' | 'F';
+  grade: LetterGrade;
   feedback: string;
   feedback_detail: {
     what_worked: string;
@@ -346,6 +379,13 @@ export type TurnAIResult = {
   };
   strengths: string[];
   weaknesses: string[];
+  current_answer_grade: LetterGrade;
+  current_answer_feedback_detail: {
+    what_worked: string;
+    what_was_missing: string;
+    how_to_improve: string;
+    model_answer_pointer: string;
+  };
 };
 
 // ----------------- finalize prompts -----------------
@@ -541,4 +581,86 @@ export function buildRephrasePrompt(ctx: RephraseContext): string {
     '',
     'Return JSON: { "delivered_question": "<your rewritten version>" }',
   ].join('\n');
+}
+
+
+// ============================================================
+// BLOCK GRADE AGGREGATION - Phase C
+// ============================================================
+// Letter <-> numeric conversion and weighted aggregation across a block
+// (base + follow-ups). The server uses this to compute the persisted
+// block grade instead of relying on the AI to mentally average.
+
+const GRADE_TO_NUMERIC: Record<string, number> = {
+  'A+': 98, 'A': 95, 'A-': 92,
+  'B+': 88, 'B': 85, 'B-': 82,
+  'C+': 78, 'C': 75, 'C-': 72,
+  'D+': 68, 'D': 65, 'D-': 62,
+  'F': 40,
+};
+
+// Inverse table: numeric thresholds map to the highest letter at-or-below.
+// Ordered from highest to lowest.
+const NUMERIC_TO_GRADE: Array<{ min: number; letter: LetterGrade }> = [
+  { min: 96.5, letter: 'A+' },
+  { min: 93.5, letter: 'A' },
+  { min: 90,   letter: 'A-' },
+  { min: 86.5, letter: 'B+' },
+  { min: 83.5, letter: 'B' },
+  { min: 80,   letter: 'B-' },
+  { min: 76.5, letter: 'C+' },
+  { min: 73.5, letter: 'C' },
+  { min: 70,   letter: 'C-' },
+  { min: 66.5, letter: 'D+' },
+  { min: 63.5, letter: 'D' },
+  { min: 60,   letter: 'D-' },
+  { min: 0,    letter: 'F' },
+];
+
+export function gradeToNumeric(letter: string | null | undefined): number | null {
+  if (!letter) return null;
+  const v = GRADE_TO_NUMERIC[letter];
+  return typeof v === 'number' ? v : null;
+}
+
+export function numericToGrade(value: number): LetterGrade {
+  for (const row of NUMERIC_TO_GRADE) {
+    if (value >= row.min) return row.letter;
+  }
+  return 'F';
+}
+
+// Aggregate a block's per-answer grades into a single block grade.
+// - Normal block: weights 50% (base) / 25% (fu1) / 25% (fu2).
+//   If only base answered: 100% base. If base + fu1 only: 67/33 (renormalized 50/25).
+// - Case study (isCase=true): equal weights across all N answers.
+// Returns null if no usable grades.
+export function aggregateBlockGrade(
+  perAnswerGrades: Array<string | null | undefined>,
+  isCase: boolean,
+): { grade: LetterGrade; numeric: number; breakdown: number[] } | null {
+  const numerics: number[] = [];
+  for (const g of perAnswerGrades) {
+    const n = gradeToNumeric(g);
+    if (n !== null) numerics.push(n);
+  }
+  if (numerics.length === 0) return null;
+
+  let weights: number[];
+  if (isCase) {
+    // Equal split across all answered turns in the block.
+    weights = numerics.map(() => 1 / numerics.length);
+  } else {
+    // Fixed schedule for normal blocks: base, fu1, fu2. Use only the prefix that has answers.
+    const fullWeights = [0.5, 0.25, 0.25];
+    const take = fullWeights.slice(0, numerics.length);
+    const sum = take.reduce((a, b) => a + b, 0);
+    weights = take.map(w => w / sum); // renormalize so weights sum to 1
+  }
+  const score = numerics.reduce((acc, n, i) => acc + n * weights[i], 0);
+  return {
+    grade: numericToGrade(score),
+    numeric: Math.round(score * 10) / 10,
+    breakdown: numerics,
+  };
 }
