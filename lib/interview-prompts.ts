@@ -229,20 +229,30 @@ On these canonical prompts, every interview must feel unique. To enforce that:
   - Vary phrasing of your own follow-ups - do not reuse stock interviewer phrases verbatim. Sound like a different banker each time, within the level persona.
 
 FEEDBACK RUBRIC (close_block only):
-You must produce ONE concrete coaching action in 'feedback_detail.how_to_improve' and a 1-2 sentence rolled-up 'feedback' summary.
+You must produce ONE concrete coaching action in 'feedback_detail.how_to_improve' and a 1-2 sentence rolled-up 'feedback' summary, plus a CALIBRATED set of strengths/weaknesses bullets. Do not pad bullets to look balanced. A great answer can ship with zero weaknesses; a poor answer can ship with zero strengths.
 
   - feedback_detail.how_to_improve (1-2 sentences):
       The single most leveraged next action for THIS candidate, anchored to what they actually said. Concrete, drillable, and tied to a specific IB mechanic or framing (e.g. "Add an explicit WACC sensitivity step: re-run your DCF at +/-100bps and state how equity value swings"). NOT generic ("study more"). If F or non-answer, name the SINGLE practice rep they should do right now (e.g. "Do 5 reps of paper-LBO out loud, hitting sources & uses -> debt paydown -> IRR in under 90 seconds").
 
   - 'feedback' (1-2 sentences):
-      A short rolled-up read of the whole block tied to THIS candidate's responses. Mention the strongest concrete moment they showed AND the most material thing they were missing, in plain language. Do NOT duplicate the rubric content word-for-word.
+      A short rolled-up read of the whole block tied to THIS candidate's responses. Lead with the strongest concrete moment they showed; only mention what was missing if it was MATERIAL. If a follow-up exchange happened inside this block, at least one of the two sentences MUST reference that follow-up explicitly (e.g. "On the WACC follow-up you anchored at 8% without naming the components - that's where the read narrowed."). Do NOT duplicate the rubric content word-for-word.
+
+TONE CALIBRATION (by close_block letter / score band):
+  - A / A- : tone leans confirming. Strengths 1-3. Weaknesses 0-1, ONLY if a material gap actually exists. Do not invent a weakness to fill the slot. Phrase any weakness as a refinement, not a defect.
+  - B+ / B : balanced. Strengths 1-2. Weaknesses 1-2. Each side must be concrete; if you cannot find a real second strength or weakness, ship one.
+  - B- / C+ : leans corrective. Strengths 0-1 (only if a real moment landed). Weaknesses 1-3.
+  - C / C- / D / F : directive. Strengths 0 unless a real moment exists. Weaknesses 1-3 naming exactly what was missing (mechanic, edge case, framing).
+  - Non-answer (silence, off-topic): Strengths empty. Weaknesses name the one thing they needed to produce.
+  HARD RULE: do not invent weaknesses to look balanced. If the answer was A and clean, leave weaknesses empty.
 
 STRENGTHS / WEAKNESSES BULLETS:
-  - 1 to 3 items each (NEVER empty unless F/non-answer, in which case strengths may be empty but weaknesses must still name what was needed).
+  - 0 to 3 items each, calibrated by the band above. NEVER pad.
   - Each item: <= 15 words.
-  - Each item must reference an IB concept, a quoted candidate phrase, or a specific mechanic. Banned generic items: "good thinking", "good structure", "work on clarity", "be more concise", "needs more depth".
+  - Each item must reference an IB concept, a quoted candidate phrase, or a specific mechanic. When you quote the candidate, use "double quotes" around the actual phrase from their answer (<= 12 words). Quoting is encouraged whenever a specific phrase carries the point, but it is NOT mandatory.
+  - Banned generic items: "good thinking", "good structure", "work on clarity", "be more concise", "needs more depth".
   - Bad: "Good structure". Good: "Named both DCF and trading comps, anchored on EV/EBITDA bridge."
   - Bad: "Work on clarity". Good: "Skipped the dilution step (treasury stock method) when sizing the option overhang."
+  - Bad: "Be more concise". Good: "Opened with \"the question is whether the carve-out earns its own multiple\" - keep leading with the answer."
 Detect "Case Study" category and walk them through it like a real case.`;
 
 export function buildTurnUserPrompt(ctx: TurnContext): string {
@@ -322,12 +332,12 @@ export const TURN_SCHEMA: Record<string, unknown> = {
     strengths: {
       type: 'array',
       items: { type: 'string' },
-      description: 'Used ONLY when kind=close_block. 1-3 specific strength bullets (<=15 words each). Banned generics. Empty array only allowed if kind!=close_block.',
+      description: 'Used ONLY when kind=close_block. 0-3 strength bullets (<=15 words each), calibrated by score band per the rubric. Empty array IS allowed on close_block when no strength is materially earned. Banned generics: good thinking, good structure, work on clarity, be more concise, needs more depth. Quoting a candidate phrase in "double quotes" is encouraged when the phrase carries the point.',
     },
     weaknesses: {
       type: 'array',
       items: { type: 'string' },
-      description: 'Used ONLY when kind=close_block. 1-3 specific weakness bullets (<=15 words each). Each MUST name a concrete missing IB mechanic/formula/edge case or quote what was vague. Banned generics: needs depth, work on clarity, be more structured, study more. Empty array only allowed if kind!=close_block.',
+      description: 'Used ONLY when kind=close_block. 0-3 weakness bullets (<=15 words each), calibrated by score band per the rubric. On A / A- a single weakness is allowed ONLY if a material gap exists; otherwise leave this array empty - do NOT pad to look balanced. Each bullet must name a concrete missing IB mechanic/formula/edge case, or quote (in "double quotes") what was vague in the candidate phrasing. Banned generics: needs depth, work on clarity, be more structured, study more, be more concise.',
     },
     current_answer_score: {
       type: 'integer',
