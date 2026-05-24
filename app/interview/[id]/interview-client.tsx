@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import AudioWaveform from './AudioWaveform';
 import { useRouter } from 'next/navigation';
 import { parseApiError, formatApiError, type ApiErrorShape } from '@/lib/observability/api-client';
+import TypewriterText from './TypewriterText';
 
 type Question = {
   id: number;
@@ -70,7 +71,7 @@ function QuestionTimer(props: { startedAt: string | null; limitSeconds: number; 
   const ratio = elapsedSec / Math.max(1, limitSeconds);
   // green < 70%, gold 70-100%, red > 100%
   const color = isOver ? '#d47a7a' : ratio >= 0.7 ? '#B88736' : '#9ab87a';
-  // Urgent: last 10s of overtime — pulse.
+  // Urgent: last 10s of overtime â pulse.
   const urgent = isOver && overtimeRemain <= 10;
   const label = isOver ? 'OVERTIME' : 'TIME LEFT';
   const display = isOver ? '+' + formatMMSS(overtimeElapsed) : formatMMSS(Math.max(0, remainSec));
@@ -139,7 +140,7 @@ function shortLabel(q: Question | null, idx: number) {
   return `Q${String(idx).padStart(2, '0')} - ${tail}`;
 }
 function lockedLabel(idx: number) {
-  return `Q${String(idx).padStart(2, '0')} - ─────`;
+  return `Q${String(idx).padStart(2, '0')} - âââââ`;
 }
 
 function buildBlockTranscript(baseStep: StepRow, allSteps: StepRow[], allAnswers: AnswerRow[]): ChatMsg[] {
@@ -730,7 +731,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div key={i}>
                         <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-2">INTERVIEWER</div>
-                        <h2 className="font-playfair text-3xl leading-[1.35]">{m.text}</h2>
+                        <h2 className="font-playfair text-3xl leading-[1.35]"><TypewriterText id={'q:' + m.stepId} text={m.text} /></h2>
                       </div>
                     );
                   }
@@ -738,14 +739,14 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div key={i} className="border-l-2 border-[#B88736]/50 pl-5">
                         <div className="text-[10px] tracking-[0.22em] text-[#B88736]/80 mb-1">FOLLOW-UP</div>
-                        <p className="font-playfair italic text-xl text-[#11161E]/95">{m.text}</p>
+                        <p className="font-playfair italic text-xl text-[#11161E]/95"><TypewriterText id={'fu:' + m.stepId} text={m.text} /></p>
                       </div>
                     );
                   }
                   if (m.role === 'ai' && m.kind === 'clarification_response') {
                     return (
                       <div key={i} className="text-[12px] italic text-[#11161E]/55">
-                        Interviewer (clarification): {m.text}
+                        Interviewer (clarification): <TypewriterText id={'cr:' + i + ':' + m.text.slice(0,32)} text={m.text} />
                       </div>
                     );
                   }
@@ -753,7 +754,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div key={i} className="border border-[#9ab87a]/30 bg-[#9ab87a]/5 px-4 py-3">
                         <div className="text-[10px] tracking-[0.22em] text-[#9ab87a]/80 mb-1">BLOCK CLOSED</div>
-                        <p className="text-[14px] text-[#11161E]/85">{m.text}</p>
+                        <p className="text-[14px] text-[#11161E]/85"><TypewriterText id={'cb:' + i + ':' + m.text.slice(0,32)} text={m.text} /></p>
                       </div>
                     );
                   }
