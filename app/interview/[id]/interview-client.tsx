@@ -559,7 +559,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     if (blockClosed) return;
     setError(null);
     setSubmitting(true);
-    const text = draft.trim();
+    const text = draft.trim() || '(No answer provided.)';
     setDraft('');
     try {
       const r = await fetch('/api/interview/turn', {
