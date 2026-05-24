@@ -215,7 +215,7 @@ Every field below MUST reference something concrete from THIS candidate's actual
 
   - feedback_detail.what_was_missing (1-2 sentences):
       The SPECIFIC IB mechanic, formula, edge case, or second-order effect they failed to address, calibrated to their level.
-      Name the actual concept (e.g. "WACC sensitivity to Â±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
+      Name the actual concept (e.g. "WACC sensitivity to ÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
 
   - feedback_detail.how_to_improve (1-2 sentences):
       One concrete, drillable next step. Examples: "Re-walk the LBO returns waterfall: Sources/Uses -> Exit equity -> IRR/MoM, with a 1x debt paydown", or "Practice EV-to-Equity bridge with at least 3 line items (debt, cash, minorities)".
@@ -422,3 +422,123 @@ export type FinalizeAIResult = {
   weakest_block_label: string;
   strongest_moment: string;
 };
+
+// ============================================================
+// REPHRASE PROMPTS - Phase B
+// ============================================================
+// Used by /api/interview/start to take a raw question from the question
+// bank and re-deliver it in the voice of the level-appropriate interviewer
+// persona, optionally personalized using the candidate's profile.
+//
+// Output is persisted to interview_steps.delivered_question. NULL means
+// the candidate sees the raw question as a fallback.
+
+export type CandidateProfileSnapshot = {
+  // Identity (only used if use_in_persona is true)
+  preferred_name: string | null;
+  first_name: string | null;
+  // Career context
+  current_position: string | null;
+  university: string | null;
+  major: string | null;
+  graduation_year: number | null;
+  interview_region: string | null;
+  country: string | null;
+  // Self-description
+  cv_summary: string | null;
+  bio: string | null;
+  // Privacy flag - if false the AI gets NO profile info
+  use_in_persona: boolean;
+};
+
+export type RephraseContext = {
+  level: Level;
+  category: string;
+  subtopic: string | null;
+  question: string; // raw question from the bank
+  profile: CandidateProfileSnapshot | null;
+};
+
+export type RephraseAIResult = {
+  delivered_question: string;
+};
+
+export const REPHRASE_SYSTEM_PROMPT = `You are an investment-banking interviewer. You receive ONE raw interview question pulled from a question bank and you must RE-DELIVER it in your own voice as that interviewer, calibrated to the candidate's level.
+
+PRIMARY OBJECTIVE
+Take the raw question and rewrite it so it sounds like a real interviewer asking it - not a textbook prompt. The candidate must read your version and feel they are in an interview room with you.
+
+LEVEL CALIBRATION (this is the most important rule):
+- intern   -> warm senior VP running a first-round screen. Friendly framing, light context-setting. ONE sentence of setup MAX, then the question. Tone: encouraging, not soft. Example transform: "Walk me through a DCF" -> "OK let's start with something foundational - walk me through how you'd build a DCF from scratch."
+- analyst  -> direct deal-team analyst running a technical screen. Drier, terser. Often sets a quick scenario or numerical hook. Tone: no-nonsense. Example transform: "Walk me through a DCF" -> "Pretend you're modeling a mid-cap industrial. Walk me through your DCF, and tell me which assumption you'd stress-test first."
+- associate -> seasoned associate / VP. Presupposes deal context, sometimes drops in pressure or stakes. Tone: peer-to-peer, slightly demanding. Example transform: "Walk me through a DCF" -> "You're on a sell-side and the buyer's bankers are pushing back that your DCF anchor is too aggressive. Walk me through the build and tell me where you'd defend yourself first."
+
+PERSONALIZATION RULES (only if profile is provided AND use_in_persona is true):
+- You MAY occasionally address the candidate by preferred_name OR first_name. Do NOT use it on every question - that gets fake. Roughly 1 in 4 questions, max.
+- For questions in category "behavioral" or "fit" or for questions like "tell me about yourself" / "walk me through your resume" / "why investment banking": you SHOULD pull in 1-2 concrete profile elements (university, current_position, major, region). Make it feel like the interviewer has actually read the CV.
+- For technical questions: prefer to leave profile out, UNLESS the raw question mentions a sector or geography where the candidate's profile is directly relevant (e.g. candidate is at a UK MSc and question references UK accounting - then reference the UK angle).
+- NEVER fabricate profile info that wasn't given. If a field is null, do not invent it.
+- If use_in_persona is false OR profile is null, write the rephrase WITHOUT any personalization. Just persona + level.
+
+HARD CONSTRAINTS:
+- Preserve the technical content of the question EXACTLY. You are rewording delivery, NOT changing what is being tested. If the raw asks for a DCF, your version still asks for a DCF. If it lists 3 things to discuss, yours still lists those 3.
+- No more than 2 sentences total before the actual ask.
+- No emojis. No filler praise ("great question!"). No coaching during the rephrase.
+- ASCII only - no fancy unicode (em-dash is fine, smart quotes are NOT). Use straight quotes.
+- Do not reveal the candidate's level in the question text. Do not say "as an intern" / "as an associate".
+- Output language: English.
+
+OUTPUT
+Return JSON matching the schema with a single field "delivered_question" containing the rewritten question. Nothing else.
+`;
+
+export const REPHRASE_SCHEMA: Record<string, unknown> = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['delivered_question'],
+  properties: {
+    delivered_question: {
+      type: 'string',
+      description: 'The rewritten question text, delivered in the interviewer voice for the given level. Preserves all technical content; differs only in framing, tone, and optional personalization. 1-4 sentences total.',
+    },
+  },
+};
+
+export function buildRephrasePrompt(ctx: RephraseContext): string {
+  const persona = INTERVIEWER_PERSONAS[ctx.level];
+  const profileBlock = (() => {
+    if (!ctx.profile || !ctx.profile.use_in_persona) {
+      return 'CANDIDATE PROFILE: none (do NOT personalize - level + persona only).';
+    }
+    const p = ctx.profile;
+    const lines: string[] = [];
+    if (p.preferred_name || p.first_name) lines.push(`preferred_name: ${p.preferred_name || p.first_name}`);
+    if (p.current_position) lines.push(`current_position: ${p.current_position}`);
+    if (p.university) lines.push(`university: ${p.university}`);
+    if (p.major) lines.push(`major: ${p.major}`);
+    if (p.graduation_year) lines.push(`graduation_year: ${p.graduation_year}`);
+    if (p.interview_region) lines.push(`interview_region: ${p.interview_region}`);
+    else if (p.country) lines.push(`country: ${p.country}`);
+    if (p.cv_summary) lines.push(`cv_summary: ${p.cv_summary.slice(0, 400)}`);
+    if (p.bio) lines.push(`bio: ${p.bio.slice(0, 240)}`);
+    if (lines.length === 0) {
+      return 'CANDIDATE PROFILE: opted in but empty - do NOT personalize this question.';
+    }
+    return 'CANDIDATE PROFILE (use sparingly per the rules in the system prompt):\n' + lines.join('\n');
+  })();
+
+  return [
+    'INTERVIEWER PERSONA (this dictates your voice for this question):',
+    persona,
+    '---',
+    `Candidate level: ${ctx.level}`,
+    `Question category: ${ctx.category}${ctx.subtopic ? ' / ' + ctx.subtopic : ''}`,
+    '---',
+    profileBlock,
+    '---',
+    'RAW QUESTION FROM BANK (rewrite this):',
+    ctx.question,
+    '',
+    'Return JSON: { "delivered_question": "<your rewritten version>" }',
+  ].join('\n');
+}
