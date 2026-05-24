@@ -191,14 +191,17 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     return NextResponse.json({ error: (e as Error).message, friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
-  // Decision rule enforcement (Phase E - numeric scoring).
-  // The AI is instructed to follow the decision rule, but we enforce it server-side too.
-  // - Score < 30% of MAX_SCORE_FOR_THIS_TURN -> force close_block (advance threshold).
-  // - Already at follow-up limit -> force close_block.
-  // - Otherwise trust the AI: it picks REBUILD (30-79%) or DEEPEN (>=80%) on its own.
+  // Decision rule enforcement (Phase E.1 - force full block depth on strong answers).
+  // The AI returns a numeric score and a proposed decision. The server enforces:
+  //   - score < 30% of MAX_SCORE_FOR_THIS_TURN -> force close_block (advance threshold).
+  //   - already at follow-up limit -> force close_block.
+  //   - AI emitted close_block at score >= 30% with budget remaining -> OVERRIDE to follow_up.
+  //     Rationale: on >=30% answers the AI must keep drilling (deepen or rebuild) until the
+  //     block reaches its full depth (normal: base+2FU; case: base+5FU). Closing early would
+  //     leave remaining sub-turns at 0 points and unfairly cap the candidate's score.
   // Skipped entirely for clarification_response.
   if (ai.message_type === 'answer') {
-    const turnMax = maxScoreForTurn(followUpsSoFar, isCase);
+    const turnMax = maxScoreForTurn(currentBlock, isFollowUp);
     // Clamp the score into [0, turnMax] just in case the model exceeded the range.
     const rawScore = typeof (ai as any).current_answer_score === 'number'
       ? (ai as any).current_answer_score
@@ -206,21 +209,30 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     const cas = Math.max(0, Math.min(turnMax, Math.round(rawScore)));
     (ai as any).current_answer_score = cas;
     const pct = turnMax > 0 ? cas / turnMax : 0;
-    const belowAdvance = pct < ADVANCE_THRESHOLD;
+    const followUpsSoFar = ai.follow_ups_used_in_block ?? 0;
+    const maxFollowUps = currentBlock === 'case_study' ? 5 : 2;
     const atLimit = followUpsSoFar >= maxFollowUps;
-    if (ai.kind === 'follow_up' && (belowAdvance || atLimit)) {
+    const belowAdvance = pct < ADVANCE_THRESHOLD;
+    if (belowAdvance || atLimit) {
+      // Force close_block - either too weak or no follow-ups left.
+      ai.decision = 'close_block';
       console.warn('[turn] forcing close_block', { reason: belowAdvance ? 'below_advance_threshold' : 'fu_limit_reached', score: cas, turnMax, pct, followUpsSoFar, maxFollowUps, baseStepId });
-      ai.kind = 'close_block';
       if (!ai.feedback || !String(ai.feedback).trim()) {
         ai.feedback = belowAdvance
           ? 'Closing the block here - the latest answer did not give enough signal to drill deeper.'
           : 'Closing the block - follow-up limit reached.';
       }
+    } else if (ai.decision === 'close_block') {
+      // AI tried to close early on a >=30% answer with FU budget remaining.
+      // Override to follow_up - the block must continue to its full depth.
+      // The AI's prompt forbids this, but we enforce here as a safety net.
+      console.warn('[turn] overriding AI close_block to follow_up', { reason: 'strong_answer_with_budget', score: cas, turnMax, pct, followUpsSoFar, maxFollowUps, baseStepId });
+      ai.decision = 'follow_up';
+      if (!ai.follow_up_question || !String(ai.follow_up_question).trim()) {
+        console.error('[turn] CRITICAL: AI emitted close_block at >=30% with no follow_up_question - prompt drift');
+      }
     }
-    // We deliberately do NOT force a follow_up if the AI emitted close_block.
-    // The spec is "up to N follow-ups", not "exactly N". Trust the AI's close.
   }
-
   // 6. Persist the candidate's message.
   const candidateAnswerType = ai.message_type === 'clarification' ? 'clarification' : 'answer';
   const { error: candAnsErr } = await supabase.from('answers').insert({
