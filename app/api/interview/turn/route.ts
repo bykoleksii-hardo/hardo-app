@@ -197,7 +197,10 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   // Skipped entirely for clarification_response.
   if (ai.message_type === 'answer') {
     const cag = (ai.current_answer_grade || ai.grade || '') as LetterGrade;
-    const isLowFloor = cag === 'D-' || cag === 'F';
+    // No drill on D-floor or worse: a candidate whose latest answer is D, D-, F has
+    // already used the recovery probe (if this was a follow-up) or is not recoverable.
+    // Pushing further would only frustrate them.
+    const isLowFloor = cag === 'D+' || cag === 'D' || cag === 'D-' || cag === 'F';
     const hasRoom = followUpsSoFar < maxFollowUps;
     if (ai.kind === 'follow_up' && isLowFloor) {
       console.warn('[turn] forcing close_block: AI emitted follow_up on D-/F answer', { cag, baseStepId });
@@ -294,7 +297,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     if (followUpsSoFar >= maxFollowUps) {
       ai.kind = 'close_block';
       ai.grade = ai.grade || 'B';
-      ai.feedback = ai.feedback || 'Closing the block Ã¢ÂÂ follow-up limit reached.';
+      ai.feedback = ai.feedback || 'Closing the block ÃÂ¢ÃÂÃÂ follow-up limit reached.';
     } else {
       const { data: insertResult, error: insertErr } = await supabase.rpc('insert_followup_step', {
         p_interview_id: interviewId,
