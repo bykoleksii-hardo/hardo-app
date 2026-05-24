@@ -10,6 +10,7 @@ export type TurnContext = {
   isCase: boolean;
   followUpsSoFar: number;
   maxFollowUps: number;
+  maxScoreForThisTurn: number;
   question: string;
   // Ordered transcript inside the current block (question + everything after).
   transcript: { role: 'candidate' | 'ai'; kind: 'answer' | 'clarification' | 'follow_up' | 'clarification_response'; text: string }[];
@@ -235,7 +236,7 @@ Every field below MUST reference something concrete from THIS candidate's actual
 
   - feedback_detail.what_was_missing (1-2 sentences):
       The SPECIFIC IB mechanic, formula, edge case, or second-order effect they failed to address, calibrated to their level.
-      Name the actual concept (e.g. "WACC sensitivity to ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
+      Name the actual concept (e.g. "WACC sensitivity to ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ±100bps", "treasury stock method dilution", "synergy haircut", "circular reference in DCF", "MOIC vs IRR distinction"). Never write "missed depth" or "needs more rigor" without naming what.
 
   - feedback_detail.how_to_improve (1-2 sentences):
       One concrete, drillable next step. Examples: "Re-walk the LBO returns waterfall: Sources/Uses -> Exit equity -> IRR/MoM, with a 1x debt paydown", or "Practice EV-to-Equity bridge with at least 3 line items (debt, cash, minorities)".
@@ -269,6 +270,7 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     `---`,
     `Candidate level: ${ctx.level} (use the ${ctx.level.toUpperCase()} bar from the grading rubric - do NOT apply analyst/associate standards to an intern, do NOT apply intern standards to an associate)`,
     `Question category: ${ctx.category}${ctx.subtopic ? ' / ' + ctx.subtopic : ''}`,
+    `MAX_SCORE_FOR_THIS_TURN: ${ctx.maxScoreForThisTurn} (the candidate's latest answer must be scored 0..${ctx.maxScoreForThisTurn} inclusive)`,
     `Difficulty: ${ctx.difficulty ?? 'n/a'}`,
     `Is case-study block: ${ctx.isCase ? 'yes' : 'no'}`,
     `Follow-ups asked so far: ${ctx.followUpsSoFar} / max ${ctx.maxFollowUps}`,
