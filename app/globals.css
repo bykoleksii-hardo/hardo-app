@@ -470,3 +470,243 @@ body.font-sans {
   }
   .measure-row .weight { text-align: left; }
 }
+
+
+/* =========================================================
+   What we measure (Phase 6 - 2x2 grid redesign)
+   Local prefix .ww-* for scoped styles
+   ========================================================= */
+:root {
+  --good: #3D6B3E;
+  --bad: #A0432E;
+  --muted-2: rgba(17, 22, 30, 0.42);
+}
+.ww-h2 {
+  margin-top: 14px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(36px, 5.4vw, 60px);
+  line-height: 1.04;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+}
+.ww-lede {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  margin-top: 22px;
+  max-width: 980px;
+}
+.ww-lede p {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.ww-pullquote {
+  border-left: 2px solid var(--gold);
+  padding: 4px 0 4px 16px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 20px;
+  line-height: 1.4;
+  color: var(--gold-2);
+  margin: 0;
+}
+.ww-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 56px;
+}
+.ww-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 28px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+}
+.ww-cardhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.ww-name {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  color: var(--ink);
+}
+.ww-idx {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--muted-2);
+}
+.ww-headline {
+  margin-top: 18px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: -0.006em;
+  color: var(--ink);
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+}
+.ww-headline em { font-style: italic; color: var(--gold); font-weight: 400; }
+.ww-desc {
+  margin-top: 10px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.ww-vis {
+  margin-top: auto;
+  padding-top: 22px;
+}
+
+/* Visualization 1: big letter grade + scale */
+.ww-vis-grade { display: flex; align-items: flex-end; gap: 20px; }
+.ww-bigA {
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--gold);
+  font-size: 110px;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+}
+.ww-scale {
+  list-style: none;
+  display: flex;
+  gap: 10px;
+  margin: 0 0 10px;
+  padding: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted-2);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.ww-scale li.ww-now { color: var(--gold); font-weight: 600; }
+
+/* Visualization 2: radar */
+.ww-vis-radar { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ww-radar { width: 168px; height: 168px; }
+.ww-axes {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: var(--muted-2);
+}
+
+/* Visualization 3: dots */
+.ww-vis-dots { display: flex; flex-direction: column; gap: 12px; }
+.ww-dots { list-style: none; display: flex; gap: 14px; margin: 0; padding: 0; }
+.ww-dots li {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  background: transparent;
+}
+.ww-dots li.on { background: var(--gold); }
+.ww-dotslabel {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+/* Visualization 4: ladder */
+.ww-vis-ladder { padding-top: 18px; }
+.ww-ladder { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ww-ladder li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: 15px;
+  color: var(--ink-2);
+  border-bottom: 1px dashed var(--line);
+}
+.ww-ladder .rung {
+  display: block; height: 2px; background: var(--ink-2); opacity: 0.45; border-radius: 1px;
+}
+.ww-ladder .lab { font-style: italic; }
+.ww-ladder .pin {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+}
+.ww-ladder li.ww-here { color: var(--ink); }
+.ww-ladder li.ww-here .rung { background: var(--gold); opacity: 1; height: 3px; }
+.ww-ladder li.ww-here .lab { color: var(--gold); font-style: italic; font-weight: 400; }
+
+/* Chip row */
+.ww-chips {
+  list-style: none;
+  margin: 56px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.ww-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-2);
+}
+.ww-chips li .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+}
+.ww-chips li.gold {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: var(--gold-soft);
+}
+
+@media (max-width: 900px) {
+  .ww-grid { grid-template-columns: 1fr; }
+  .ww-lede { grid-template-columns: 1fr; }
+  .ww-card { min-height: 0; }
+  .ww-bigA { font-size: 84px; }
+}

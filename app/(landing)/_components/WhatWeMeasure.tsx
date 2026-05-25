@@ -1,92 +1,195 @@
 import Reveal from '@/app/_components/Reveal';
 
-const rows = [
-  {
-    cat: 'Accounting',
-    desc: 'Three statements that tie. Working-capital and non-cash items that *don\u2019t lie*.',
-    weight: '20%',
-  },
-  {
-    cat: 'Valuation',
-    desc: 'DCF mechanics, comps that match, and the *terminal-value* tail you can defend.',
-    weight: '25%',
-  },
-  {
-    cat: 'Corporate Finance',
-    desc: 'WACC build, capital structure, dilution math \u2014 on a *clean napkin*.',
-    weight: '15%',
-  },
-  {
-    cat: 'M&A / Case',
-    desc: 'Deal logic, accretion/dilution, *synergy* quantification that survives a follow-up.',
-    weight: '25%',
-  },
-  {
-    cat: 'Behavioral',
-    desc: 'Answer-first framing. *Held up* under three follow-ups, not just one.',
-    weight: '15%',
-  },
-];
-
-function renderDesc(text: string) {
-  // Render *italic* segments with gold italics. Plain string, single pass.
-  const parts: Array<{ italic: boolean; text: string }> = [];
-  let buf = '';
-  let italic = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === '*') {
-      if (buf) parts.push({ italic, text: buf });
-      buf = '';
-      italic = !italic;
-    } else {
-      buf += ch;
-    }
-  }
-  if (buf) parts.push({ italic, text: buf });
-  return parts.map((p, i) => p.italic ? <em key={i}>{p.text}</em> : <span key={i}>{p.text}</span>);
-}
-
 export default function WhatWeMeasure() {
   return (
-    <section id="measure" className="border-t border-line">
-      <Reveal>
-        <div className="max-w-page mx-auto px-6 py-20">
-          <div className="grid md:grid-cols-[1fr_1.2fr] gap-12 md:gap-20 items-start">
-            <div>
-              <div className="eyebrow mb-5">What we measure</div>
-              <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-[14ch]">
-                One scorecard.{' '}
-                <span className="italic-gold">One verdict</span>
-                <span className="text-gold">.</span>
-              </h2>
-              <p className="mt-6 text-[16px] text-ink-2 leading-relaxed max-w-md">
-                The same notes a real interviewer carries on a notepad: a letter, a radar, follow-up depth, a hire call. No vanity metrics, no engagement scores.
-              </p>
-              <p className="pull-quote mt-8 max-w-md">
-                {'\u201c'}Letter grade per answer. Same scale a real reviewer scribbles in the margin {'\u2014'} hidden until the end.{'\u201d'}
-              </p>
-            </div>
+    <section id="what-we-measure" className="bg-[var(--cream)]">
+      <div className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
+        <Reveal>
+          <div className="eyebrow"><span className="dash" aria-hidden /> What we measure</div>
+        </Reveal>
 
-            <div>
-              {rows.map((r) => (
-                <div key={r.cat} className="measure-row">
-                  <div className="cat">{r.cat}</div>
-                  <div className="desc">{renderDesc(r.desc)}</div>
-                  <div className="weight">{r.weight}</div>
-                </div>
-              ))}
+        <Reveal delay={80}>
+          <h2 className="ww-h2">
+            One scorecard. One <span className="italic-gold">verdict</span><span style={{color:'var(--gold)'}}>.</span>
+          </h2>
+        </Reveal>
 
-              <div className="mt-10 flex flex-wrap items-center gap-3 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
-                <span className="border border-line rounded-full px-3 py-1">Letter grade per question</span>
-                <span className="border border-line rounded-full px-3 py-1">Follow-up depth 0{'\u2013'}5</span>
-                <span className="border border-line rounded-full px-3 py-1">4-level hire scale</span>
-                <span className="border border-line rounded-full px-3 py-1">Saved to profile</span>
-              </div>
-            </div>
+        <Reveal delay={140}>
+          <div className="ww-lede">
+            <p>
+              Every interview ends with a director-grade rubric: a letter, a skill profile, follow-up depth, and a hire call.
+              No vibes, no participation trophies.
+            </p>
+            <blockquote className="ww-pullquote">
+              If a director can&rsquo;t grade it on paper, neither will we.
+            </blockquote>
           </div>
+        </Reveal>
+
+        <div className="ww-grid">
+          {/* 1. Letter grade */}
+          <Reveal delay={200}>
+            <article className="ww-card">
+              <header className="ww-cardhead">
+                <span className="ww-name">Letter grade</span>
+                <span className="ww-idx">&mdash; 01 / 04</span>
+              </header>
+              <h3 className="ww-headline">
+                A single mark, weighted across <em>every</em> category.
+              </h3>
+              <p className="ww-desc">
+                Accounting, valuation, M&amp;A, PE/LBO, behavioral &mdash; combined into one letter you can quote in a follow-up email.
+              </p>
+              <div className="ww-vis ww-vis-grade">
+                <div className="ww-bigA">A&minus;</div>
+                <ol className="ww-scale" aria-label="Grade scale">
+                  <li>A+</li>
+                  <li className="ww-now">A&minus;</li>
+                  <li>B+</li>
+                  <li>B</li>
+                  <li>C</li>
+                  <li>D</li>
+                  <li>F</li>
+                </ol>
+              </div>
+            </article>
+          </Reveal>
+
+          {/* 2. Skill radar */}
+          <Reveal delay={260}>
+            <article className="ww-card">
+              <header className="ww-cardhead">
+                <span className="ww-name">Skill radar</span>
+                <span className="ww-idx">&mdash; 02 / 04</span>
+              </header>
+              <h3 className="ww-headline">
+                Six axes. <em>No averaging</em> away a weak spot.
+              </h3>
+              <p className="ww-desc">
+                Each competency is graded on its own. You see exactly where the gap is &mdash; and what to drill before next round.
+              </p>
+              <div className="ww-vis ww-vis-radar">
+                <svg viewBox="-80 -80 160 160" className="ww-radar" role="img" aria-label="Skill radar">
+                  {/* concentric hex rings */}
+                  {[20, 40, 60].map((r) => (
+                    <polygon
+                      key={r}
+                      points={[0,1,2,3,4,5].map(i => {
+                        const a = (Math.PI / 3) * i - Math.PI / 2;
+                        return (Math.cos(a) * r).toFixed(1) + ',' + (Math.sin(a) * r).toFixed(1);
+                      }).join(' ')}
+                      fill="none"
+                      stroke="var(--line)"
+                      strokeWidth="0.7"
+                    />
+                  ))}
+                  {/* axes */}
+                  {[0,1,2,3,4,5].map(i => {
+                    const a = (Math.PI / 3) * i - Math.PI / 2;
+                    const x = (Math.cos(a) * 60).toFixed(1);
+                    const y = (Math.sin(a) * 60).toFixed(1);
+                    return <line key={i} x1="0" y1="0" x2={x} y2={y} stroke="var(--line)" strokeWidth="0.6" />;
+                  })}
+                  {/* target dashed polygon (uniform at ~50) */}
+                  <polygon
+                    points={[0,1,2,3,4,5].map(i => {
+                      const a = (Math.PI / 3) * i - Math.PI / 2;
+                      return (Math.cos(a) * 50).toFixed(1) + ',' + (Math.sin(a) * 50).toFixed(1);
+                    }).join(' ')}
+                    fill="none"
+                    stroke="var(--ink-2)"
+                    strokeOpacity="0.45"
+                    strokeWidth="0.8"
+                    strokeDasharray="2 2"
+                  />
+                  {/* score polygon */}
+                  <polygon
+                    points={[55, 48, 42, 32, 50, 58].map((r, i) => {
+                      const a = (Math.PI / 3) * i - Math.PI / 2;
+                      return (Math.cos(a) * r).toFixed(1) + ',' + (Math.sin(a) * r).toFixed(1);
+                    }).join(' ')}
+                    fill="var(--gold-soft)"
+                    stroke="var(--gold)"
+                    strokeWidth="1.4"
+                  />
+                </svg>
+                <ul className="ww-axes" aria-hidden>
+                  <li>Accounting</li>
+                  <li>&middot;</li>
+                  <li>Valuation</li>
+                  <li>&middot;</li>
+                  <li>Corp Finance</li>
+                  <li>&middot;</li>
+                  <li>M&amp;A / Case</li>
+                  <li>&middot;</li>
+                  <li>PE / LBO</li>
+                  <li>&middot;</li>
+                  <li>Behavioral</li>
+                </ul>
+              </div>
+            </article>
+          </Reveal>
+
+          {/* 3. Follow-up depth */}
+          <Reveal delay={320}>
+            <article className="ww-card">
+              <header className="ww-cardhead">
+                <span className="ww-name">Follow-up depth</span>
+                <span className="ww-idx">&mdash; 03 / 04</span>
+              </header>
+              <h3 className="ww-headline">
+                How far do you hold under <em>pressure</em>?
+              </h3>
+              <p className="ww-desc">
+                We push every answer with follow-ups until you break or land it. The depth you held is on the report.
+              </p>
+              <div className="ww-vis ww-vis-dots">
+                <ol className="ww-dots" aria-label="Follow-up depth: held through follow-up 3 of 5">
+                  <li className="on" />
+                  <li className="on" />
+                  <li className="on" />
+                  <li />
+                  <li />
+                </ol>
+                <div className="ww-dotslabel">Through #3 &middot; held &mdash; then thinned</div>
+              </div>
+            </article>
+          </Reveal>
+
+          {/* 4. Hire call */}
+          <Reveal delay={380}>
+            <article className="ww-card">
+              <header className="ww-cardhead">
+                <span className="ww-name">Hire call</span>
+                <span className="ww-idx">&mdash; 04 / 04</span>
+              </header>
+              <h3 className="ww-headline">
+                The verdict a <em>director</em> would write.
+              </h3>
+              <p className="ww-desc">
+                One of four rungs, with a one-line reason. The same call you&rsquo;d get in a real debrief &mdash; just earlier, and free.
+              </p>
+              <div className="ww-vis ww-vis-ladder">
+                <ol className="ww-ladder" aria-label="Hire ladder">
+                  <li><span className="rung" /><span className="lab">Hire</span></li>
+                  <li className="ww-here"><span className="rung" /><span className="lab">Leaning hire</span><span className="pin">&larr; You</span></li>
+                  <li><span className="rung" /><span className="lab">Leaning no-hire</span></li>
+                  <li><span className="rung" /><span className="lab">No hire</span></li>
+                </ol>
+              </div>
+            </article>
+          </Reveal>
         </div>
-      </Reveal>
+
+        <Reveal delay={440}>
+          <ul className="ww-chips" aria-label="Other signals we surface">
+            <li className="gold"><span className="dot" aria-hidden /> Rubric on every answer</li>
+            <li><span className="dot" aria-hidden /> Calibrated to director bar</li>
+            <li><span className="dot" aria-hidden /> Cited from real banker workflow</li>
+            <li><span className="dot" aria-hidden /> Reproducible across runs</li>
+          </ul>
+        </Reveal>
+      </div>
     </section>
   );
 }
