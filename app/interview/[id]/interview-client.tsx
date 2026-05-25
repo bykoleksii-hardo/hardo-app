@@ -771,117 +771,171 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
               </div>
 
               {!blockClosed && activeBase && (
-                <div className="mt-10 border border-[#11161E]/15 bg-[#F2ECDF]/40 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 text-[10px] tracking-[0.22em] text-[#11161E]/55">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#B88736] animate-pulse" />
-                      <span>YOUR REPLY</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] tracking-[0.22em] px-3 py-1.5 border ${inputMode === 'voice' ? 'border-[#B88736]/40 text-[#B88736] bg-[#B88736]/10' : 'border-[#11161E]/15 text-[#11161E]/85 bg-[#11161E]/10'}`}>
-                        {inputMode === 'voice' ? 'VOICE MODE' : 'TEXT MODE'}
+                <div className="iv-card mt-10">
+                  {(() => {
+                    const phase = roundPhase;
+                    let tabClass = "iv-card__tab--ready";
+                    let tabText: string = "Reply";
+                    let tabDot = false;
+                    if (recState === "recording") { tabClass = "iv-card__tab--recording"; tabText = "Recording"; tabDot = true; }
+                    else if (recState === "transcribing") { tabClass = "iv-card__tab--transcribing"; tabText = "Transcribing"; tabDot = true; }
+                    else if (phase === "review" && !blockClosed) { tabClass = "iv-card__tab--review"; tabText = "Review"; tabDot = true; }
+                    else if (phase === "locked") { tabClass = "iv-card__tab--locked"; tabText = "Locked"; }
+                    else if (submitting || finalizing) { tabClass = "iv-card__tab--thinking"; tabText = "Thinking"; tabDot = true; }
+                    else if (prepActive) { tabClass = "iv-card__tab--ready"; tabText = "Get ready"; tabDot = true; }
+                    else { tabText = inputMode === "voice" ? "Live" : "Reply"; }
+                    return (
+                      <div className={"iv-card__tab " + tabClass}>
+                        {tabDot ? <span className="iv-card__tab-dot" /> : null}
+                        <span>{tabText}</span>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="iv-card__head">
+                    <span className="iv-card__head-meta">
+                      <span>Q {String(activeBase.order_index).padStart(2, "0")} / {String(totalQuestions).padStart(2, "0")}</span>
+                      <span className="text-[#11161E]/30">|</span>
+                      <span>
+                        {prepActive
+                          ? "Get ready " + String(prepRemainSec).padStart(2, "0") + "s"
+                          : reviewActive
+                            ? (recState === "transcribing" ? "Transcribing..." : "Review " + String(reviewRemainSec).padStart(2, "0") + "s")
+                            : roundPhase === "locked"
+                              ? "Locked"
+                              : "Your reply"}
                       </span>
-                    </div>
+                    </span>
+                    <span className={"iv-card__mode-pill " + (inputMode === "voice" ? "iv-card__mode-pill--voice" : "")}>
+                      {inputMode === "voice" ? "VOICE" : "TEXT"}
+                    </span>
                   </div>
-                  {prepActive ? (
-                    <div className="mb-3 -mt-2 flex items-center gap-3 text-[11px] tracking-[0.22em]" style={{ color: '#B88736' }}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#B88736] animate-pulse" />
-                      <span>GET READY</span>
-                      <span className="font-mono text-[14px] tracking-normal text-[#B88736]">00:{String(prepRemainSec).padStart(2, '0')}</span>
-                      <span className="text-[#11161E]/30">|</span>
-                      <span className="text-[#11161E]/45 tracking-normal text-[10px]">read the question, then start</span>
-                      <div className="flex-1 h-[2px] bg-[#11161E]/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
-                        <div style={{ width: ((PREP_SECONDS - prepRemainSec) / PREP_SECONDS) * 100 + '%', height: '100%', background: '#B88736', transition: 'width 250ms linear' }} />
+
+                  {inputMode === "voice" ? (
+                    <div className={"iv-card__meter " + (recState === "recording" ? "" : "iv-card__meter--idle")}>
+                      <div className={"iv-card__mic " + (recState === "recording" ? "iv-card__mic--active" : "")} aria-hidden>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="9" y="3" width="6" height="12" rx="3" />
+                          <path d="M5 11a7 7 0 0 0 14 0" />
+                          <line x1="12" y1="18" x2="12" y2="22" />
+                        </svg>
+                      </div>
+                      <div className="iv-card__wave">
+                        <AudioWaveform stream={liveStream} active={recState === "recording"} />
+                      </div>
+                      <div className="iv-card__time">
+                        {recState === "recording" ? (
+                          <>
+                            <b>{String(Math.floor(recElapsedSec / 60)).padStart(2, "0")}:{String(recElapsedSec % 60).padStart(2, "0")}</b>
+                            <span className="cap"> / {Math.floor(timerInfo.limitSeconds / 60)}:{String(timerInfo.limitSeconds % 60).padStart(2, "0")} cap</span>
+                          </>
+                        ) : prepActive ? (
+                          <>
+                            <b>00:{String(prepRemainSec).padStart(2, "0")}</b>
+                            <span className="cap"> prep</span>
+                          </>
+                        ) : reviewActive ? (
+                          <>
+                            <b>00:{String(reviewRemainSec).padStart(2, "0")}</b>
+                            <span className="cap"> review</span>
+                          </>
+                        ) : (
+                          <>
+                            <b>00:00</b>
+                            <span className="cap"> / {Math.floor(timerInfo.limitSeconds / 60)}:{String(timerInfo.limitSeconds % 60).padStart(2, "0")} cap</span>
+                          </>
+                        )}
                       </div>
                     </div>
-                  ) : reviewActive ? (
-                    <div className="mb-3 -mt-2 flex items-center gap-3 text-[11px] tracking-[0.22em]" style={{ color: '#9ab87a' }}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#9ab87a] animate-pulse" />
-                      <span>REVIEW</span>
-                      <span className="font-mono text-[14px] tracking-normal text-[#9ab87a]">00:{String(reviewRemainSec).padStart(2, '0')}</span>
-                      <span className="text-[#11161E]/30">|</span>
-                      <span className="text-[#11161E]/45 tracking-normal text-[10px]">{recState === 'transcribing' ? 'transcribing your answer...' : 'edit, then press Send'}</span>
-                      <div className="flex-1 h-[2px] bg-[#11161E]/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
-                        <div style={{ width: ((REVIEW_SECONDS - reviewRemainSec) / REVIEW_SECONDS) * 100 + '%', height: '100%', background: '#9ab87a', transition: 'width 250ms linear' }} />
+                  ) : (
+                    <div className="iv-card__type-meter">
+                      <div className="iv-card__pencil" aria-hidden>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
+                        </svg>
+                      </div>
+                      <div className="iv-card__type-bar" aria-hidden>
+                        <i style={{ width: Math.min(100, (draft.length / 600) * 100) + "%" }} />
+                      </div>
+                      <div className="iv-card__count">
+                        <b>{draft.length}</b>
+                        <span className="cap"> chars</span>
+                        {!prepActive && roundPhase !== "locked" && !reviewActive ? <span className="iv-card__caret" aria-hidden /> : null}
                       </div>
                     </div>
-                  ) : (roundKey && roundPhase[roundKey] === 'locked') ? (
-                    <div className="mb-3 -mt-2 flex items-center gap-3 text-[11px] tracking-[0.22em] text-[#11161E]/55">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#11161E]/55" />
-                      <span>LOCKED</span>
-                      <span className="text-[#11161E]/30">|</span>
-                      <span className="text-[#11161E]/45 tracking-normal text-[10px]">answer is final - hit Send when ready</span>
-                    </div>
-                  ) : timerInfo && (
-                    <div className="mb-3 -mt-2">
-                      <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing || reviewActive} />
-                    </div>
                   )}
-                  {inputMode === 'voice' && !(roundKey && roundPhase[roundKey] === 'locked') && (
-                    <div className="mb-3 flex items-center gap-3 px-3 py-2 border border-[#B88736]/25 bg-[#B88736]/5">
-                      {recState === 'idle' && (
-                        <button
-                          type="button"
-                          onClick={startRecording}
-                          disabled={submitting || finalizing || blockClosed || prepActive || (!!roundKey && roundPhase[roundKey] !== 'answering')}
-                          className="flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#B88736] hover:text-[#B88736] disabled:opacity-40"
-                          title={prepActive ? 'Wait for the prep timer to finish' : ''}
-                        >
-                          <span className="w-2 h-2 rounded-full bg-[#B88736]" />
-                          <span>RECORD</span>
-                        </button>
-                      )}
-                      {recState === 'recording' && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={stopRecording}
-                            className="flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#d47a7a]"
-                          >
-                            <span className="w-2 h-2 rounded-sm bg-[#d47a7a] animate-pulse" />
-                            <span>STOP</span>
-                          </button>
-                          <span className="text-[11px] tracking-[0.18em] text-[#11161E]/55 font-mono">
-                            {String(Math.floor(recElapsedSec / 60)).padStart(2, '0')}:{String(recElapsedSec % 60).padStart(2, '0')}
-                          </span>
-                          <span className="text-[10px] tracking-[0.18em] text-[#11161E]/35">RECORDING</span>
-                          <div className="flex-1 min-w-[140px] max-w-[260px]">
-                            <AudioWaveform stream={liveStream} active={recState === 'recording'} />
-                          </div>
-                        </>
-                      )}
-                      {recState === 'transcribing' && (
-                        <span className="flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#B88736]/80">
-                          <span className="w-2 h-2 rounded-full bg-[#B88736]/60 animate-pulse" />
-                          <span>TRANSCRIBING...</span>
-                        </span>
-                      )}
-                      {recError && (
-                        <span className="ml-auto text-[11px] text-[#d47a7a]">{recError}</span>
-                      )}
-                      {recState === 'idle' && !recError && (
-                        <span className="ml-auto text-[10px] tracking-[0.18em] text-[#11161E]/35">Edit the transcript before sending.</span>
-                      )}
+
+                  {inputMode === "voice" && recState !== "recording" && recState !== "transcribing" && !prepActive && roundPhase !== "locked" && !reviewActive ? (
+                    <div className="mt-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={startRecording}
+                        disabled={submitting || finalizing || blockClosed || prepActive || roundPhase === "locked" || reviewActive}
+                        className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#B88736] hover:text-[#a47628] disabled:opacity-40"
+                        title={prepActive ? "Wait for the prep timer to finish" : ""}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-[#B88736]" />
+                        <span>RECORD</span>
+                      </button>
+                      {recError && <span className="text-[11px] text-[#d47a7a]">{recError}</span>}
                     </div>
-                  )}
-                  <textarea
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    readOnly={prepActive || (!!roundKey && roundPhase[roundKey] === 'locked')}
-                    placeholder={prepActive ? 'Read the question. Typing unlocks once prep ends.' : ((!!roundKey && roundPhase[roundKey] === 'locked') ? 'Answer is locked. Hit Send.' : (reviewActive ? 'Final 10 seconds to edit your answer.' : 'Answer, or ask the interviewer to clarify...'))}
-                    rows={6}
-                    className={'w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/30 font-inter text-[15px] leading-[1.6] ' + ((prepActive || (!!roundKey && roundPhase[roundKey] === 'locked')) ? 'opacity-50 cursor-not-allowed' : '')}
-                    onKeyDown={(e) => {
-                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && !prepActive && !!roundKey && roundPhase[roundKey] === 'locked') handleSubmit();
-                    }}
-                  />
+                  ) : null}
+
+                  {inputMode === "voice" && recState === "recording" ? (
+                    <div className="mt-4 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={stopRecording}
+                        className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#d47a7a]"
+                      >
+                        <span className="w-2 h-2 rounded-sm bg-[#d47a7a] animate-pulse" />
+                        <span>STOP</span>
+                      </button>
+                    </div>
+                  ) : null}
+
+                  <div className="iv-card__transcript-label">
+                    {inputMode === "voice"
+                      ? (recState === "recording"
+                          ? "Whisper \u00b7 transcribing live"
+                          : recState === "transcribing"
+                            ? "Whisper \u00b7 processing audio"
+                            : reviewActive
+                              ? "Edit, then press Send"
+                              : roundPhase === "locked"
+                                ? "Locked transcript"
+                                : "Whisper \u00b7 your transcript will appear here")
+                      : (reviewActive
+                          ? "Edit, then press Send"
+                          : roundPhase === "locked"
+                            ? "Locked answer"
+                            : "Type your reply")}
+                  </div>
+                  <div className={"iv-card__textarea-wrap" + (inputMode === "voice" ? "" : " iv-card__textarea-wrap--text")}>
+                    <textarea
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      placeholder={inputMode === "voice" ? "Your spoken answer will appear here..." : "Start typing your answer..."}
+                      rows={6}
+                      className={"w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/30 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || roundPhase === "locked") ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={submitting || finalizing || blockClosed || prepActive || roundPhase === "locked"}
+                    />
+                  </div>
                   {error && <div className="text-[12px] text-[#d47a7a] mt-2">{error}</div>}
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#11161E]/10">
-                    <span className="text-[11px] tracking-[0.18em] text-[#11161E]/45">
-                      {draft.trim().split(/\s+/).filter(Boolean).length} WORDS{(roundKey && roundPhase[roundKey] === 'locked') ? ' - Cmd/Ctrl+Enter to send' : ''}
+
+                  <div className="iv-card__actions">
+                    <span className="iv-card__action-hint">
+                      {prepActive
+                        ? "Prep timer running"
+                        : roundPhase === "locked"
+                          ? "Answer locked"
+                          : reviewActive
+                            ? "Press Send to confirm"
+                            : (inputMode === "voice" ? "Record \u00b7 review \u00b7 send" : "Type \u00b7 review \u00b7 send")}
                     </span>
                     {(() => {
-                      const phase: 'answering' | 'review' | 'locked' = roundKey ? (roundPhase[roundKey] ?? 'answering') : 'answering';
+                      const phase = roundPhase;
                       if (prepActive) {
                         return (
                           <button disabled className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 opacity-40">Get ready...</button>
@@ -889,29 +943,25 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       }
                       if (submitting || finalizing) {
                         return (
-                          <button disabled className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 opacity-40">{submitting ? 'Thinking...' : 'Finalizing...'}</button>
+                          <button disabled className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 opacity-60">Thinking...</button>
                         );
                       }
-                      if (phase === 'review') {
+                      if (phase === "review") {
                         return (
                           <button disabled className="bg-[#9ab87a] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 opacity-60">
-                            {recState === 'transcribing' ? 'Transcribing...' : 'Reviewing 00:' + String(reviewRemainSec).padStart(2, '0')}
+                            {recState === "transcribing" ? "Transcribing..." : "Reviewing 00:" + String(reviewRemainSec).padStart(2, "0")}
                           </button>
                         );
                       }
-                      if (phase === 'locked') {
+                      if (phase === "locked") {
                         return (
                           <button
-                            onClick={handleSubmit}
+                            onClick={() => { void handleSubmit(); }}
+                            disabled={submitting || finalizing || draft.trim().length < 1}
                             className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-[#B88736]"
                           >
                             Send
                           </button>
-                        );
-                      }
-                      if (inputMode === 'voice') {
-                        return (
-                          <span className="text-[11px] tracking-[0.18em] text-[#11161E]/55">Tap STOP above to lock your answer</span>
                         );
                       }
                       return (
