@@ -148,6 +148,21 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
 
   const followUpsSoFar = followUpStepIds.length;
 
+  // 4b. Derive interview stage context (question number + prior topics) for opener variation.
+  const { data: siblingSteps } = await supabase
+    .from('interview_steps')
+    .select('order_index, questions(category)')
+    .eq('interview_id', interviewId)
+    .eq('is_follow_up', false)
+    .order('order_index', { ascending: true });
+  const allBaseSteps = siblingSteps ?? [];
+  const currentOrderIndex = (allBaseSteps.find((s: { order_index: number }) => s.order_index === (rawStep as { order_index: number }).order_index) ?? allBaseSteps[allBaseSteps.length - 1]) as { order_index: number; questions?: { category?: string } | null };
+  const questionNumber = allBaseSteps.findIndex((s: { order_index: number }) => s.order_index === (rawStep as { order_index: number }).order_index) + 1 || allBaseSteps.length;
+  const priorTopics = allBaseSteps
+    .slice(0, Math.max(0, questionNumber - 1))
+    .map((s: { questions?: { category?: string } | null }) => s.questions?.category)
+    .filter((c: string | undefined): c is string => !!c);
+
   // 5. Call OpenAI with structured output.
   let ai: TurnAIResult;
   try {
@@ -163,6 +178,8 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
           question: baseQuestion,
           transcript,
           candidateMessage: message,
+          questionNumber,
+          priorTopics,
         }) },
       ],
     });

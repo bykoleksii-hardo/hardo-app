@@ -15,6 +15,9 @@ export type TurnContext = {
   // Ordered transcript inside the current block (question + everything after).
   transcript: { role: 'candidate' | 'ai'; kind: 'answer' | 'clarification' | 'follow_up' | 'clarification_response'; text: string }[];
   candidateMessage: string;
+  // Interview-level context for opener variation
+  questionNumber?: number;   // 1 = first, 2 = second, etc.
+  priorTopics?: string[];    // categories already asked (e.g. ["Accounting","Valuation"])
 };
 
 // ----------------- per-level interviewer personas -----------------
@@ -277,6 +280,10 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     `Follow-ups remaining: ${Math.max(0, ctx.maxFollowUps - ctx.followUpsSoFar)}`,
     `When grading, use the FULL scale (A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F) and prefer +/- variants over bare letters when the answer is between tiers.`,
     ``,
+    ctx.questionNumber && ctx.questionNumber > 1 ? `INTERVIEW STAGE:` : ``,
+    ctx.questionNumber && ctx.questionNumber > 1 ? `This is question ${ctx.questionNumber} in the session. Questions already asked: ${ctx.priorTopics && ctx.priorTopics.length ? ctx.priorTopics.join(', ') : 'n/a'}.` : ``,
+    ctx.questionNumber && ctx.questionNumber > 1 ? `Do NOT open with "Let's start with" or "Let's begin with" - this is not the first question. Use a natural transition that fits the interview flow (e.g. connect to the prior topic, shift directly into the ask, or use an interviewer-style bridge like "Moving on" / "Good - next" / "Alright," / "Let me ask you about" / simply start with the question).` : ``,
+    ctx.questionNumber && ctx.questionNumber > 1 ? `---` : ``,
     `BASE QUESTION:`,
     ctx.question,
     ``,
@@ -487,6 +494,8 @@ export type RephraseContext = {
   subtopic: string | null;
   question: string; // raw question from the bank
   profile: CandidateProfileSnapshot | null;
+  questionNumber?: number;
+  priorTopics?: string[];
 };
 
 export type RephraseAIResult = {
@@ -512,6 +521,7 @@ PERSONALIZATION RULES (only if profile is provided AND use_in_persona is true):
 
 HARD CONSTRAINTS:
 - Preserve the technical content of the question EXACTLY. You are rewording delivery, NOT changing what is being tested. If the raw asks for a DCF, your version still asks for a DCF. If it lists 3 things to discuss, yours still lists those 3.
+- If this is NOT the first question (question_number > 1), do NOT open with "Let's start with" or "Let's begin with" or "Let's move to". Use a natural interviewer transition instead.
 - No more than 2 sentences total before the actual ask.
 - No emojis. No filler praise ("great question!"). No coaching during the rephrase.
 - ASCII only - no fancy unicode (em-dash is fine, smart quotes are NOT). Use straight quotes.
@@ -690,4 +700,5 @@ export function aggregateBlockGrade(
   const agg = aggregateBlockScore(asScores, isCase);
   if (!agg) return null;
   return { grade: agg.letter, numeric: Math.round(agg.pct * 100), breakdown: agg.breakdown };
-}
+}    ctx.questionNumber && ctx.questionNumber > 1 ? `INTERVIEW STAGE: Question ${ctx.questionNumber} in the session. Topics already covered: ${ctx.priorTopics?.join(', ') || 'n/a'}. Do NOT use "Let\'s start with" - this is not the first question.` : ``,
+
