@@ -2,7 +2,7 @@ import Reveal from '@/app/_components/Reveal';
 
 export default function WhatWeMeasure() {
   return (
-    <section id="what-we-measure" className="bg-[var(--cream)]">
+    <section id="what-we-measure" className="border-t border-line bg-cream/60">
       <div className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
         <Reveal>
           <div className="eyebrow"><span className="dash" aria-hidden /> What we measure</div>
