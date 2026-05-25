@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
  * This means: on a fresh interview, every new bubble types out once;
  * but if React re-renders the same bubble, it does not retype.
  */
-const seenIds = new Set<string>();
+const seenIds = new Set();
 
 const CHAR_INTERVAL_MS = 25;
 
@@ -19,42 +19,36 @@ type Props = {
 
 export default function TypewriterText({ id, text }: Props) {
   const initialDone = seenIds.has(id);
-  const [shown, setShown] = useState<number>(initialDone ? text.length : 0);
+  const [shown, setShown] = useState(initialDone ? text.length : 0);
   const timerRef = useRef<number | null>(null);
-  const lastIdRef = useRef<string>(id);
-  const lastTextRef = useRef<string>(text);
 
   useEffect(() => {
-    // If id or text changes (rare — but possible on edit), reset animation.
-    if (lastIdRef.current !== id || lastTextRef.current !== text) {
-      lastIdRef.current = id;
-      lastTextRef.current = text;
-      if (seenIds.has(id)) {
-        setShown(text.length);
-        return;
-      }
-      setShown(0);
+    // Always clear any previous interval before starting/skipping animation.
+    if (timerRef.current !== null) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
     }
 
+    // Empty text — nothing to animate.
+    if (!text) {
+      seenIds.add(id);
+      setShown(0);
+      return;
+    }
+
+    // Already animated in this session — render full text immediately.
     if (seenIds.has(id)) {
-      // Already animated in this session — show immediately.
       setShown(text.length);
       return;
     }
 
-    if (!text) {
-      seenIds.add(id);
-      return;
-    }
-
-    // Animate from current shown to text.length
-    let i = shown;
-    if (i >= text.length) {
-      seenIds.add(id);
-      return;
-    }
+    // Fresh animation: start from 0, advance one char per tick.
+    let cancelled = false;
+    let i = 0;
+    setShown(0);
 
     timerRef.current = window.setInterval(() => {
+      if (cancelled) return;
       i += 1;
       setShown(i);
       if (i >= text.length) {
@@ -67,15 +61,17 @@ export default function TypewriterText({ id, text }: Props) {
     }, CHAR_INTERVAL_MS);
 
     return () => {
+      cancelled = true;
       if (timerRef.current !== null) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
     };
-    // We intentionally do NOT include "shown" in deps — interval owns it.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, text]);
 
-  // Render: substring up to shown chars. Preserve whitespace exactly.
-  return <>{text.slice(0, shown)}</>;
+  // Defensive: if text is non-empty and shown is 0 but we are marked as seen,
+  // render full text anyway (handles edge case of remount after seenIds.add).
+  const safeShown = seenIds.has(id) && shown < text.length ? text.length : shown;
+
+  return <>{text.slice(0, safeShown)}</>;
 }
