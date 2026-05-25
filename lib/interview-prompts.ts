@@ -700,5 +700,4 @@ export function aggregateBlockGrade(
   const agg = aggregateBlockScore(asScores, isCase);
   if (!agg) return null;
   return { grade: agg.letter, numeric: Math.round(agg.pct * 100), breakdown: agg.breakdown };
-}    ctx.questionNumber && ctx.questionNumber > 1 ? `INTERVIEW STAGE: Question ${ctx.questionNumber} in the session. Topics already covered: ${ctx.priorTopics?.join(', ') || 'n/a'}. Do NOT use "Let\'s start with" - this is not the first question.` : ``,
-
+}
