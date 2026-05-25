@@ -1,6 +1,7 @@
 const phases = [
   { name: 'Accounting', grade: 'B+', note: 'Solid LIFO/FIFO mechanics. Missed working-capital sanity check.' },
   { name: 'Valuation', grade: 'A\u2212', note: 'Clean DCF setup. Good push on terminal-value assumptions.' },
+  { name: 'Corporate Finance', grade: 'B+', note: 'WACC build was tight. Beta unlevering was rushed.' },
   { name: 'M&A / Case', grade: 'B', note: 'Reasonable deal logic. Synergy quantification thin.' },
   { name: 'Behavioral', grade: 'A\u2212', note: 'Answer-first framing. Held up under 3 follow-ups.' },
 ];

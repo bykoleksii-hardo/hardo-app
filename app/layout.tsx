@@ -7,6 +7,7 @@ import './globals.css';
 const sans = Inter_Tight({
   subsets: ['latin'],
   variable: '--font-sans',
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -14,6 +15,7 @@ const serif = Fraunces({
   subsets: ['latin'],
   variable: '--font-serif',
   weight: ['300', '400', '500', '600'],
+  style: ['normal', 'italic'],
   display: 'swap',
 });
 

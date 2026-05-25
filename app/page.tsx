@@ -49,12 +49,14 @@ export default async function Page() {
 
 function AnonHero() {
   return (
-    <section className="border-b border-line">
-      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center">
+    <section className="relative border-b border-line overflow-hidden">
+      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center hero-fade-in">
         <div>
-          <div className="kicker mb-4">AI mock interviews {'\u00b7'} Investment banking</div>
+          <div className="eyebrow mb-5">AI mock interviews {'\u00b7'} Investment banking</div>
           <h1 className="font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
-            Practice against the bar. Not a chatbot.
+            Practice against the bar.{' '}
+            <span className="italic-gold">Not a chatbot</span>
+            <span className="text-gold">.</span>
           </h1>
           <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
             Twelve questions per session. Technicals, behavioral, a case. Voice or text. A real scorecard at the end {'\u2014'} graded the way a real banker reviews a candidate.
@@ -62,26 +64,26 @@ function AnonHero() {
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors"
+              className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
             >
-              Try one free interview <span aria-hidden>{'\u2192'}</span>
+              Try one free interview {'\u2192'}
             </Link>
             <a href="#how" className="text-[14px] text-ink-2 hover:text-ink">How it works</a>
           </div>
-          <p className="mt-3 text-[13px] text-muted">Email + password. Verification code on first sign-up.</p>
-          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-muted">
-            <span>No card required.</span>
-            <span>{'\u2022'} 12 questions / session</span>
-            <span>{'\u2022'} 3 rooms</span>
-            <span>{'\u2022'} Letter grade per answer</span>
+          <p className="mt-3 text-[13px] text-[color:var(--muted)]">Email + password. Verification code on first sign-up.</p>
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
+            <span>No card required</span>
+            <span>{'\u00b7'} 12 questions / session</span>
+            <span>{'\u00b7'} 3 rooms</span>
+            <span>{'\u00b7'} Letter grade per answer</span>
           </div>
         </div>
         <Scorecard />
       </div>
       <div className="md:hidden fixed inset-x-0 bottom-0 z-50 border-t border-line bg-paper/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3">
-        <span className="text-[12px] font-mono uppercase tracking-widest text-muted">No card required</span>
+        <span className="text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">No card required</span>
         <Link href="/login" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 rounded-full">
-          Try free <span aria-hidden>{'\u2192'}</span>
+          Try free {'\u2192'}
         </Link>
       </div>
     </section>
@@ -89,31 +91,37 @@ function AnonHero() {
 }
 
 function FreeHero({ remaining }: { remaining: number }) {
-  const hasFree = remaining > 0;
+  const left = Math.max(0, remaining);
+  const noun = left === 1 ? 'interview' : 'interviews';
   return (
-    <section className="border-b border-line">
-      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center">
+    <section className="relative border-b border-line overflow-hidden">
+      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center hero-fade-in">
         <div>
-          <div className="kicker mb-4">Welcome back</div>
-          <h1 className="font-serif text-[52px] md:text-[68px] font-light leading-[1.04] tracking-[-0.022em] max-w-[18ch]">
-            {hasFree ? 'Your free interview is ready.' : 'You\u2019ve used your free interview.'}
+          <div className="eyebrow mb-5">Welcome back {'\u00b7'} Free tier</div>
+          <h1 className="font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
+            Back to{' '}
+            <span className="italic-gold">the bar</span>
+            <span className="text-gold">.</span>
           </h1>
           <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
-            {hasFree
-              ? 'One full Intern-level session. Full scorecard at the end. No card required.'
-              : 'Upgrade to HARDO for unlimited interviews across all three rooms, voice answers, and full history.'}
+            You have <b className="text-ink font-medium">{left} {noun} left</b> on the free tier. Pick up where you stopped, or start a new room.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
-            {hasFree ? (
-              <Link href="/interview/setup" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
-                Start free interview <span aria-hidden>{'\u2192'}</span>
-              </Link>
-            ) : (
-              <Link href="/upgrade" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
-                Upgrade to HARDO {'\u00b7'} $14.99/mo
-              </Link>
-            )}
-            <Link href="/profile" className="text-[14px] text-ink-2 hover:text-ink">View profile</Link>
+            <Link
+              href="/interview/setup"
+              className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
+            >
+              Continue {'\u2192'}
+            </Link>
+            <Link href="/profile" className="text-[14px] text-ink-2 hover:text-ink">
+              Your profile
+            </Link>
+          </div>
+          <p className="mt-3 text-[13px] text-[color:var(--muted)]">Voice or text. Same scorecard either way.</p>
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
+            <span>{left}/3 free rooms left</span>
+            <span>{'\u00b7'} 12 questions / session</span>
+            <span>{'\u00b7'} Letter grade per answer</span>
           </div>
         </div>
         <Scorecard />
@@ -124,27 +132,35 @@ function FreeHero({ remaining }: { remaining: number }) {
 
 function PaidHero() {
   return (
-    <section className="border-b border-line">
-      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center">
+    <section className="relative border-b border-line overflow-hidden">
+      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center hero-fade-in">
         <div>
-          <div className="kicker mb-4">HARDO subscription {'\u00b7'} active</div>
-          <h1 className="font-serif text-[52px] md:text-[68px] font-light leading-[1.04] tracking-[-0.022em] max-w-[18ch]">
-            Pick a room. Sit the bar.
+          <div className="eyebrow mb-5">Welcome back {'\u00b7'} Paid {'\u00b7'} Unlimited</div>
+          <h1 className="font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
+            The room is{' '}
+            <span className="italic-gold">always open</span>
+            <span className="text-gold">.</span>
           </h1>
           <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
-            Unlimited interviews across Intern, Analyst, and Associate. Voice or text. Full history saved to your profile.
+            Unlimited rooms. Full scorecard history. Pace, filler, jargon hygiene scored on delivery. Run one before the real one.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
-            <Link href="/interview/setup" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
-              Start interview <span aria-hidden>{'\u2192'}</span>
+            <Link
+              href="/interview/setup"
+              className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
+            >
+              Start a room {'\u2192'}
             </Link>
-            <Link href="/profile" className="text-[14px] text-ink-2 hover:text-ink">View history</Link>
+            <Link href="/profile" className="text-[14px] text-ink-2 hover:text-ink">
+              Your profile
+            </Link>
           </div>
-          <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-4 text-[12px] font-mono uppercase tracking-widest text-muted border-t border-line pt-6 max-w-xl">
-            <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">3 rooms</div>Intern {'\u00b7'} Analyst {'\u00b7'} Associate</div>
-            <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">12 Qs</div>per session</div>
-            <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">Voice</div>or text</div>
-            <div><div className="text-ink text-[16px] font-serif font-medium normal-case tracking-normal">{'A\u2212 .. F'}</div>per question</div>
+          <p className="mt-3 text-[13px] text-[color:var(--muted)]">Voice with live Whisper transcript. Real banker rubric at the end.</p>
+          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
+            <span>Unlimited rooms</span>
+            <span>{'\u00b7'} 12 questions / session</span>
+            <span>{'\u00b7'} Letter grade per answer</span>
+            <span>{'\u00b7'} Delivery score</span>
           </div>
         </div>
         <Scorecard />
