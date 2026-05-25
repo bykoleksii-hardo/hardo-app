@@ -487,13 +487,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     const startedAt = reviewStartedAt[roundKey];
     if (!startedAt) return;
     if ((nowMs - startedAt) / 1000 >= REVIEW_SECONDS) {
-      const alreadyLocked = roundPhase[roundKey] === 'locked';
-      setRoundPhase(prev => prev[roundKey] === 'locked' ? prev : { ...prev, [roundKey]: 'locked' });
-      // Auto-submit once review window elapses (even if draft is empty).
-      if (!alreadyLocked && !autoSubmittedRef.current[roundKey]) {
-        autoSubmittedRef.current[roundKey] = true;
-        void handleSubmit();
-      }
+      // Promote to locked (edits disabled). DO NOT auto-submit — user must press Send.
+      setRoundPhase((prev) => prev[roundKey] === 'locked' ? prev : { ...prev, [roundKey]: 'locked' });
     }
   }, [reviewActive, roundKey, reviewStartedAt, nowMs, recState, roundPhase]);
 
@@ -805,7 +800,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       <span>REVIEW</span>
                       <span className="font-mono text-[14px] tracking-normal text-[#9ab87a]">00:{String(reviewRemainSec).padStart(2, '0')}</span>
                       <span className="text-[#11161E]/30">|</span>
-                      <span className="text-[#11161E]/45 tracking-normal text-[10px]">{recState === 'transcribing' ? 'transcribing your answer...' : 'edit, then it locks'}</span>
+                      <span className="text-[#11161E]/45 tracking-normal text-[10px]">{recState === 'transcribing' ? 'transcribing your answer...' : 'edit, then press Send'}</span>
                       <div className="flex-1 h-[2px] bg-[#11161E]/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
                         <div style={{ width: ((REVIEW_SECONDS - reviewRemainSec) / REVIEW_SECONDS) * 100 + '%', height: '100%', background: '#9ab87a', transition: 'width 250ms linear' }} />
                       </div>
