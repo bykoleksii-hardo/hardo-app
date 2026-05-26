@@ -932,3 +932,43 @@ body.font-sans {
   text-transform: uppercase;
   color: var(--muted);
 }
+
+
+/* Interview iv-card question block (base + follow-up) */
+.iv-card__question-block {
+  margin-top: 18px;
+  padding-top: 14px;
+}
+.iv-card__question-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.iv-card__question-label::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold);
+}
+.iv-card__question {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: 22px;
+  line-height: 1.42;
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: -0.005em;
+}
+.iv-card__question em {
+  color: var(--gold);
+  font-style: italic;
+}
+.iv-card__question--fu {
+  font-style: italic;
+  font-size: 20px;
+  border-left: 2px solid var(--gold);
+  padding-left: 14px;
+}

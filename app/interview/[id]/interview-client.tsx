@@ -812,6 +812,19 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     </span>
                   </div>
 
+                  {(() => {
+                    const _activeStep = localSteps.find(s => s.id === (roundKey ?? "")) ?? null;
+                    const _isFU = !!_activeStep && _activeStep.is_follow_up;
+                    const _qText = _activeStep ? (_isFU ? (_activeStep.custom_question || "") : (_activeStep.delivered_question || _activeStep.custom_question || "")) : "";
+                    if (!_qText) return null;
+                    return (
+                      <div className="iv-card__question-block">
+                        {_isFU ? <div className="iv-card__question-label">Follow-up</div> : null}
+                        <p className={"iv-card__question" + (_isFU ? " iv-card__question--fu" : "")}>{_qText}</p>
+                      </div>
+                    );
+                  })()}
+
                   {inputMode === "voice" ? (
                     <div className={"iv-card__meter " + (recState === "recording" ? "" : "iv-card__meter--idle")}>
                       <div className={"iv-card__mic " + (recState === "recording" ? "iv-card__mic--active" : "")} aria-hidden>
@@ -924,8 +937,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       onChange={(e) => setDraft(e.target.value)}
                       placeholder={inputMode === "voice" ? "Your spoken answer will appear here..." : "Start typing your answer..."}
                       rows={6}
-                      className={"w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/30 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked")) ? "opacity-60 cursor-not-allowed" : "")}
-                      disabled={submitting || finalizing || blockClosed || prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked")}
+                      className={"w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/30 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing") ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={submitting || finalizing || blockClosed || prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing"}
                     />
                   </div>
                   {error && <div className="text-[12px] text-[#d47a7a] mt-2">{error}</div>}
