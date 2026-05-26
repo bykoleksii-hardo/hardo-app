@@ -720,12 +720,12 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                 </div>
               )}
 
-              <div className="space-y-5">
+              <div className="space-y-2">
                 {transcript.map((m, i) => {
                   if (m.role === 'ai' && m.kind === 'question') {
               if (m.stepId === (roundKey ?? "")) return null;
                     return (
-                      <div key={i}>
+                      <div key={i} className={i > 0 ? "mt-8" : ""}>
                         <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-2">INTERVIEWER</div>
                         <h2 className="font-playfair text-3xl leading-[1.35]"><TypewriterText id={'q:' + m.stepId} text={m.text} /></h2>
                       </div>
@@ -831,7 +831,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div className="iv-card__question-block">
                         {_isFU ? <div className="iv-card__question-label">Follow-up</div> : null}
-                        <p className={"iv-card__question" + (_isFU ? " iv-card__question--fu" : "")}>{_qText}</p>
+                        <p className={"iv-card__question" + (_isFU ? " iv-card__question--fu" : "")}><TypewriterText id={(_isFU ? "fu:" : "q:") + _activeStep.id} text={_qText} /></p>
                       </div>
                     );
                   })()}
