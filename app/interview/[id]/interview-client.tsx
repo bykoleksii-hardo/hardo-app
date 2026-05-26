@@ -732,6 +732,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     );
                   }
                   if (m.role === 'ai' && m.kind === 'follow_up') {
+              if (m.stepId === (roundKey ?? "")) return null;
                     return (
                       <div key={i} className="border-l-2 border-[#B88736]/50 pl-5">
                         <div className="text-[10px] tracking-[0.22em] text-[#B88736]/80 mb-1">FOLLOW-UP</div>
