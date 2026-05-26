@@ -723,6 +723,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
               <div className="space-y-5">
                 {transcript.map((m, i) => {
                   if (m.role === 'ai' && m.kind === 'question') {
+              if (m.stepId === (roundKey ?? "")) return null;
                     return (
                       <div key={i}>
                         <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-2">INTERVIEWER</div>
@@ -795,7 +796,16 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
 
                   <div className="iv-card__head">
                     <span className="iv-card__head-meta">
-                      <span>Q {String(activeBase.order_index).padStart(2, "0")} / {String(totalQuestions).padStart(2, "0")}</span>
+                      {(() => {
+                        const _baseLabel = "Q " + String(activeBase.order_index).padStart(2, "0") + " / " + String(totalQuestions).padStart(2, "0");
+                        const _step = localSteps.find(s => s.id === (roundKey ?? "")) ?? null;
+                        const _isFU = !!_step && _step.is_follow_up;
+                        if (!_isFU) return <span>{_baseLabel}</span>;
+                        const _siblings = localSteps.filter(s => s.parent_step_id === activeBase.id && s.is_follow_up).sort((a,b)=>a.order_index-b.order_index);
+                        const _idx = _siblings.findIndex(s => s.id === _step.id);
+                        const _n = _idx >= 0 ? _idx + 1 : _siblings.length;
+                        return <span>{_baseLabel + " · FU " + String(_n)}</span>;
+                      })()}
                       <span className="text-[#11161E]/30">|</span>
                       <span>
                         {prepActive
