@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "triggers": {
-    "crons": ["0 3 * * *"]
+    "crons": ["*/15 * * * *"]
   },
   "vars": {
     "SUPABASE_URL": "https://otmbwvjmkeescasfiswp.supabase.co"

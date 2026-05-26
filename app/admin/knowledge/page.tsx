@@ -76,6 +76,8 @@ export default async function AdminKnowledgeIndex() {
                     <span className={
                       a.status === 'published'
                         ? 'inline-block text-[10.5px] font-mono uppercase tracking-widest text-paper bg-ink px-2 py-0.5 rounded'
+                        : a.status === 'scheduled'
+                        ? 'inline-block text-[10.5px] font-mono uppercase tracking-widest text-[#9c6c1f] border border-[#d4a04a]/40 bg-[#d4a04a]/15 px-2 py-0.5 rounded'
                         : 'inline-block text-[10.5px] font-mono uppercase tracking-widest text-muted border border-line px-2 py-0.5 rounded'
                     }>
                       {a.status}

@@ -15,7 +15,8 @@ type EditorProps = {
     cover_url?: string | null;
     tags?: string[];
     category?: ArticleCategory;
-    status?: 'draft' | 'published';
+    status?: 'draft' | 'scheduled' | 'published';
+    published_at?: string | null;
   };
   saveAction: (formData: FormData) => Promise<{ id?: string; error?: string }>;
   deleteAction?: (formData: FormData) => Promise<{ error?: string }>;
@@ -53,7 +54,15 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
   const [tags, setTags] = useState((initial?.tags ?? []).join(', '));
   const [coverUrl, setCoverUrl] = useState(initial?.cover_url ?? '');
   const [category, setCategory] = useState<ArticleCategory>(initial?.category ?? 'Knowledge Hub');
-  const [status, setStatus] = useState<'draft' | 'published'>(initial?.status ?? 'draft');
+  const [status, setStatus] = useState<'draft' | 'scheduled' | 'published'>(initial?.status ?? 'draft');
+  const [publishAt, setPublishAt] = useState<string>(() => {
+    const v = initial?.published_at;
+    if (!v) return '';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  });
 
   const bodyRef = useRef<HTMLTextAreaElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -87,7 +96,7 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
     return () => { cancelled = true; clearTimeout(t); };
   }, [body, previewAction]);
 
-  function submit(nextStatus: 'draft' | 'published') {
+  function submit(nextStatus: 'draft' | 'scheduled' | 'published') {
     setErr(null);
     setInfo(null);
     if (!title.trim()) { setErr('Title is required'); return; }
@@ -104,6 +113,15 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
     fd.set('tags', tags);
     fd.set('category', category);
     fd.set('status', nextStatus);
+    if (nextStatus === 'scheduled') {
+      if (!publishAt) { setErr('Pick a publish date'); return; }
+      const iso = new Date(publishAt).toISOString();
+      fd.set('published_at', iso);
+    } else if (nextStatus === 'published') {
+      fd.set('published_at', new Date().toISOString());
+    } else {
+      fd.set('published_at', '');
+    }
     start(async () => {
       const res = await saveAction(fd);
       if (res.error) { setErr(res.error); return; }
@@ -234,6 +252,23 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
           >
             Save draft
           </button>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="datetime-local"
+              value={publishAt}
+              onChange={(e) => setPublishAt(e.target.value)}
+              className="text-[12.5px] border border-line bg-paper text-ink px-2.5 py-1.5 rounded-full font-mono"
+              title="Publish date and time"
+            />
+            <button
+              type="button"
+              onClick={() => submit('scheduled')}
+              disabled={pending || !title || !body || !publishAt}
+              className="text-[13px] border border-ink text-ink px-4 py-2 rounded-full hover:bg-ink hover:text-paper disabled:opacity-40"
+            >
+              Schedule
+            </button>
+          </div>
           <button
             type="button"
             onClick={() => submit('published')}

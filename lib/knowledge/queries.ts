@@ -13,7 +13,7 @@ export type KnowledgeArticle = {
   cover_url: string | null;
   tags: string[];
   category: ArticleCategory;
-  status: 'draft' | 'published';
+  status: 'draft' | 'scheduled' | 'published';
   published_at: string | null;
   author_id: string | null;
   created_at: string;

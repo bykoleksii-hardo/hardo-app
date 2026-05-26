@@ -31,7 +31,8 @@ export type ArticleInput = {
   cover_url: string | null;
   tags: string[];
   category: ArticleCategory;
-  status: 'draft' | 'published';
+  status: 'draft' | 'scheduled' | 'published';
+  published_at?: string | null;
 };
 
 function slugify(s: string): string {
@@ -79,6 +80,7 @@ export async function createArticle(input: ArticleInput): Promise<{ id?: string;
     tags: norm.tags,
     category: norm.category,
     status: norm.status,
+    published_at: norm.published_at ?? null,
     author_id: userData.user.id,
   };
   if (norm.status === 'published') payload.published_at = new Date().toISOString();
@@ -111,6 +113,7 @@ export async function updateArticle(id: string, input: ArticleInput): Promise<{ 
     tags: norm.tags,
     category: norm.category,
     status: norm.status,
+    published_at: norm.published_at ?? null,
   };
 
   if (norm.status === 'published' && existing.status !== 'published') {

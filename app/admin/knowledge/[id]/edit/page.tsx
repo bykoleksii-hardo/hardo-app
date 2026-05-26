@@ -26,7 +26,8 @@ export default async function EditArticlePage({ params }: { params: Promise<Para
       cover_url: (String(formData.get('cover_url') ?? '') || null),
       tags: String(formData.get('tags') ?? '').split(',').map((t) => t.trim()).filter(Boolean),
       category,
-      status: (String(formData.get('status') ?? 'draft') === 'published' ? 'published' : 'draft'),
+      status: (() => { const s = String(formData.get('status') ?? 'draft'); return s === 'published' || s === 'scheduled' ? s : 'draft'; })(),
+      published_at: (String(formData.get('published_at') ?? '') || null),
     };
     const r = await updateArticle(aid, input);
     return { id: aid, ...r };
@@ -55,6 +56,7 @@ export default async function EditArticlePage({ params }: { params: Promise<Para
         tags: article.tags ?? [],
         category: article.category,
         status: article.status,
+        published_at: article.published_at,
       }}
       saveAction={saveAction}
       deleteAction={deleteAction}
