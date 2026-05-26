@@ -773,7 +773,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
               {!blockClosed && activeBase && (
                 <div className="iv-card mt-10">
                   {(() => {
-                    const phase = roundPhase;
+                    const _rkey = roundKey ?? "";
+                    const phase = ((roundPhase as Record<string, string>)[_rkey] ?? "answering");
                     let tabClass = "iv-card__tab--ready";
                     let tabText: string = "Reply";
                     let tabDot = false;
@@ -801,7 +802,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                           ? "Get ready " + String(prepRemainSec).padStart(2, "0") + "s"
                           : reviewActive
                             ? (recState === "transcribing" ? "Transcribing..." : "Review " + String(reviewRemainSec).padStart(2, "0") + "s")
-                            : roundPhase === "locked"
+                            : ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked")
                               ? "Locked"
                               : "Your reply"}
                       </span>
@@ -840,28 +841,33 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                             <span className="cap"> review</span>
                           </>
                         ) : (
-                          <>
-                            <b>00:00</b>
-                            <span className="cap"> / {Math.floor(timerInfo.limitSeconds / 60)}:{String(timerInfo.limitSeconds % 60).padStart(2, "0")} cap</span>
-                          </>
+                          <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing || reviewActive} />
                         )}
                       </div>
                     </div>
                   ) : (
-                    <div className="iv-card__type-meter">
+                    <div className="iv-card__meter iv-card__meter--idle">
                       <div className="iv-card__pencil" aria-hidden>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                           <path d="M12 20h9" />
                           <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
                         </svg>
                       </div>
-                      <div className="iv-card__type-bar" aria-hidden>
-                        <i style={{ width: Math.min(100, (draft.length / 600) * 100) + "%" }} />
-                      </div>
-                      <div className="iv-card__count">
-                        <b>{draft.length}</b>
-                        <span className="cap"> chars</span>
-                        {!prepActive && roundPhase !== "locked" && !reviewActive ? <span className="iv-card__caret" aria-hidden /> : null}
+                      <div className="iv-card__wave" aria-hidden />
+                      <div className="iv-card__time">
+                        {prepActive ? (
+                          <>
+                            <b>00:{String(prepRemainSec).padStart(2, "0")}</b>
+                            <span className="cap"> prep</span>
+                          </>
+                        ) : reviewActive ? (
+                          <>
+                            <b>00:{String(reviewRemainSec).padStart(2, "0")}</b>
+                            <span className="cap"> review</span>
+                          </>
+                        ) : (
+                          <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing || reviewActive} />
+                        )}
                       </div>
                     </div>
                   )}
@@ -871,7 +877,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       <button
                         type="button"
                         onClick={startRecording}
-                        disabled={submitting || finalizing || blockClosed || prepActive || roundPhase === "locked" || reviewActive}
+                        disabled={submitting || finalizing || blockClosed || prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || reviewActive}
                         className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#B88736] hover:text-[#a47628] disabled:opacity-40"
                         title={prepActive ? "Wait for the prep timer to finish" : ""}
                       >
@@ -903,12 +909,12 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                             ? "Whisper \u00b7 processing audio"
                             : reviewActive
                               ? "Edit, then press Send"
-                              : roundPhase === "locked"
+                              : ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked")
                                 ? "Locked transcript"
                                 : "Whisper \u00b7 your transcript will appear here")
                       : (reviewActive
                           ? "Edit, then press Send"
-                          : roundPhase === "locked"
+                          : ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked")
                             ? "Locked answer"
                             : "Type your reply")}
                   </div>
@@ -918,8 +924,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       onChange={(e) => setDraft(e.target.value)}
                       placeholder={inputMode === "voice" ? "Your spoken answer will appear here..." : "Start typing your answer..."}
                       rows={6}
-                      className={"w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/30 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || roundPhase === "locked") ? "opacity-60 cursor-not-allowed" : "")}
-                      disabled={submitting || finalizing || blockClosed || prepActive || roundPhase === "locked"}
+                      className={"w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/30 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked")) ? "opacity-60 cursor-not-allowed" : "")}
+                      disabled={submitting || finalizing || blockClosed || prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked")}
                     />
                   </div>
                   {error && <div className="text-[12px] text-[#d47a7a] mt-2">{error}</div>}
@@ -928,14 +934,15 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     <span className="iv-card__action-hint">
                       {prepActive
                         ? "Prep timer running"
-                        : roundPhase === "locked"
+                        : ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked")
                           ? "Answer locked"
                           : reviewActive
                             ? "Press Send to confirm"
                             : (inputMode === "voice" ? "Record \u00b7 review \u00b7 send" : "Type \u00b7 review \u00b7 send")}
                     </span>
                     {(() => {
-                      const phase = roundPhase;
+                      const _rkey2 = roundKey ?? "";
+                      const phase = ((roundPhase as Record<string, string>)[_rkey2] ?? "answering");
                       if (prepActive) {
                         return (
                           <button disabled className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 opacity-40">Get ready...</button>
