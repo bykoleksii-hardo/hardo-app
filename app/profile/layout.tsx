@@ -26,16 +26,16 @@ export default async function ProfileLayout({ children }: { children: React.Reac
   return (
     <div className="min-h-screen bg-paper text-ink font-sans">
       {/* TOP BAR */}
-      <div className="flex items-center justify-between px-12 py-8 border-b border-line">
+      <div className="flex items-center justify-between px-5 md:px-12 py-6 md:py-8 border-b border-line">
         <Brand size="sm" href="/" />
-        <div className="flex items-center gap-6 text-xs tracking-[0.18em] text-ink-2/70">
+        <div className="flex items-center gap-4 sm:gap-6 text-xs tracking-[0.18em] text-ink-2/70">
           <Link href="/interview/setup" className="hover:text-gold transition-colors">START INTERVIEW</Link>
-          <span className="text-ink/85">{(displayName ?? '').toUpperCase()}</span>
+          <span className="hidden sm:inline text-ink/85">{(displayName ?? '').toUpperCase()}</span>
           <SignOutButton variant="text" />
         </div>
       </div>
 
-      <main className="max-w-[1320px] mx-auto px-12 py-12">
+      <main className="max-w-[1320px] mx-auto px-5 md:px-12 py-8 md:py-12">
         <ProfileTabs />
         {children}
       </main>
