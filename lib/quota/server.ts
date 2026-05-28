@@ -23,9 +23,7 @@ export async function getViewerPlan(): Promise<QuotaStatus> {
     const row: any = Array.isArray(data) ? data[0] : data;
     const isPaid: boolean =
       row?.is_paid === true ||
-      row?.plan === 'hardo' ||
-      row?.plan === 'paid' ||
-      row?.subscription_status === 'active';
+      row?.plan === 'hardo';
     return {
       plan: isPaid ? 'paid' : 'free',
       interviews_used: Number(row?.interviews_used ?? 0),
