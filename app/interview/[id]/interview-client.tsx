@@ -511,8 +511,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     const phase = roundPhase[roundKey] ?? 'answering';
     if (phase !== 'answering') return;
     if (autoStopArmedRef.current[roundKey]) return;
-    if (!timerInfo || !(timerInfo?.startedAt ?? Date.now())) return;
-    const startMs = new Date((timerInfo?.startedAt ?? Date.now())).getTime();
+    if (!timerInfo || !(timerInfo?.startedAt ?? null)) return;
+    const startMs = new Date((timerInfo?.startedAt ?? null)).getTime();
     if (!Number.isFinite(startMs)) return;
     const elapsedSec = (nowMs - startMs) / 1000;
     if (elapsedSec > (timerInfo?.limitSeconds ?? 0) + OVERTIME_LIMIT_SECONDS) {
@@ -865,7 +865,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                             <span className="cap"> review</span>
                           </>
                         ) : (
-                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? Date.now())} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive} />
+                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? null)} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive} />
                         )}
                       </div>
                     </div>
@@ -890,13 +890,13 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                             <span className="cap"> review</span>
                           </>
                         ) : (
-                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? Date.now())} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive} />
+                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? null)} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive} />
                         )}
                       </div>
                     </div>
                   )}
 
-                  {inputMode === "voice" && recState !== "recording" && recState !== "transcribing" && !prepActive && roundPhase[roundKey] !== "locked" && !reviewActive ? (
+                  {inputMode === "voice" && recState !== "recording" && recState !== "transcribing" && !prepActive && (roundKey != null && roundPhase[roundKey] !== "locked") && !reviewActive ? (
                     <div className="mt-4 flex items-center gap-3">
                       <button
                         type="button"
