@@ -512,7 +512,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     if (phase !== 'answering') return;
     if (autoStopArmedRef.current[roundKey]) return;
     if (!timerInfo || !(timerInfo?.startedAt ?? null)) return;
-    const startMs = new Date((timerInfo?.startedAt ?? null)).getTime();
+    const startMs = new Date(timerInfo?.startedAt ?? Date.now()).getTime();
     if (!Number.isFinite(startMs)) return;
     const elapsedSec = (nowMs - startMs) / 1000;
     if (elapsedSec > (timerInfo?.limitSeconds ?? 0) + OVERTIME_LIMIT_SECONDS) {
