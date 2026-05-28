@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { getUserRole } from '@/lib/auth/roles';
 import { chatJSON, OpenAIError } from '@/lib/openai';
 import {
-import { withLogging, logger } from '@/lib/observability';
   TURN_SYSTEM_PROMPT,
   TURN_SCHEMA,
   buildTurnUserPrompt,
   type TurnAIResult,
   type TurnContext,
 } from '@/lib/interview-prompts';
+import { withLogging, logger } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
