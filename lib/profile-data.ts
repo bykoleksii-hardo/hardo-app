@@ -106,7 +106,7 @@ export async function getProfileOverview(userId: string): Promise<ProfileOvervie
     ]);
     summaries = (s ?? []) as typeof summaries;
     grades = (s ?? []).map((row: any) => ({ interview_id: row.interview_id, letter_grade: scoreToLetter(row.overall_score) }));
-    stepGrades = (steps ?? []) as typeof stepGrades;
+    stepGrades = (steps ?? []) as unknown as typeof stepGrades;
   }
 
   const summaryMap = new Map(summaries.map((s) => [s.interview_id, s]));

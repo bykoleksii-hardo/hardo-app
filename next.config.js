@@ -1,14 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  typescript: {
-    // Skip type checking during build (still works in IDE)
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // Skip ESLint during build
-    ignoreDuringBuilds: true,
-  },
 };
 
 module.exports = nextConfig;

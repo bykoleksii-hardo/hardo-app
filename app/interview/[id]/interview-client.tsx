@@ -511,11 +511,11 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     const phase = roundPhase[roundKey] ?? 'answering';
     if (phase !== 'answering') return;
     if (autoStopArmedRef.current[roundKey]) return;
-    if (!timerInfo || !timerInfo.startedAt) return;
-    const startMs = new Date(timerInfo.startedAt).getTime();
+    if (!timerInfo || !(timerInfo?.startedAt ?? null)) return;
+    const startMs = new Date(timerInfo?.startedAt ?? Date.now()).getTime();
     if (!Number.isFinite(startMs)) return;
     const elapsedSec = (nowMs - startMs) / 1000;
-    if (elapsedSec > timerInfo.limitSeconds + OVERTIME_LIMIT_SECONDS) {
+    if (elapsedSec > (timerInfo?.limitSeconds ?? 0) + OVERTIME_LIMIT_SECONDS) {
       autoStopArmedRef.current[roundKey] = true;
       if (inputMode === 'voice' && recState === 'recording') {
         stopRecording();
@@ -831,7 +831,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div className="iv-card__question-block">
                         {_isFU ? <div className="iv-card__question-label">Follow-up</div> : null}
-                        <p className={"iv-card__question" + (_isFU ? " iv-card__question--fu" : "")}><TypewriterText id={(_isFU ? "fu:" : "q:") + _activeStep.id} text={_qText} /></p>
+                        <p className={"iv-card__question" + (_isFU ? " iv-card__question--fu" : "")}><TypewriterText id={(_isFU ? "fu:" : "q:") + (_activeStep?.id ?? "")} text={_qText} /></p>
                       </div>
                     );
                   })()}
@@ -852,7 +852,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         {recState === "recording" ? (
                           <>
                             <b>{String(Math.floor(recElapsedSec / 60)).padStart(2, "0")}:{String(recElapsedSec % 60).padStart(2, "0")}</b>
-                            <span className="cap"> / {Math.floor(timerInfo.limitSeconds / 60)}:{String(timerInfo.limitSeconds % 60).padStart(2, "0")} cap</span>
+                            <span className="cap"> / {Math.floor((timerInfo?.limitSeconds ?? 0) / 60)}:{String((timerInfo?.limitSeconds ?? 0) % 60).padStart(2, "0")} cap</span>
                           </>
                         ) : prepActive ? (
                           <>
@@ -865,7 +865,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                             <span className="cap"> review</span>
                           </>
                         ) : (
-                          <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing || reviewActive} />
+                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? null)} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive} />
                         )}
                       </div>
                     </div>
@@ -890,13 +890,13 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                             <span className="cap"> review</span>
                           </>
                         ) : (
-                          <QuestionTimer startedAt={timerInfo.startedAt} limitSeconds={timerInfo.limitSeconds} disabled={submitting || finalizing || reviewActive} />
+                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? null)} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive} />
                         )}
                       </div>
                     </div>
                   )}
 
-                  {inputMode === "voice" && recState !== "recording" && recState !== "transcribing" && !prepActive && roundPhase !== "locked" && !reviewActive ? (
+                  {inputMode === "voice" && recState !== "recording" && recState !== "transcribing" && !prepActive && (roundKey != null && roundPhase[roundKey] !== "locked") && !reviewActive ? (
                     <div className="mt-4 flex items-center gap-3">
                       <button
                         type="button"

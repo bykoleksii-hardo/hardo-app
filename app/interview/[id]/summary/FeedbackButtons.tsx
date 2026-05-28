@@ -30,13 +30,13 @@ export default function FeedbackButtons({ stepId, initialRating }: Props) {
           body: JSON.stringify({ step_id: stepId, rating: target }),
         });
         if (!res.ok) {
-          const err = await parseApiError(res, 'Could not save feedback');
+          const err = await parseApiError(res);
           throw err;
         }
         await res.json().catch(() => null);
       } catch (e: any) {
         setRating(prev); // revert
-        setError(formatApiError(e, 'Could not save feedback'));
+        setError(formatApiError(e));
       }
     });
   }
