@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { withLogging } from '@/lib/observability';
+import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,6 +9,9 @@ export const dynamic = 'force-dynamic';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const POST = withLogging('subscribe.create', async (req: Request, _ctx) => {
+  const rl = await rateLimitTake(rateLimitSubject({ req }), { bucket: 'subscribe', capacity: 5, windowSeconds: 600 });
+  if (!rl.allowed) return rateLimitedResponse(rl);
+
   let email = '';
   try {
     const body = await req.json();

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { createCheckoutSession } from '@/lib/lemonsqueezy';
 import { withLogging, logger } from '@/lib/observability';
+import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,9 @@ export const POST = withLogging('POST /api/billing/checkout', async (_req: Reque
   if (!user) {
     return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
   }
+
+  const rl = await rateLimitTake(rateLimitSubject({ userId: user.id }), { bucket: 'billing.checkout', capacity: 10, windowSeconds: 300 });
+  if (!rl.allowed) return rateLimitedResponse(rl);
 
   const variantId = process.env.LEMONSQUEEZY_VARIANT_ID;
   if (!variantId) {
