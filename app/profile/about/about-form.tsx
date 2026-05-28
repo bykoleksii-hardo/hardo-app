@@ -44,6 +44,7 @@ function fromProfile(p: UserProfile | null): FormState {
     cv_summary: p?.cv_summary ?? '',
     bio: p?.bio ?? '',
     use_in_persona: p?.use_in_persona ?? true,
+    interview_region: p?.interview_region ?? 'Global',
   };
 }
 
@@ -99,14 +100,14 @@ export function AboutForm({ initial, email }: Props) {
         }),
       });
       if (!res.ok) {
-        const err = await parseApiError(res, 'Save failed');
+        const err = await parseApiError(res);
         throw err;
       }
       await res.json();
       setSavedAt(Date.now());
       router.refresh();
     } catch (e: any) {
-      setError(formatApiError(e, 'Something went wrong'));
+      setError(formatApiError(e));
     } finally {
       setSaving(false);
     }
