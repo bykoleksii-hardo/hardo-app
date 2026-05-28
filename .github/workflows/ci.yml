@@ -18,10 +18,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: TypeScript typecheck (informational)
         id: tsc
@@ -41,4 +40,4 @@ jobs:
           echo "- eslint: ${{ steps.eslint.outcome }}" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Both steps are currently informational (continue-on-error)." >> "$GITHUB_STEP_SUMMARY"
-          echo "They will be promoted to required after fixing existing errors." >> "$GITHUB_STEP_SUMMARY"
+          echo "They will be promoted to required after fixing existing errors and committing a package-lock.json." >> "$GITHUB_STEP_SUMMARY"
