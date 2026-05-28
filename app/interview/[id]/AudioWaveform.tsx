@@ -122,7 +122,7 @@ export default function AudioWaveform({
       const analyser = analyserRef.current;
       const data = dataRef.current;
       if (active && analyser && data) {
-        analyser.getByteFrequencyData(data);
+        analyser.getByteFrequencyData(data as Uint8Array<ArrayBuffer>);
         // Map frequency bins into 'barCount' buckets, focusing on the
         // speech-relevant low/mid range (skip the very lowest bin which
         // tends to pick up DC/rumble).
