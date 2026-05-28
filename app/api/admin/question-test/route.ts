@@ -5,6 +5,7 @@ import {
   TURN_SYSTEM_PROMPT,
   TURN_SCHEMA,
   buildTurnUserPrompt,
+  maxScoreForTurn,
   type TurnAIResult,
   type TurnContext,
 } from '@/lib/interview-prompts';
@@ -78,6 +79,7 @@ export const POST = withLogging('POST /api/admin/question-test', async (request:
             isCase,
             followUpsSoFar,
             maxFollowUps,
+            maxScoreForThisTurn: maxScoreForTurn(followUpsSoFar, isCase),
             question,
             transcript,
             candidateMessage,

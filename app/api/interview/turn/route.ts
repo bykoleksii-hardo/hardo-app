@@ -160,7 +160,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   const questionNumber = allBaseSteps.findIndex((s: { order_index: number }) => s.order_index === (rawStep as { order_index: number }).order_index) + 1 || allBaseSteps.length;
   const priorTopics = allBaseSteps
     .slice(0, Math.max(0, questionNumber - 1))
-    .map((s: { questions?: { category?: string } | null }) => s.questions?.category)
+    .map((s) => (s.questions as { category?: string } | null)?.category)
     .filter((c: string | undefined): c is string => !!c);
 
   // 5. Call OpenAI with structured output.
