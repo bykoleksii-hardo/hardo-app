@@ -16,8 +16,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@supabase/supabase-js": "^2.45.4",
-    "@supabase/ssr": "^0.5.1",
-    "@sentry/cloudflare": "^9.34.0"
+    "@supabase/ssr": "^0.5.1"
   },
   "devDependencies": {
     "@opennextjs/cloudflare": "^1.19.4",

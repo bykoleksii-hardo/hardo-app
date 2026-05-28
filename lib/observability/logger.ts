@@ -4,10 +4,9 @@
  * Outputs JSON lines so Cloudflare Workers Logs (`wrangler tail` and dashboard)
  * can index fields like requestId, userId, route, level.
  *
- * When SENTRY_DSN is configured (see instrumentation.ts), `logger.error()`
- * also forwards exceptions to Sentry. All other call sites are unchanged.
+ * Each `emit()` writes one JSON line; `logger.error()` also serializes
+ * the underlying Error with name/message/stack.
  */
-import * as Sentry from '@sentry/cloudflare';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -58,29 +57,6 @@ function normalizeError(e: unknown): LogPayload['err'] {
   return { name: 'NonError', message: typeof e === 'string' ? e : JSON.stringify(e) };
 }
 
-/**
- * Safe wrapper for Sentry calls. Sentry SDK is a no-op until init runs;
- * calls before init() are silently dropped and never throw.
- */
-function captureToSentry(msg: string, e: unknown, ctx?: LogContext): void {
-  try {
-    if (e instanceof Error) {
-      Sentry.captureException(e, {
-        tags: ctx?.route ? { route: String(ctx.route) } : undefined,
-        extra: { msg, ...(ctx ?? {}) },
-      });
-    } else if (e !== undefined) {
-      Sentry.captureMessage(msg, {
-        level: 'error',
-        extra: { error: e, ...(ctx ?? {}) },
-      });
-    } else {
-      Sentry.captureMessage(msg, { level: 'error', extra: ctx });
-    }
-  } catch {
-    // Never let Sentry break the request path.
-  }
-}
 
 export const logger = {
   debug(msg: string, ctx?: LogContext) {
@@ -93,8 +69,7 @@ export const logger = {
     emit({ ts: new Date().toISOString(), level: 'warn', msg, ctx });
   },
   /**
-   * Single point of error capture. Writes structured JSON to console
-   * AND forwards to Sentry (when SENTRY_DSN is set).
+   * Single point of error capture. Writes structured JSON to console.
    */
   error(msg: string, e?: unknown, ctx?: LogContext) {
     emit({
@@ -104,7 +79,6 @@ export const logger = {
       ctx,
       err: e !== undefined ? normalizeError(e) : undefined,
     });
-    captureToSentry(msg, e, ctx);
   },
 };
 
