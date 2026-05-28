@@ -12,15 +12,32 @@ type RouteHandler<TReq extends AnyRequest = Request, TRest extends unknown[] = [
  * Avoids the "headers immutable" issue some runtimes have with mutating
  * a NextResponse/Response after it has been returned from a handler.
  */
+// Baseline security headers applied to every API response.
+// HTML page responses are covered separately (Cloudflare Transform Rules / Next headers()).
+const SECURITY_HEADERS: Record<string, string> = {
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'SAMEORIGIN',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), geolocation=(), payment=(self), microphone=(self)',
+  'X-DNS-Prefetch-Control': 'on',
+};
+
+function applySecurityHeaders(headers: Headers): void {
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) headers.set(k, v);
+}
+
 function withRequestId(res: Response, requestId: string): Response {
   try {
     // Fast path: try mutating first
     res.headers.set('x-request-id', requestId);
+    applySecurityHeaders(res.headers);
     return res;
   } catch {
     // Headers immutable — clone with new headers
     const headers = new Headers(res.headers);
     headers.set('x-request-id', requestId);
+    applySecurityHeaders(headers);
     return new Response(res.body, {
       status: res.status,
       statusText: res.statusText,
