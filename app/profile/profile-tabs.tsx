@@ -18,7 +18,7 @@ export function ProfileTabs() {
       <h1 className="font-serif text-5xl leading-[1.05] mb-8">
         Your <span className="italic text-[#B88736]">superday</span> dashboard.
       </h1>
-      <nav className="flex gap-8 border-b border-[#11161E]/10">
+      <nav className="flex gap-5 sm:gap-8 border-b border-[#11161E]/10 overflow-x-auto whitespace-nowrap">
         {TABS.map((t) => {
           const active =
             t.href === '/profile'
