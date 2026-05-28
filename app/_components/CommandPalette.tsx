@@ -34,7 +34,7 @@ const COMMANDS: Cmd[] = [
   { id: 'terms', label: 'Terms of Service', hint: '/legal/terms', group: 'LEGAL', href: '/legal/terms' },
   { id: 'privacy', label: 'Privacy Policy', hint: '/legal/privacy', group: 'LEGAL', href: '/legal/privacy' },
 
-  { id: 'contact', label: 'Contact us', hint: 'mailto:hello@hardo.app', group: 'HELP', href: 'mailto:hello@hardo.app', keywords: 'email support help' },,
+  { id: 'contact', label: 'Contact us', hint: 'mailto:hello@hardo.app', group: 'HELP', href: 'mailto:hello@hardo.app', keywords: 'email support help' },
   { id: 'admin-knowledge', label: 'Admin: Knowledge Hub', hint: '/admin/knowledge', group: 'ADMIN', href: '/admin/knowledge', adminOnly: true, keywords: 'admin manage articles cms' }
 ];
 
