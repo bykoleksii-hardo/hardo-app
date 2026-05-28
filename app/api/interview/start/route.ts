@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { withLogging } from '@/lib/observability';
+import { withLogging, logger } from '@/lib/observability';
 import { chatJSON } from '@/lib/openai';
 import {
   REPHRASE_SYSTEM_PROMPT,
@@ -11,7 +11,7 @@ import {
   type Level,
 } from '@/lib/interview-prompts';
 
-export const POST = withLogging('POST /api/interview/start', async (req: Request, _ctx: { requestId: string }) => {
+export const POST = withLogging('POST /api/interview/start', async (req: Request, ctx: { requestId: string }) => {
   try {
     const { level, input_mode: inputModeRaw } = await req.json();
     if (!['intern', 'analyst', 'associate'].includes(level)) {
@@ -85,6 +85,7 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
       }
     }
 
+    logger.info('interview started', { requestId: ctx.requestId, userId: user.id, interviewId: data, inputMode });
     return NextResponse.json({ interview_id: data, input_mode: inputMode });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? 'Unknown error' }, { status: 500 });

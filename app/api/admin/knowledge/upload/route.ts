@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUserRole } from '@/lib/auth/roles';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { withLogging, logger } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +30,7 @@ function safeBase(name: string): string {
     .slice(0, 48) || 'image';
 }
 
-export async function POST(req: Request) {
+export const POST = withLogging('POST /api/admin/knowledge/upload', async (req: Request, _ctx: { requestId: string }) => {
   const role = await getUserRole();
   if (role !== 'admin' && role !== 'editor') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -76,4 +77,4 @@ export async function POST(req: Request) {
 
   const { data } = admin.storage.from(BUCKET).getPublicUrl(key);
   return NextResponse.json({ url: data.publicUrl, path: key });
-}
+});

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUserRole } from '@/lib/auth/roles';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { chatJSON } from '@/lib/openai';
+import { withLogging, logger } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -49,7 +50,7 @@ const SCHEMA = {
 
 type ClassifyResult = { classifications: { id: number; region: Region }[] };
 
-export async function POST(request: Request) {
+export const POST = withLogging('POST /api/admin/questions/classify-regions', async (request: Request, _ctx: { requestId: string }) => {
   const role = await getUserRole();
   if (role !== 'admin') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
@@ -122,4 +123,4 @@ export async function POST(request: Request) {
     nextOffset: offset + rows.length,
     done: rows.length < batchSize,
   });
-}
+});

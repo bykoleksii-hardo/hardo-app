@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { verifyWebhookSignature, normalizeSubscriptionStatus } from '@/lib/lemonsqueezy';
-import { withLogging } from '@/lib/observability';
+import { withLogging, logger } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,7 +23,7 @@ interface LsWebhookEnvelope {
   };
 }
 
-export const POST = withLogging('POST /api/billing/webhook', async (req: Request, _ctx: { requestId: string }) => {
+export const POST = withLogging('POST /api/billing/webhook', async (req: Request, ctx: { requestId: string }) => {
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
   if (!secret) {
     return NextResponse.json({ error: 'webhook_not_configured' }, { status: 503 });
@@ -33,6 +33,7 @@ export const POST = withLogging('POST /api/billing/webhook', async (req: Request
   const signature = req.headers.get('x-signature');
   const valid = await verifyWebhookSignature(rawBody, signature, secret);
   if (!valid) {
+    logger.warn('lemonsqueezy webhook rejected: invalid signature', { requestId: ctx.requestId });
     return NextResponse.json({ error: 'invalid_signature' }, { status: 401 });
   }
 
@@ -90,6 +91,7 @@ export const POST = withLogging('POST /api/billing/webhook', async (req: Request
     return NextResponse.json({ error: 'rpc_failed', message: error.message }, { status: 500 });
   }
 
+  logger.info('lemonsqueezy webhook applied', { requestId: ctx.requestId, userId, event: eventName, status: status ?? null });
   return NextResponse.json({ ok: true, event: eventName, status });
 });
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { chatJSON, OpenAIError } from '@/lib/openai';
-import { withLogging } from '@/lib/observability';
+import { withLogging, logger } from '@/lib/observability';
 import {
   FINALIZE_SYSTEM_PROMPT,
   FINALIZE_SCHEMA,
@@ -11,7 +11,7 @@ import {
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export const POST = withLogging('POST /api/interview/finalize', async (req: Request, _ctx: { requestId: string }) => {
+export const POST = withLogging('POST /api/interview/finalize', async (req: Request, ctx: { requestId: string }) => {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -125,6 +125,7 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     .update({ status: 'completed', finished_at: new Date().toISOString(), final_score: score })
     .eq('id', interview.id);
 
+  logger.info('interview finalized', { requestId: ctx.requestId, userId: user.id, interviewId: interview.id, overallScore: score });
   return NextResponse.json({
     ok: true,
     summary_id: inserted?.id ?? null,

@@ -17,6 +17,7 @@
     "NEXT_PUBLIC_SITE_PROTO": "https",
     "NEXT_PUBLIC_SITE_HOST": "hardo-app.bykoleksii.workers.dev",
     "STT_PRIMARY": "groq",
-    "STT_FALLBACK": "deepgram"
+    "STT_FALLBACK": "deepgram",
+    "SENTRY_DSN": "https://c388988e7c14722538acd090cc053a62@o4511466333929472.ingest.de.sentry.io/4511466370367568"
   }
 }

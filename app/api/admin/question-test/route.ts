@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getUserRole } from '@/lib/auth/roles';
 import { chatJSON, OpenAIError } from '@/lib/openai';
 import {
+import { withLogging, logger } from '@/lib/observability';
   TURN_SYSTEM_PROMPT,
   TURN_SCHEMA,
   buildTurnUserPrompt,
@@ -30,7 +31,7 @@ function badRequest(reason: string) {
   return NextResponse.json({ error: reason }, { status: 400 });
 }
 
-export async function POST(request: Request) {
+export const POST = withLogging('POST /api/admin/question-test', async (request: Request, _ctx: { requestId: string }) => {
   // Admin-only. Editors do not get to spend tokens on the sandbox.
   const role = await getUserRole();
   if (role !== 'admin') {
@@ -95,4 +96,4 @@ export async function POST(request: Request) {
     const msg = e instanceof Error ? e.message : 'unknown';
     return NextResponse.json({ error: 'ai_call_failed', detail: msg }, { status: 500 });
   }
-}
+});

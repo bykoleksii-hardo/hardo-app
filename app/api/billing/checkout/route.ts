@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { createCheckoutSession } from '@/lib/lemonsqueezy';
-import { withLogging } from '@/lib/observability';
+import { withLogging, logger } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -41,6 +41,7 @@ export const POST = withLogging('POST /api/billing/checkout', async (_req: Reque
       name: row?.nickname ?? null,
       redirectUrl,
     });
+    logger.info('lemonsqueezy checkout created', { requestId: _ctx.requestId, userId: user.id });
     return NextResponse.json({ ok: true, url });
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'unknown';
