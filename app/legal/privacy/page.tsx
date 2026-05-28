@@ -29,7 +29,7 @@ export default async function PrivacyPage() {
               <li><a className="hover:text-ink" href="#sec-7">Cookies</a></li>
               <li><a className="hover:text-ink" href="#sec-8">Children</a></li>
               <li><a className="hover:text-ink" href="#sec-9">Changes</a></li>
-              <li><a className="hover:text-ink" href="#sec-10">Contact</a></li>
+              <li><a className="hover:text-ink" href="#sec-10">Data controller &amp; contact</a></li>
             </ol>
           </aside>
           <div>
@@ -55,8 +55,7 @@ export default async function PrivacyPage() {
               <strong>Usage data.</strong> Standard server logs (timestamps, IP address, user agent), kept up to 30 days for abuse prevention and debugging.
             </p>
             <p>
-              <strong>Payments.</strong> Handled by our payment processor. We never see your full card number; we only see the last four digits and a billing token.
-            </p>
+              <strong>Payments.</strong> Handled by our merchant of record, LemonSqueezy. LemonSqueezy processes your card and billing details under its own privacy terms; we never receive your full card number, only a billing reference and the last four digits.</p>
 
             <h2 id="sec-2">2. What we don{'\u2019'}t collect</h2>
             <p>
@@ -98,9 +97,9 @@ export default async function PrivacyPage() {
               Material changes will be announced 14 days in advance via email or in-app notice.
             </p>
 
-            <h2 id="sec-10">10. Contact</h2>
+            <h2 id="sec-10">10. Data controller &amp; contact</h2>
             <p>
-              Privacy questions: <a href="mailto:hello@hardo.app">hello@hardo.app</a>.
+              HARDO is a brand operated by a sole proprietor registered in Poland, who acts as the data controller for the personal data described above. You can reach the controller, including for any request under GDPR, at <a href="mailto:hello@hardo.app">hello@hardo.app</a>. You also have the right to lodge a complaint with your local data-protection supervisory authority.
             </p>
             </div>
           </div>

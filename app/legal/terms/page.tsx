@@ -29,7 +29,7 @@ export default async function TermsPage() {
               <li><a className="hover:text-ink" href="#sec-7">Termination</a></li>
               <li><a className="hover:text-ink" href="#sec-8">Liability</a></li>
               <li><a className="hover:text-ink" href="#sec-9">Changes</a></li>
-              <li><a className="hover:text-ink" href="#sec-10">Contact</a></li>
+              <li><a className="hover:text-ink" href="#sec-10">Operator &amp; contact</a></li>
             </ol>
           </aside>
           <div>
@@ -60,6 +60,9 @@ export default async function TermsPage() {
             </p>
             <p>
               The free tier is limited to one Intern-level interview per account and does not require a payment method.
+            </p>
+            <p>
+              Payments are processed by our merchant of record, LemonSqueezy (Lemon Squeezy LLC). LemonSqueezy sells the subscription to you, issues the invoice, and collects any applicable VAT or sales tax on our behalf. Your card details are handled by LemonSqueezy and never reach us.
             </p>
 
             <h2 id="sec-4">4. Acceptable use</h2>
@@ -92,7 +95,10 @@ export default async function TermsPage() {
               We may update these Terms; material changes will be announced via email or in-app notice at least 14 days before they take effect.
             </p>
 
-            <h2 id="sec-10">10. Contact</h2>
+            <h2 id="sec-10">10. Operator, governing law &amp; contact</h2>
+            <p>
+              HARDO is a brand operated by a sole proprietor registered in Poland. These Terms are governed by Polish law, and the courts of Poland have jurisdiction over any dispute, without affecting any mandatory consumer-protection rights you have under the law of your country of residence.
+            </p>
             <p>
               Questions: <a href="mailto:hello@hardo.app">hello@hardo.app</a>.
             </p>
