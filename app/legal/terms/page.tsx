@@ -56,7 +56,7 @@ export default async function TermsPage() {
 
             <h2 id="sec-3">3. Subscriptions and billing</h2>
             <p>
-              The HARDO subscription is $12 per month, billed in USD. The subscription renews automatically each month until canceled. Cancellation takes effect at the end of the current billing period. We do not offer pro-rated refunds for partial months.
+              The HARDO subscription is $14.99 per month, billed in USD. The subscription renews automatically each month until canceled. Cancellation takes effect at the end of the current billing period. We do not offer pro-rated refunds for partial months.
             </p>
             <p>
               The free tier is limited to one Intern-level interview per account and does not require a payment method.
@@ -79,7 +79,7 @@ export default async function TermsPage() {
 
             <h2 id="sec-7">7. Termination</h2>
             <p>
-              We may suspend or terminate accounts that violate these Terms. You may cancel your subscription or delete your account at any time from your profile.
+              We may suspend or terminate accounts that violate these Terms. You may cancel your subscription at any time from your profile, or request deletion of your account by emailing hello@hardo.app.
             </p>
 
             <h2 id="sec-8">8. Liability</h2>

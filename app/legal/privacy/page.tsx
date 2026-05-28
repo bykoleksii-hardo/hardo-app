@@ -80,7 +80,7 @@ export default async function PrivacyPage() {
 
             <h2 id="sec-6">6. Your rights</h2>
             <p>
-              You can export or delete your data at any time from your profile or by emailing <a href="mailto:hello@hardo.app">hello@hardo.app</a>. Deletion is permanent and removes interview transcripts and scorecards.
+              You can request export or deletion of your data at any time by emailing <a href="mailto:hello@hardo.app">hello@hardo.app</a>. Deletion is permanent and removes interview transcripts and scorecards.
             </p>
 
             <h2 id="sec-7">7. Cookies</h2>
