@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { logger, newRequestId } from './logger';
 
 type AnyRequest = Request;
-type RouteHandler<TReq extends AnyRequest = Request> = (
+type RouteHandler<TReq extends AnyRequest = Request, TRest extends unknown[] = []> = (
   req: TReq,
-  ctx: { requestId: string },
+  ...args: [...TRest, { requestId: string }]
 ) => Promise<Response>;
 
 /**
@@ -39,15 +39,15 @@ function withRequestId(res: Response, requestId: string): Response {
  *     return Response.json({ ok: true });
  *   });
  */
-export function withLogging<TReq extends AnyRequest = Request>(
+export function withLogging<TReq extends AnyRequest = Request, TRest extends unknown[] = []>(
   routeLabel: string,
-  handler: RouteHandler<TReq>,
+  handler: RouteHandler<TReq, TRest>,
 ) {
-  return async (req: TReq): Promise<Response> => {
+  return async (req: TReq, ...rest: TRest): Promise<Response> => {
     const requestId = newRequestId();
     const start = Date.now();
     try {
-      const res = await handler(req, { requestId });
+      const res = await handler(req, ...rest, { requestId });
       const dur = Date.now() - start;
       if (dur > 5000) {
         logger.warn('slow request', {
