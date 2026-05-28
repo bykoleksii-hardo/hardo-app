@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getUserRole } from '@/lib/auth/roles';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { withLogging, logger } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -10,7 +11,7 @@ type Region = (typeof REGIONS)[number];
 
 type Body = { region?: string };
 
-export async function PATCH(request: Request, ctx: { params: Promise<{ id: string }> }) {
+export const PATCH = withLogging('PATCH /api/admin/questions/[id]/region', async (request: Request, ctx: { params: Promise<{ id: string }> }, _ctx: { requestId: string }) => {
   const role = await getUserRole();
   if (role !== 'admin') {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
@@ -51,4 +52,4 @@ export async function PATCH(request: Request, ctx: { params: Promise<{ id: strin
   }
 
   return NextResponse.json({ ok: true, id: data.id, region: data.region });
-}
+});

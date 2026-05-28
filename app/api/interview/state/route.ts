@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { withLogging, logger } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function GET(req: Request) {
+export const GET = withLogging('GET /api/interview/state', async (req: Request, _ctx: { requestId: string }) => {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
@@ -33,4 +34,4 @@ export async function GET(req: Request) {
   }
 
   return NextResponse.json({ steps, answers });
-}
+});

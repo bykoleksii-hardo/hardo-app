@@ -4,9 +4,10 @@
  * Outputs JSON lines so Cloudflare Workers Logs (`wrangler tail` and dashboard)
  * can index fields like requestId, userId, route, level.
  *
- * Designed as a single replacement point: when Sentry is added later,
- * only `logger.error()` body needs updating to call `Sentry.captureException`.
+ * When SENTRY_DSN is configured (see instrumentation.ts), `logger.error()`
+ * also forwards exceptions to Sentry. All other call sites are unchanged.
  */
+import * as Sentry from '@sentry/cloudflare';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -57,6 +58,30 @@ function normalizeError(e: unknown): LogPayload['err'] {
   return { name: 'NonError', message: typeof e === 'string' ? e : JSON.stringify(e) };
 }
 
+/**
+ * Safe wrapper for Sentry calls. Sentry SDK is a no-op until init runs;
+ * calls before init() are silently dropped and never throw.
+ */
+function captureToSentry(msg: string, e: unknown, ctx?: LogContext): void {
+  try {
+    if (e instanceof Error) {
+      Sentry.captureException(e, {
+        tags: ctx?.route ? { route: String(ctx.route) } : undefined,
+        extra: { msg, ...(ctx ?? {}) },
+      });
+    } else if (e !== undefined) {
+      Sentry.captureMessage(msg, {
+        level: 'error',
+        extra: { error: e, ...(ctx ?? {}) },
+      });
+    } else {
+      Sentry.captureMessage(msg, { level: 'error', extra: ctx });
+    }
+  } catch {
+    // Never let Sentry break the request path.
+  }
+}
+
 export const logger = {
   debug(msg: string, ctx?: LogContext) {
     emit({ ts: new Date().toISOString(), level: 'debug', msg, ctx });
@@ -68,8 +93,8 @@ export const logger = {
     emit({ ts: new Date().toISOString(), level: 'warn', msg, ctx });
   },
   /**
-   * Single point of error capture. When Sentry is integrated later,
-   * add `Sentry.captureException(e, { extra: ctx })` here and nothing else changes.
+   * Single point of error capture. Writes structured JSON to console
+   * AND forwards to Sentry (when SENTRY_DSN is set).
    */
   error(msg: string, e?: unknown, ctx?: LogContext) {
     emit({
@@ -79,6 +104,7 @@ export const logger = {
       ctx,
       err: e !== undefined ? normalizeError(e) : undefined,
     });
+    captureToSentry(msg, e, ctx);
   },
 };
 

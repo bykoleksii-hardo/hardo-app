@@ -3,11 +3,12 @@
 // until the new client is fully deployed.
 
 import { NextResponse } from 'next/server';
+import { withLogging, logger } from '@/lib/observability';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function POST(req: Request) {
+export const POST = withLogging('POST /api/interview/answer (deprecated)', async (req: Request, _ctx: { requestId: string }) => {
   const body = (await req.json().catch(() => null)) as { stepId?: string; answer?: string } | null;
   if (!body?.stepId || typeof body.answer !== 'string') {
     return NextResponse.json({ error: 'bad request' }, { status: 400 });
@@ -20,4 +21,4 @@ export async function POST(req: Request) {
   });
   const j = await r.json().catch(() => ({}));
   return NextResponse.json(j, { status: r.status });
-}
+});
