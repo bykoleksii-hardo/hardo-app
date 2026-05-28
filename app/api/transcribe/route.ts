@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { transcribeAudioWithFallback, STTError } from '@/lib/stt';
 import { withLogging } from '@/lib/observability';
+import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 
 // Soft monthly cap: ~30 hours of recorded audio per user.
 const MONTHLY_AUDIO_CAP_SEC = 30 * 60 * 60; // 108000s
@@ -17,6 +18,9 @@ export const POST = withLogging('POST /api/transcribe', async (req: NextRequest,
     if (authErr || !user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
+
+    const rl = await rateLimitTake(rateLimitSubject({ userId: user.id }), { bucket: 'transcribe', capacity: 30, windowSeconds: 60 });
+    if (!rl.allowed) return rateLimitedResponse(rl);
 
     const form = await req.formData();
     const audio = form.get('audio');

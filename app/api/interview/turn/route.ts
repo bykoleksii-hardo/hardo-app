@@ -13,6 +13,7 @@ import {
 } from '@/lib/interview-prompts';
 import { getTimeLimitSeconds } from '@/lib/timer-config';
 import { withLogging } from '@/lib/observability';
+import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -61,6 +62,9 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+
+  const rl = await rateLimitTake(rateLimitSubject({ userId: user.id }), { bucket: 'interview.turn', capacity: 60, windowSeconds: 60 });
+  if (!rl.allowed) return rateLimitedResponse(rl);
 
   const body = (await req.json().catch(() => null)) as { stepId?: string; message?: string } | null;
   if (!body?.stepId || typeof body.message !== 'string') {

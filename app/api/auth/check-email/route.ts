@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,9 @@ export const dynamic = 'force-dynamic';
 // { exists: boolean }. Used by the signup form to surface a friendly
 // "already registered" message instead of silently no-op'ing.
 export async function POST(req: Request) {
+  const rl = await rateLimitTake(rateLimitSubject({ req }), { bucket: 'auth.check-email', capacity: 20, windowSeconds: 600 });
+  if (!rl.allowed) return rateLimitedResponse(rl);
+
   let body: { email?: string };
   try {
     body = (await req.json()) as { email?: string };
