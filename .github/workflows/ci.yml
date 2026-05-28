@@ -22,22 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: TypeScript typecheck (informational)
-        id: tsc
-        continue-on-error: true
+      - name: TypeScript typecheck
         run: npx tsc --noEmit
 
-      - name: ESLint (informational)
-        id: eslint
-        continue-on-error: true
+      - name: ESLint
         run: npx next lint --max-warnings=0
-
-      - name: Summary
-        if: always()
-        run: |
-          echo "## CI summary" >> "$GITHUB_STEP_SUMMARY"
-          echo "- tsc: ${{ steps.tsc.outcome }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "- eslint: ${{ steps.eslint.outcome }}" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Both steps are currently informational (continue-on-error)." >> "$GITHUB_STEP_SUMMARY"
-          echo "They will be promoted to required after fixing existing errors and committing a package-lock.json." >> "$GITHUB_STEP_SUMMARY"
