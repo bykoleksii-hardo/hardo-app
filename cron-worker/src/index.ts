@@ -87,6 +87,11 @@ export default {
         } else {
           console.error(`[hardo-cron] publish_due_articles failed: ${r.publish.error}`);
         }
+      }).catch((err) => {
+        console.error(
+          'cron tick failed',
+          err instanceof Error ? err.message : String(err),
+        );
       }),
     );
   },
