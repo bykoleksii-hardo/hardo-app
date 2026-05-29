@@ -77,6 +77,22 @@ export const POST = withLogging('POST /api/billing/webhook', async (req: Request
     return NextResponse.json({ error: 'rpc_secret_not_configured' }, { status: 503 });
   }
 
+  // Idempotency: dedup duplicate webhook deliveries (LemonSqueezy retries).
+  // Keyed by the HMAC signature hex, unique per exact payload. Gated by the
+  // same shared secret as apply_lemonsqueezy_event.
+  const { data: firstTime, error: dedupError } = await supabase.rpc('claim_webhook_event', {
+    p_secret: rpcSecret,
+    p_event_key: signature,
+    p_event_name: eventName,
+  });
+  if (dedupError) {
+    return NextResponse.json({ error: 'dedup_failed', message: dedupError.message }, { status: 500 });
+  }
+  if (firstTime === false) {
+    logger.info('lemonsqueezy webhook duplicate ignored', { requestId: ctx.requestId, event: eventName });
+    return NextResponse.json({ ok: true, duplicate: true, event: eventName });
+  }
+
   const { error } = await supabase.rpc('apply_lemonsqueezy_event', {
     p_secret: rpcSecret,
     p_user_id: userId,
