@@ -11,6 +11,11 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // ESLint runs as a dedicated step in CI (see .github/workflows/ci.yml).
+  // Don't fail the production build on lint findings.
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async headers() {
     return [
       {
