@@ -1,0 +1,17 @@
+{
+  "root": true,
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript"
+  ],
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    ".open-next/",
+    ".wrangler/",
+    "out/",
+    "public/",
+    "next-env.d.ts",
+    "cloudflare-env.d.ts"
+  ]
+}

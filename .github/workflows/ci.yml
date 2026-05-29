@@ -25,5 +25,10 @@ jobs:
       - name: TypeScript typecheck
         run: npx tsc --noEmit
 
-      # TODO(audit): migrate from "next lint" (deprecated in Next 16) to the ESLint CLI.
-      # Tracked in audit-2026-05.
+      # Migrated from "next lint" (deprecated in Next 16) to the ESLint CLI.
+      # Non-blocking for now (continue-on-error) so it surfaces findings on a
+      # codebase that was never gated by lint, without blocking merges. Flip to
+      # blocking once the existing findings are cleared. Tracked in audit-2026-05.
+      - name: ESLint
+        run: npx eslint .
+        continue-on-error: true
