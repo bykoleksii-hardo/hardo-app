@@ -4,6 +4,7 @@
 
 import { NextResponse } from 'next/server';
 import { withLogging, logger } from '@/lib/observability';
+import { LIMITS, tooLong } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -12,6 +13,9 @@ export const POST = withLogging('POST /api/interview/answer (deprecated)', async
   const body = (await req.json().catch(() => null)) as { stepId?: string; answer?: string } | null;
   if (!body?.stepId || typeof body.answer !== 'string') {
     return NextResponse.json({ error: 'bad request' }, { status: 400 });
+  }
+  if (tooLong(body.answer, LIMITS.ANSWER)) {
+    return NextResponse.json({ error: 'answer_too_long' }, { status: 400 });
   }
   const url = new URL('/api/interview/turn', req.url);
   const r = await fetch(url.toString(), {
