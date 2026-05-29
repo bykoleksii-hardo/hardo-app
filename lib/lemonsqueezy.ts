@@ -23,6 +23,7 @@ interface LsRequestInit {
 async function lsFetch<T = unknown>(path: string, init: LsRequestInit = {}): Promise<T> {
   const res = await fetch(`${LS_API_BASE}${path}`, {
     method: init.method ?? 'GET',
+    signal: AbortSignal.timeout(15000),
     headers: {
       Accept: 'application/vnd.api+json',
       'Content-Type': 'application/vnd.api+json',
