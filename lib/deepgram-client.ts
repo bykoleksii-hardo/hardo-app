@@ -81,6 +81,7 @@ export async function transcribeAudioDeepgram(opts: DeepgramOpts): Promise<Whisp
 
   const r = await fetch(url, {
     method: 'POST',
+    signal: AbortSignal.timeout(30000),
     headers: {
       Authorization: `Token ${apiKey}`,
       'Content-Type': contentType,
