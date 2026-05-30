@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { withLogging } from '@/lib/observability';
+import { withLogging, logger } from '@/lib/observability';
 import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 
 export const runtime = 'nodejs';
@@ -31,14 +31,14 @@ export const POST = withLogging('subscribe.create', async (req: Request, _ctx) =
     const supabase = await getSupabaseServer();
     const { data, error } = await supabase.rpc('enqueue_pending_subscription', { p_email: email });
     if (error) {
-      console.log('[subscribe] rpc error', error.message);
+      logger.info('[subscribe] rpc error', { error: error.message });
       return NextResponse.json({ ok: false, error: 'storage' }, { status: 500 });
     }
     const row = Array.isArray(data) ? data[0] : data;
     token = row?.token ?? null;
     alreadyConfirmed = !!row?.already_confirmed;
   } catch (e: any) {
-    console.log('[subscribe] rpc threw', e?.message);
+    logger.info('[subscribe] rpc threw', { error: e?.message });
     return NextResponse.json({ ok: false, error: 'storage' }, { status: 500 });
   }
 
@@ -52,7 +52,7 @@ export const POST = withLogging('subscribe.create', async (req: Request, _ctx) =
   const fromAddr = process.env.EMAIL_FROM || 'HARDO <hello@hardo.app>';
 
   if (!apiKey) {
-    console.log('[subscribe] no RESEND_API_KEY, token captured for email:', email);
+    logger.info('[subscribe] no RESEND_API_KEY, token captured', { email });
     return NextResponse.json({ ok: true, pending: true, queued: true });
   }
 
@@ -92,10 +92,10 @@ export const POST = withLogging('subscribe.create', async (req: Request, _ctx) =
     });
     if (!r.ok) {
       const txt = await r.text().catch(() => '');
-      console.log('[subscribe] resend send err', r.status, txt);
+      logger.info('[subscribe] resend send err', { status: r.status, body: txt });
     }
   } catch (e: any) {
-    console.log('[subscribe] send threw', e?.message);
+    logger.info('[subscribe] send threw', { error: e?.message });
   }
 
   return NextResponse.json({ ok: true, pending: true });
