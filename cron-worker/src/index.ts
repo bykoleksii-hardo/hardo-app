@@ -30,6 +30,19 @@ interface PublishedArticleRow {
   published_at: string | null;
 }
 
+// Structured logger — emits single-line JSON so Cloudflare Workers Logs /
+// observability can parse level + fields instead of free-form console strings.
+type LogLevel = "info" | "error";
+function log(level: LogLevel, msg: string, fields?: Record<string, unknown>): void {
+  const entry = { level, service: "hardo-cron", msg, ...(fields ?? {}) };
+  const line = JSON.stringify(entry);
+  if (level === "error") {
+    console.error(line);
+  } else {
+    console.log(line);
+  }
+}
+
 async function callRpc<T>(env: Env, fn: string): Promise<{ ok: boolean; rows: T[]; error?: string }> {
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY || !env.CRON_RPC_SECRET) {
     return { ok: false, rows: [], error: "missing_env" };
@@ -69,29 +82,28 @@ export default {
       runAll(env).then((r) => {
         if (r.downgrade.ok) {
           if (r.downgrade.rows.length > 0) {
-            console.log(
-              `[hardo-cron] downgraded ${r.downgrade.rows.length} user(s):`,
-              r.downgrade.rows.map((x) => x.user_id),
-            );
+            log("info", "downgraded expired subscriptions", {
+              count: r.downgrade.rows.length,
+              user_ids: r.downgrade.rows.map((x) => x.user_id),
+            });
           }
         } else {
-          console.error(`[hardo-cron] downgrade failed: ${r.downgrade.error}`);
+          log("error", "downgrade failed", { error: r.downgrade.error });
         }
         if (r.publish.ok) {
           if (r.publish.rows.length > 0) {
-            console.log(
-              `[hardo-cron] published ${r.publish.rows.length} article(s):`,
-              r.publish.rows.map((x) => x.slug),
-            );
+            log("info", "published due articles", {
+              count: r.publish.rows.length,
+              slugs: r.publish.rows.map((x) => x.slug),
+            });
           }
         } else {
-          console.error(`[hardo-cron] publish_due_articles failed: ${r.publish.error}`);
+          log("error", "publish_due_articles failed", { error: r.publish.error });
         }
       }).catch((err) => {
-        console.error(
-          'cron tick failed',
-          err instanceof Error ? err.message : String(err),
-        );
+        log("error", "cron tick failed", {
+          error: err instanceof Error ? err.message : String(err),
+        });
       }),
     );
   },
