@@ -195,11 +195,25 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           {subheading}
         </p>
 
+        {answeredCount < interview.total_questions && (
+          <div className="border border-[#A85A1F]/30 bg-[#A85A1F]/5 px-6 py-4 mb-8 flex items-start justify-between gap-4">
+            <div>
+              <div className="text-[11px] tracking-[0.22em] text-[#A85A1F] mb-1">— NOT COMPLETED</div>
+              <p className="text-[13px] text-[#11161E]/70 max-w-xl">
+                You answered {answeredCount} of {interview.total_questions} questions. This is a partial result based on what you completed — start a fresh interview to get a full scorecard.
+              </p>
+            </div>
+            <a href="/interview/setup" className="shrink-0 text-[11px] tracking-[0.22em] border border-[#A85A1F]/40 text-[#A85A1F] px-4 py-2 hover:bg-[#A85A1F]/10">
+              NEW INTERVIEW
+            </a>
+          </div>
+        )}
+
         <div className="border border-[#11161E]/15 bg-[#F2ECDF]/40 p-8 mb-12 grid grid-cols-3 gap-8">
           <div>
             <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— OVERALL</div>
-            <div className="font-playfair text-4xl text-[#11161E]">{summary?.overall_score ?? interview.final_score ?? '-'}</div>
-            <div className="text-[11px] text-[#11161E]/45 mt-1">{isCompleted ? 'out of 100' : 'awaiting AI review'}</div>
+            <div className="font-playfair text-4xl text-[#11161E]">{(() => { const raw = summary?.overall_score ?? interview.final_score; return raw == null ? '-' : (Math.round((Number(raw) / 10) * 10) / 10).toFixed(1); })()}</div>
+            <div className="text-[11px] text-[#11161E]/45 mt-1">{isCompleted ? 'out of 10' : 'awaiting AI review'}</div>
           </div>
           <div>
             <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— QUESTIONS</div>
