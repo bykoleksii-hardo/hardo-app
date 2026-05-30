@@ -298,7 +298,7 @@ export default function LoginClient() {
                 </span>
               </label>
 
-              <SubmitButton loading={loading} disabled={!ageConfirmed}>Send code &rarr;</SubmitButton>
+              <SubmitButton loading={loading}>Send code &rarr;</SubmitButton>
 
               <p className="text-[11px] text-[#11161E]/50 pt-2">
                 Already have an account?{' '}
