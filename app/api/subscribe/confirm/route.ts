@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { withLogging } from '@/lib/observability';
+import { withLogging, logger } from '@/lib/observability';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -23,14 +23,14 @@ export const GET = withLogging('subscribe.confirm', async (req: Request, _ctx) =
     const supabase = await getSupabaseServer();
     const { data, error } = await supabase.rpc('confirm_pending_subscription', { p_token: token });
     if (error) {
-      console.log('[subscribe-confirm] rpc error', error.message);
+      logger.info('[subscribe-confirm] rpc error', { error: error.message });
       return redirectWith('error');
     }
     const row = Array.isArray(data) ? data[0] : data;
     email = row?.email ?? null;
     rpcStatus = row?.status ?? 'invalid';
   } catch (e: any) {
-    console.log('[subscribe-confirm] rpc threw', e?.message);
+    logger.info('[subscribe-confirm] rpc threw', { error: e?.message });
     return redirectWith('error');
   }
 
@@ -57,7 +57,7 @@ export const GET = withLogging('subscribe.confirm', async (req: Request, _ctx) =
         });
         if (!r.ok) {
           const txt = await r.text().catch(() => '');
-          console.log('[subscribe-confirm] audience err', r.status, txt);
+          logger.info('[subscribe-confirm] audience err', { status: r.status, body: txt });
         }
       }
       if (notifyTo) {
@@ -76,7 +76,7 @@ export const GET = withLogging('subscribe.confirm', async (req: Request, _ctx) =
         });
       }
     } catch (e: any) {
-      console.log('[subscribe-confirm] post-confirm err', e?.message);
+      logger.info('[subscribe-confirm] post-confirm err', { error: e?.message });
     }
   }
 

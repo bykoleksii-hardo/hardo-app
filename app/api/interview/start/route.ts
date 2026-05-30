@@ -28,7 +28,7 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
     // --- Gating ---
     const { data: quota, error: quotaErr } = await supabase.rpc('get_user_quota_status');
     if (quotaErr) {
-      console.error('get_user_quota_status error', quotaErr);
+      logger.error('get_user_quota_status error', quotaErr);
       return NextResponse.json({ error: 'Quota check failed' }, { status: 500 });
     }
     const q = quota as {
@@ -60,7 +60,7 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
 
     const { data, error } = await supabase.rpc('start_interview', { p_level: level });
     if (error) {
-      console.error('start_interview RPC error', error);
+      logger.error('start_interview RPC error', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -70,7 +70,7 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
         .from('interviews')
         .update({ input_mode: inputMode })
         .eq('id', data);
-      if (modeErr) console.error('start: failed to set input_mode', modeErr);
+      if (modeErr) logger.error('start: failed to set input_mode', modeErr);
     }
 
     // --- Phase B: AI rephrase of base questions into the interviewer's voice ---
@@ -81,7 +81,7 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
         await rephraseBaseQuestions(supabase, data, level as Level, user.id);
       } catch (e) {
         // Non-fatal: client falls back to raw question text.
-        console.error('start: rephrase orchestration failed (non-fatal)', e);
+        logger.error('start: rephrase orchestration failed (non-fatal)', e);
       }
     }
 
@@ -114,7 +114,7 @@ async function rephraseBaseQuestions(
     .eq('is_follow_up', false)
     .order('order_index', { ascending: true });
   if (stepsErr || !stepsRaw) {
-    console.error('rephrase: failed to load steps', stepsErr);
+    logger.error('rephrase: failed to load steps', stepsErr);
     return;
   }
   type StepRow = {
@@ -189,6 +189,6 @@ async function rephraseBaseQuestions(
     .map((r) => (r.status === 'fulfilled' ? r.value : { id: 'n/a', ok: false, reason: r.reason?.message || String(r.reason) }))
     .filter((r) => !r.ok);
   if (failures.length > 0) {
-    console.warn('[rephrase] some steps failed (rendered as raw fallback)', { interviewId, failures });
+    logger.warn('[rephrase] some steps failed (rendered as raw fallback)', { interviewId, failures });
   }
 }
