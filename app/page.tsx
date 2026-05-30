@@ -74,7 +74,7 @@ function AnonHero() {
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>No card required</span>
             <span>{'\u00b7'} 12 questions / session</span>
-            <span>{'\u00b7'} 3 rooms</span>
+            <span>{'\u00b7'} 1 room</span>
             <span>{'\u00b7'} Letter grade per answer</span>
           </div>
         </div>
@@ -119,7 +119,7 @@ function FreeHero({ remaining }: { remaining: number }) {
           </div>
           <p className="mt-3 text-[13px] text-[color:var(--muted)]">Voice or text. Same scorecard either way.</p>
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
-            <span>{left}/3 free rooms left</span>
+            <span>{left}/1 free room left</span>
             <span>{'\u00b7'} 12 questions / session</span>
             <span>{'\u00b7'} Letter grade per answer</span>
           </div>
