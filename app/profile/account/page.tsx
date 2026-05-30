@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { SignOutButton } from './sign-out-button';
+import { DataControls } from './data-controls';
 import { ManagePlanButton, UpgradeButton } from './billing-buttons';
 
 export const dynamic = 'force-dynamic';
@@ -82,6 +83,9 @@ export default async function AccountPage() {
 
       <Section title="SESSION" subtitle="Sign out of this browser.">
         <SignOutButton />
+        <div className="mt-10 pt-8 border-t border-[#11161E]/10">
+          <DataControls />
+        </div>
       </Section>
     </div>
   );
