@@ -12,6 +12,7 @@ export default function LoginClient() {
   const supabase = createClient();
 
   const [mode, setMode] = useState<Mode>('signin');
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
@@ -71,6 +72,10 @@ export default function LoginClient() {
 
   async function onSignUp(e: React.FormEvent) {
     e.preventDefault();
+    if (!ageConfirmed) {
+      setError('Please confirm you are at least 16 years old and accept the Terms.');
+      return;
+    }
     reset();
     if (password.length < 8) {
       setError('Password must be at least 8 characters.');
@@ -278,6 +283,20 @@ export default function LoginClient() {
               </Field>
 
               <Alert error={error} info={info} />
+
+              <label className="flex items-start gap-2 text-[12px] text-[#11161E]/70 leading-snug cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={ageConfirmed}
+                  onChange={(e) => setAgeConfirmed(e.target.checked)}
+                  className="mt-0.5 shrink-0 accent-[#11161E]"
+                />
+                <span>
+                  I confirm I am at least 16 years old and accept the{' '}
+                  <a href="/legal/terms" className="underline hover:text-[#11161E]">Terms</a> and{' '}
+                  <a href="/legal/privacy" className="underline hover:text-[#11161E]">Privacy Policy</a>.
+                </span>
+              </label>
 
               <SubmitButton loading={loading}>Send code &rarr;</SubmitButton>
 
