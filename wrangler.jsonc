@@ -3,7 +3,10 @@
   "name": "hardo-app",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-03-01",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
@@ -12,7 +15,24 @@
     "enabled": true
   },
   "routes": [
-    { "pattern": "hardo.app", "custom_domain": true }
+    {
+      "pattern": "hardo.app",
+      "custom_domain": true
+    }
+  ],
+  // ISR / Data Cache backed by Workers KV (see open-next.config.ts).
+  "kv_namespaces": [
+    {
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "fedf75f1258b41b9924e863f6bbe6c30"
+    }
+  ],
+  // Self-reference required by the OpenNext KV incremental cache.
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "hardo-app"
+    }
   ],
   "vars": {
     "LEMONSQUEEZY_STORE_ID": "371093",
