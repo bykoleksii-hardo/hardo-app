@@ -11,6 +11,9 @@
   "observability": {
     "enabled": true
   },
+  "routes": [
+    { "pattern": "hardo.app", "custom_domain": true }
+  ],
   "vars": {
     "LEMONSQUEEZY_STORE_ID": "371093",
     "LEMONSQUEEZY_VARIANT_ID": "1674768",
