@@ -5,6 +5,7 @@
 
 import { transcribeAudio as transcribeGroq, GroqError, type WhisperResult } from './groq-client';
 import { transcribeAudioDeepgram, DeepgramError } from './deepgram-client';
+import { logger } from '@/lib/observability';
 
 export type STTProvider = 'groq' | 'deepgram';
 
@@ -110,7 +111,7 @@ export async function transcribeAudioWithFallback(opts: TranscribeOpts): Promise
     }
     // Log to console so it shows up in CF observability
     try {
-      console.warn('[stt] primary failed, falling back', {
+      logger.warn('[stt] primary failed, falling back', {
         primary,
         fallback,
         status: primaryErr.status,

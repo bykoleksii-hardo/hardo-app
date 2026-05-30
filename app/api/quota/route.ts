@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { withLogging } from '@/lib/observability';
+import { withLogging, logger } from '@/lib/observability';
 
 export const GET = withLogging('quota.get', async (_ctx) => {
   try {
@@ -11,7 +11,7 @@ export const GET = withLogging('quota.get', async (_ctx) => {
     }
     const { data, error } = await supabase.rpc('get_user_quota_status');
     if (error) {
-      console.error('get_user_quota_status error', error);
+      logger.error('get_user_quota_status error', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
     return NextResponse.json(data);

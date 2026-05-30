@@ -88,10 +88,10 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     tokens = out.tokens;
   } catch (e) {
     if (e instanceof OpenAIError) {
-      console.error('[finalize] openai error', { status: e.status, code: e.code, type: e.type, message: e.message, raw: e.rawBody });
+      logger.error('[finalize] openai error', undefined, { status: e.status, code: e.code, type: e.type, message: e.message, raw: e.rawBody });
       return NextResponse.json({ error: e.message, code: e.code, friendly: e.friendly }, { status: 502 });
     }
-    console.error('[finalize] openai error (unknown)', e);
+    logger.error('[finalize] openai error (unknown)', e);
     return NextResponse.json({ error: (e as Error).message, friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
@@ -116,7 +116,7 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     .select('id')
     .maybeSingle();
   if (insErr) {
-    console.error('[finalize] insert summary error', insErr);
+    logger.error('[finalize] insert summary error', insErr);
     return NextResponse.json({ error: insErr.message }, { status: 500 });
   }
 
