@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { listPublishedArticles } from '@/lib/knowledge/queries';
 
-const SITE = 'https://hardo-app.bykoleksii.workers.dev';
+const SITE = 'https://hardo.app';
 
 export const revalidate = 3600;
 

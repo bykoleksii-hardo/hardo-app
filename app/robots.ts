@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const SITE = 'https://hardo-app.bykoleksii.workers.dev';
+const SITE = 'https://hardo.app';
 
 export default function robots(): MetadataRoute.Robots {
   return {
