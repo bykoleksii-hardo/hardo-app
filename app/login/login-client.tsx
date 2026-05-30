@@ -422,11 +422,11 @@ export default function LoginClient() {
           </h2>
 
           <p className="text-[#11161E]/70 leading-relaxed mb-12">
-            Sharp answers. Unscripted follow-ups. A scorecard graded against bulge brackets and elite boutiques Ã¢ÂÂ not a generic rubric.
+            Sharp answers. Unscripted follow-ups. A scorecard graded against bulge brackets and elite boutiques — not a generic rubric.
           </p>
 
           <ol className="space-y-6 text-sm">
-            <Step n="01" title="Pick a vertical">M&amp;A, LBO, restructuring, valuation Ã¢ÂÂ or random.</Step>
+            <Step n="01" title="Pick a vertical">M&amp;A, LBO, restructuring, valuation — or random.</Step>
             <Step n="02" title="Run the drill">Typed answers, technicals, fit. The interviewer presses back.</Step>
             <Step n="03" title="Read the scorecard">Specific feedback on math, structure, and what an MD would actually say.</Step>
           </ol>
