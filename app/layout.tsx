@@ -26,7 +26,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://hardo-app.bykoleksii.workers.dev'),
+  metadataBase: new URL('https://hardo.app'),
   title: 'HARDO \u2014 AI mock interviews for IB',
   description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
   applicationName: 'HARDO',
@@ -45,6 +45,9 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
   robots: { index: true, follow: true },
   icons: { apple: '/apple-touch-icon.png' },
+  verification: {
+    google: 'Gzhj6xgZn_O37vvV09ekTAUrCPDtUoju443ffYOwsbM',
+  },
 };
 
 export const viewport: Viewport = {
