@@ -18,7 +18,7 @@
     "LEMONSQUEEZY_STORE_ID": "371093",
     "LEMONSQUEEZY_VARIANT_ID": "1674768",
     "NEXT_PUBLIC_SITE_PROTO": "https",
-    "NEXT_PUBLIC_SITE_HOST": "hardo-app.bykoleksii.workers.dev",
+    "NEXT_PUBLIC_SITE_HOST": "hardo.app",
     "STT_PRIMARY": "groq",
     "STT_FALLBACK": "deepgram"
   }
