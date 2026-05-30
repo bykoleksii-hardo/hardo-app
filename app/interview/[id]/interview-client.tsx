@@ -865,7 +865,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                             <span className="cap"> review</span>
                           </>
                         ) : (
-                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? null)} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive} />
+                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? null)} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive || (roundPhase as Record<string, string>)[roundKey ?? ""] === "locked"} />
                         )}
                       </div>
                     </div>
@@ -890,7 +890,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                             <span className="cap"> review</span>
                           </>
                         ) : (
-                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? null)} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive} />
+                          <QuestionTimer startedAt={(timerInfo?.startedAt ?? null)} limitSeconds={(timerInfo?.limitSeconds ?? 0)} disabled={submitting || finalizing || reviewActive || (roundPhase as Record<string, string>)[roundKey ?? ""] === "locked"} />
                         )}
                       </div>
                     </div>
