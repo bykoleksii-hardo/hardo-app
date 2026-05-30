@@ -25,6 +25,9 @@ jobs:
       - name: TypeScript typecheck
         run: npx tsc --noEmit
 
+      - name: Unit tests (Vitest)
+        run: npm run test:run
+
       # Migrated from "next lint" (deprecated in Next 16) to the ESLint CLI.
       # Non-blocking for now (continue-on-error) so it surfaces findings on a
       # codebase that was never gated by lint, without blocking merges. Flip to

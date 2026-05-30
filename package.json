@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "test:run": "vitest run",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "lint:fix": "eslint . --fix"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "next": "^15.5.15",
@@ -30,6 +32,7 @@
     "postcss": "^8.4.47",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
-    "eslint-config-next": "^15.5.15"
+    "eslint-config-next": "^15.5.15",
+    "vitest": "^2.1.8"
   }
 }
