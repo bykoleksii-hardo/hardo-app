@@ -113,11 +113,12 @@ export async function updateArticle(id: string, input: ArticleInput): Promise<{ 
     tags: norm.tags,
     category: norm.category,
     status: norm.status,
-    published_at: norm.published_at ?? null,
   };
 
   if (norm.status === 'published' && existing.status !== 'published') {
     payload.published_at = new Date().toISOString();
+  } else if (norm.status === 'scheduled') {
+    payload.published_at = norm.published_at ?? null;
   }
 
   const { error } = await supabase
