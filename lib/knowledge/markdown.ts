@@ -230,7 +230,7 @@ export function renderMarkdown(md: string): string {
       buf.push(lines[i]);
       i++;
     }
-    html.push(`<p class="text-ink/85 leading-relaxed my-4 text-[16.5px]">${inline(buf.join(' '), footnotes, footnoteOrder)}</p>`);
+    html.push(`<p class="text-ink/85 leading-relaxed my-4 text-[16.5px]">${buf.map((bl) => inline(bl, footnotes, footnoteOrder)).join('<br />')}</p>`);
   }
 
   // Render footnotes section if any were referenced
