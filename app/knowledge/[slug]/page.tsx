@@ -6,6 +6,7 @@ import { renderMarkdown } from '@/lib/knowledge/markdown';
 import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
 import { getViewerPlan } from '@/lib/quota/server';
+import { getUserRole } from '@/lib/auth/roles';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,10 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   if (!article || article.status !== 'published') notFound();
 
   const viewer = await getViewerPlan();
+  const signedIn = viewer.plan !== 'anon';
+  const role = signedIn ? await getUserRole() : 'user';
+  const isAdmin = role === 'admin' || role === 'editor';
+  const isPaid = viewer.plan === 'paid';
   const html = renderMarkdown(article.body_md);
   const tag = article.tags?.[0];
 
@@ -50,7 +55,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
   return (
     <>
-      <LandingHeader signedIn={viewer.plan !== 'anon'} />
+      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} />
       <main>
         <article className="max-w-3xl mx-auto px-6 pt-16 pb-20">
           <div className="mb-10">

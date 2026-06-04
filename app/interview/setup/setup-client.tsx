@@ -1,9 +1,7 @@
 'use client';
 
-import Brand from '@/app/_components/Brand';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/browser';
 import { parseApiError, formatApiError, type ApiErrorShape } from '@/lib/observability/api-client';
 
 type Level = 'intern' | 'analyst' | 'associate';
@@ -85,12 +83,6 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
     return () => { cancelled = true; };
   }, []);
 
-  const signOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
-
   const active = LEVELS.find((l) => l.id === selected)!;
   const isLevelLocked = (lvl: Level) => quota ? !quota.allowed_levels.includes(lvl) : false;
   const blockedByLimit = quota ? !quota.can_start : false;
@@ -136,21 +128,6 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
 
   return (
     <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-inter">
-      {/* TOP BAR */}
-      <div className="flex items-center justify-between px-12 py-8 border-b border-[#11161E]/10">
-        <Brand size="sm" href="/" />
-        <div className="flex items-center gap-4 text-xs tracking-[0.18em] text-[#11161E]/55">
-          {quota && (
-            <span className={quota.plan === 'paid' ? 'text-[#B88736]' : 'text-[#11161E]/55'}>
-              {quota.plan === 'paid' ? 'HARDO' : `FREE \u00b7 ${Math.max(0, quota.free_limit - quota.interviews_used)}/${quota.free_limit} LEFT`}
-            </span>
-          )}
-          <a href="/profile" className="text-[#11161E]/55 hover:text-[#B88736] transition-colors">PROFILE</a>
-          <span>{userEmail.toUpperCase()}</span>
-          <button onClick={signOut} className="text-[#11161E]/55 hover:text-[#B88736] transition-colors">SIGN OUT</button>
-        </div>
-      </div>
-
       <main className="max-w-[1320px] mx-auto px-12 py-16">
         <div className="mb-12">
           <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— PICK YOUR ROOM</div>
