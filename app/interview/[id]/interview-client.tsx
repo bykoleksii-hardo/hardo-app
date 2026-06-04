@@ -538,10 +538,21 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   const answeredCount = baseSteps.filter(s => s.ai_status === 'done').length;
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const activeCardRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const el = scrollRef.current;
-    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
-  }, [transcript.length, activeBaseId, qTyped]);
+    const container = scrollRef.current;
+    const card = activeCardRef.current;
+    if (!container) return;
+    if (card) {
+      // Keep the active question card anchored at a stable spot near the top of the
+      // viewport. Inserting the previous answer above it then does not shove the user's
+      // focus around — it reads as a gentle scroll instead of a jump.
+      const top = card.offsetTop - 24;
+      container.scrollTo({ top: top > 0 ? top : 0, behavior: "smooth" });
+    } else {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+  }, [roundKey, transcript.length, activeBaseId, qTyped]);
 
   function pushOptimisticCandidate(text: string) {
     // We don't know the real targeted step id yet for the answers row; we just visually echo in transcript.
@@ -778,7 +789,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
               </div>
 
               {!blockClosed && activeBase && (
-                <div className="iv-card mt-10">
+                <div ref={activeCardRef} className="iv-card mt-10">
                   {(() => {
                     const _rkey = roundKey ?? "";
                     const phase = ((roundPhase as Record<string, string>)[_rkey] ?? "answering");
