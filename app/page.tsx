@@ -28,7 +28,7 @@ export default async function Page() {
 
   return (
     <>
-      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} />
+      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding />
       <main>
         {viewer.plan === 'anon' && <AnonHero />}
         {viewer.plan === 'free' && <FreeHero remaining={viewer.interviews_remaining ?? 0} />}
