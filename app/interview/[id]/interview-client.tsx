@@ -539,25 +539,23 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeCardRef = useRef<HTMLDivElement>(null);
+  const cardBottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const container = scrollRef.current;
-    const card = activeCardRef.current;
-    if (!container) return;
-    if (card) {
-      // Bring the active question card into view smoothly. If the whole card fits, anchor
-      // its top near the top of the viewport. If it is taller than the viewport (long
-      // question), scroll so the bottom — the input / answer controls — stays visible, so
-      // the user never has to scroll manually to reach the input on a new follow-up.
-      const top = card.offsetTop;
-      const cardHeight = card.offsetHeight;
-      const viewHeight = container.clientHeight;
-      const target = cardHeight <= viewHeight - 32
-        ? top - 24
-        : top + cardHeight - viewHeight + 24;
-      container.scrollTo({ top: target > 0 ? target : 0, behavior: "smooth" });
-    } else {
-      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
-    }
+    // Smoothly bring the input / answer controls of the active card into view whenever a
+    // new round starts (or the question finishes typing), so the user never has to scroll
+    // manually to reach the input on a new follow-up. scrollIntoView is used because it
+    // reliably targets the correct scroll container; manual offsetTop math was unreliable
+    // (offsetTop is relative to the nearest positioned ancestor, not the scroll container).
+    const id = window.setTimeout(() => {
+      const anchor = cardBottomRef.current;
+      const container = scrollRef.current;
+      if (anchor) {
+        anchor.scrollIntoView({ behavior: "smooth", block: "end" });
+      } else if (container) {
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      }
+    }, 60);
+    return () => window.clearTimeout(id);
   }, [roundKey, transcript.length, activeBaseId, qTyped]);
 
   function pushOptimisticCandidate(text: string) {
@@ -1029,6 +1027,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       );
                     })()}
                   </div>
+                  <div ref={cardBottomRef} aria-hidden />
                 </div>
               )}
 
