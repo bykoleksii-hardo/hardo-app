@@ -3,8 +3,8 @@ import { ARTICLE_CATEGORIES, isArticleCategory } from '@/lib/knowledge/categorie
 
 describe('knowledge categories', () => {
   it('exposes the three known categories', () => {
-    expect(ARTICLE_CATEGORIES).toContain('HARDO News');
-    expect(ARTICLE_CATEGORIES).toContain('Industry Insights');
+    expect(ARTICLE_CATEGORIES).toContain('HARDO Insights');
+    expect(ARTICLE_CATEGORIES).toContain('Live Deal Examples');
     expect(ARTICLE_CATEGORIES).toContain('Knowledge Hub');
   });
 
@@ -17,6 +17,6 @@ describe('knowledge categories', () => {
   it('isArticleCategory rejects unknown values', () => {
     expect(isArticleCategory('Not A Category')).toBe(false);
     expect(isArticleCategory('')).toBe(false);
-    expect(isArticleCategory('hardo news')).toBe(false);
+    expect(isArticleCategory('hardo insights')).toBe(false);
   });
 });
