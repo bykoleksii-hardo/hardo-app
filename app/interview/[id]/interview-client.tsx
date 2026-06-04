@@ -388,6 +388,9 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   // Read-only, no REC, no Send, main timer paused. Cannot be skipped.
   const PREP_SECONDS = 10;
   const [prepDoneAt, setPrepDoneAt] = useState<Record<string, number>>({});
+  // Tracks whether the active question's typewriter has finished printing for a given round.
+  // Prep ("GET READY") countdown must not start until the question is fully visible.
+  const [qTyped, setQTyped] = useState<Record<string, boolean>>({});
   const [nowMs, setNowMs] = useState<number>(() => Date.now());
   const prepStartRef = useRef<Record<string, number>>({});
 
@@ -395,11 +398,13 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   // When a new round becomes active, stamp its prep start time once.
   useEffect(() => {
     if (!roundKey) return;
+    // Wait until the question has finished typing before starting the prep countdown.
+    if (!qTyped[roundKey]) return;
     if (prepStartRef.current[roundKey] == null) {
       prepStartRef.current[roundKey] = Date.now();
       setNowMs(Date.now());
     }
-  }, [roundKey]);
+  }, [roundKey, qTyped]);
 
   const prepActive = useMemo(() => {
     if (!roundKey) return false;
@@ -535,8 +540,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [transcript.length, activeBaseId]);
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }, [transcript.length, activeBaseId, qTyped]);
 
   function pushOptimisticCandidate(text: string) {
     // We don't know the real targeted step id yet for the answers row; we just visually echo in transcript.
@@ -831,7 +836,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div className="iv-card__question-block">
                         {_isFU ? <div className="iv-card__question-label">Follow-up</div> : null}
-                        <p className={"iv-card__question" + (_isFU ? " iv-card__question--fu" : "")}><TypewriterText id={(_isFU ? "fu:" : "q:") + (_activeStep?.id ?? "")} text={_qText} /></p>
+                        <p className={"iv-card__question" + (_isFU ? " iv-card__question--fu" : "")}><TypewriterText id={(_isFU ? "fu:" : "q:") + (_activeStep?.id ?? "")} text={_qText} onDone={() => { const k = roundKey ?? ""; if (k) setQTyped((p) => (p[k] ? p : { ...p, [k]: true })); }} /></p>
                       </div>
                     );
                   })()}
