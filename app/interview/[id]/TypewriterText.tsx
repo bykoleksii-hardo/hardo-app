@@ -15,9 +15,10 @@ const CHAR_INTERVAL_MS = 25;
 type Props = {
   id: string;
   text: string;
+  onDone?: () => void;
 };
 
-export default function TypewriterText({ id, text }: Props) {
+export default function TypewriterText({ id, text, onDone }: Props) {
   const initialDone = seenIds.has(id);
   const [shown, setShown] = useState(initialDone ? text.length : 0);
   const timerRef = useRef<number | null>(null);
@@ -33,12 +34,14 @@ export default function TypewriterText({ id, text }: Props) {
     if (!text) {
       seenIds.add(id);
       setShown(0);
+      onDone?.();
       return;
     }
 
     // Already animated in this session — render full text immediately.
     if (seenIds.has(id)) {
       setShown(text.length);
+      onDone?.();
       return;
     }
 
@@ -57,6 +60,7 @@ export default function TypewriterText({ id, text }: Props) {
           timerRef.current = null;
         }
         seenIds.add(id);
+        onDone?.();
       }
     }, CHAR_INTERVAL_MS);
 
