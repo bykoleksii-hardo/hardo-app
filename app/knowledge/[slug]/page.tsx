@@ -98,9 +98,9 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
           </p>
           <Link
             href={viewer.plan === 'anon' ? '/login' : '/interview/setup'}
-            className="mt-5 inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-7 py-3.5 rounded-full hover:bg-navy transition-colors"
+            className="hero-pulse mt-5 inline-flex items-center gap-2 bg-ink text-paper text-[15px] font-medium px-9 py-4 rounded-full hover:bg-navy transition-colors"
           >
-            Put this in the hot seat <span aria-hidden>{'\u2192'}</span>
+            Drill this in a mock <span aria-hidden>{'\u2192'}</span>
           </Link>
         </div>
         </article>
