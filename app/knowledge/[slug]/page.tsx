@@ -55,7 +55,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
 
   return (
     <>
-      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} />
+      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding />
       <main>
         <article className="max-w-3xl mx-auto px-6 pt-16 pb-20">
           <div className="mb-10">

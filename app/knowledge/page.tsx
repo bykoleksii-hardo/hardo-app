@@ -33,7 +33,7 @@ export default async function KnowledgeIndex({ searchParams }: { searchParams: P
 
   return (
     <>
-      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} />
+      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding />
       <main>
         <section className="border-b border-line">
           <div className="max-w-page mx-auto px-6 pt-20 pb-16">

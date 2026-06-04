@@ -19,7 +19,7 @@ export default async function SetupPage() {
 
   return (
     <>
-      <LandingHeader signedIn isAdmin={isAdmin} isPaid={isPaid} />
+      <LandingHeader signedIn isAdmin={isAdmin} isPaid={isPaid} onLanding />
       <SetupClient userEmail={user.email ?? ''} />
     </>
   );

@@ -19,7 +19,7 @@ export default async function ProfileLayout({ children }: { children: React.Reac
 
   return (
     <div className="min-h-screen bg-paper text-ink font-sans">
-      <LandingHeader signedIn isAdmin={isAdmin} isPaid={isPaid} />
+      <LandingHeader signedIn isAdmin={isAdmin} isPaid={isPaid} onLanding />
 
       <main className="max-w-[1320px] mx-auto px-5 md:px-12 py-8 md:py-12">
         <ProfileTabs />
