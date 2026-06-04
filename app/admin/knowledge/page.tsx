@@ -10,8 +10,8 @@ function fmtDate(s: string | null) {
 }
 
 const CATEGORY_BADGE: Record<string, string> = {
-  'HARDO News': 'bg-[#d4a04a]/15 text-[#9c6c1f] border-[#d4a04a]/40',
-  'Industry Insights': 'bg-[#0a1422]/8 text-ink border-line',
+  'HARDO Insights': 'bg-[#d4a04a]/15 text-[#9c6c1f] border-[#d4a04a]/40',
+  'Live Deal Examples': 'bg-[#0a1422]/8 text-ink border-line',
   'Knowledge Hub': 'bg-cream text-ink-2 border-line',
 };
 
