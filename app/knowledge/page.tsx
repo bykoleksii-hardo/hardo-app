@@ -4,6 +4,7 @@ import { listPublishedArticles, ARTICLE_CATEGORIES, isArticleCategory, type Arti
 import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
 import { getViewerPlan } from '@/lib/quota/server';
+import { getUserRole } from '@/lib/auth/roles';
 
 export const metadata: Metadata = {
   title: 'Knowledge Hub \u2014 HARDO',
@@ -25,10 +26,14 @@ export default async function KnowledgeIndex({ searchParams }: { searchParams: P
   const active: ArticleCategory | null = isArticleCategory(sp?.category) ? (sp.category as ArticleCategory) : null;
   const articles = await listPublishedArticles({ limit: 50, category: active ?? undefined });
   const viewer = await getViewerPlan();
+  const signedIn = viewer.plan !== 'anon';
+  const role = signedIn ? await getUserRole() : 'user';
+  const isAdmin = role === 'admin' || role === 'editor';
+  const isPaid = viewer.plan === 'paid';
 
   return (
     <>
-      <LandingHeader signedIn={viewer.plan !== 'anon'} />
+      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} />
       <main>
         <section className="border-b border-line">
           <div className="max-w-page mx-auto px-6 pt-20 pb-16">

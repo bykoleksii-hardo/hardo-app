@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
-import Brand from '@/app/_components/Brand';
-import Link from 'next/link';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { ProfileTabs } from './profile-tabs';
-import { SignOutButton } from './account/sign-out-button';
+import LandingHeader from '@/app/(landing)/_components/Header';
+import { getViewerPlan } from '@/lib/quota/server';
+import { getUserRole } from '@/lib/auth/roles';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,28 +12,14 @@ export default async function ProfileLayout({ children }: { children: React.Reac
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('preferred_name, first_name')
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  const displayName =
-    (profile?.preferred_name as string | null) ||
-    (profile?.first_name as string | null) ||
-    (user.email ?? '').split('@')[0];
+  const viewer = await getViewerPlan();
+  const role = await getUserRole();
+  const isAdmin = role === 'admin' || role === 'editor';
+  const isPaid = viewer.plan === 'paid';
 
   return (
     <div className="min-h-screen bg-paper text-ink font-sans">
-      {/* TOP BAR */}
-      <div className="flex items-center justify-between px-5 md:px-12 py-6 md:py-8 border-b border-line">
-        <Brand size="sm" href="/" />
-        <div className="flex items-center gap-4 sm:gap-6 text-xs tracking-[0.18em] text-ink-2/70">
-          <Link href="/interview/setup" className="hover:text-gold transition-colors">START INTERVIEW</Link>
-          <span className="hidden sm:inline text-ink/85">{(displayName ?? '').toUpperCase()}</span>
-          <SignOutButton variant="text" />
-        </div>
-      </div>
+      <LandingHeader signedIn isAdmin={isAdmin} isPaid={isPaid} />
 
       <main className="max-w-[1320px] mx-auto px-5 md:px-12 py-8 md:py-12">
         <ProfileTabs />
