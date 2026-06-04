@@ -544,11 +544,17 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     const card = activeCardRef.current;
     if (!container) return;
     if (card) {
-      // Keep the active question card anchored at a stable spot near the top of the
-      // viewport. Inserting the previous answer above it then does not shove the user's
-      // focus around — it reads as a gentle scroll instead of a jump.
-      const top = card.offsetTop - 24;
-      container.scrollTo({ top: top > 0 ? top : 0, behavior: "smooth" });
+      // Bring the active question card into view smoothly. If the whole card fits, anchor
+      // its top near the top of the viewport. If it is taller than the viewport (long
+      // question), scroll so the bottom — the input / answer controls — stays visible, so
+      // the user never has to scroll manually to reach the input on a new follow-up.
+      const top = card.offsetTop;
+      const cardHeight = card.offsetHeight;
+      const viewHeight = container.clientHeight;
+      const target = cardHeight <= viewHeight - 32
+        ? top - 24
+        : top + cardHeight - viewHeight + 24;
+      container.scrollTo({ top: target > 0 ? target : 0, behavior: "smooth" });
     } else {
       container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
     }
