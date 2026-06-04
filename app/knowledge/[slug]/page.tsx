@@ -92,6 +92,17 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             className="prose-hardo mt-10"
             dangerouslySetInnerHTML={{ __html: html }}
           />
+        <div className="mt-14 border-t border-line pt-10 text-center">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-muted">
+            Reading is reps. Now take the rep. 
+          </p>
+          <Link
+            href={viewer.plan === 'anon' ? '/login' : '/interview/setup'}
+            className="mt-5 inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-7 py-3.5 rounded-full hover:bg-navy transition-colors"
+          >
+            Put this in the hot seat <span aria-hidden>{'\u2192'}</span>
+          </Link>
+        </div>
         </article>
 
         <script
