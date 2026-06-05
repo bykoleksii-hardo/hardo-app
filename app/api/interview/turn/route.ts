@@ -173,6 +173,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     const out = await chatJSON<TurnAIResult>({
       schemaName: 'hardo_turn',
       schema: TURN_SCHEMA,
+    maxTokens: 1500,
       messages: [
         { role: 'system', content: TURN_SYSTEM_PROMPT },
         { role: 'user', content: buildTurnUserPrompt({
