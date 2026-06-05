@@ -21,6 +21,37 @@ function fmtDate(iso: string | null): string {
   return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+type ParsedFeedback = {
+  summary: string;
+  strengths: string[];
+  weaknesses: string[];
+  howToImprove: string | null;
+};
+
+// Mirrors the interview summary view: ai_feedback is stored as a JSON string
+// ({ summary, strengths[], weaknesses[], detail.how_to_improve }). Render it
+// as readable sections; fall back to the raw text if it is not JSON.
+function parseFeedback(raw: string | null): ParsedFeedback | null {
+  if (!raw) return null;
+  try {
+    const j = JSON.parse(raw) as {
+      summary?: unknown;
+      strengths?: unknown;
+      weaknesses?: unknown;
+      detail?: { how_to_improve?: unknown } | null;
+    };
+    const detail = j && typeof j === 'object' && j.detail && typeof j.detail === 'object' ? j.detail : null;
+    return {
+      summary: typeof j.summary === 'string' ? j.summary : '',
+      strengths: Array.isArray(j.strengths) ? (j.strengths.filter((x) => typeof x === 'string') as string[]) : [],
+      weaknesses: Array.isArray(j.weaknesses) ? (j.weaknesses.filter((x) => typeof x === 'string') as string[]) : [],
+      howToImprove: detail && typeof detail.how_to_improve === 'string' ? detail.how_to_improve : null,
+    };
+  } catch {
+    return { summary: raw, strengths: [], weaknesses: [], howToImprove: null };
+  }
+}
+
 export function QuestionDetailClient({
   detail,
   isPaid,
@@ -138,37 +169,59 @@ export function QuestionDetailClient({
         </p>
       ) : (
         <ul className="space-y-4">
-          {detail.feedback.map((f) => (
-            <li key={f.stepId} className="border border-line rounded-sm bg-paper p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  {f.grade && (
-                    <span className={`font-mono text-[11px] px-1.5 py-0.5 border rounded-sm ${gradeTone(f.grade)}`}>
-                      {f.grade}
-                    </span>
-                  )}
-                  {f.kind === 'deep_dive' && (
-                    <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#B88736] border border-[#B88736]/40 rounded-sm px-1.5 py-0.5">
-                      Deep dive
-                    </span>
-                  )}
+          {detail.feedback.map((f) => {
+            const fb = parseFeedback(f.feedback);
+            return (
+              <li key={f.stepId} className="border border-line rounded-sm bg-paper p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    {f.grade && (
+                      <span className={`font-mono text-[11px] px-1.5 py-0.5 border rounded-sm ${gradeTone(f.grade)}`}>
+                        {f.grade}
+                      </span>
+                    )}
+                    {f.kind === 'deep_dive' && (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#B88736] border border-[#B88736]/40 rounded-sm px-1.5 py-0.5">
+                        Deep dive
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-mono text-[10.5px] text-muted">{fmtDate(f.createdAt)}</span>
                 </div>
-                <span className="font-mono text-[10.5px] text-muted">{fmtDate(f.createdAt)}</span>
-              </div>
-              {f.answer && (
-                <p className="text-[13px] text-ink-2 leading-relaxed mb-3 whitespace-pre-wrap line-clamp-4">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted block mb-1">Your answer</span>
-                  {f.answer}
-                </p>
-              )}
-              {f.feedback && (
-                <p className="text-[13.5px] text-ink leading-relaxed whitespace-pre-wrap">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#B88736] block mb-1">Feedback</span>
-                  {f.feedback}
-                </p>
-              )}
-            </li>
-          ))}
+                {f.answer && (
+                  <div className="mb-3">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted block mb-1">Your answer</span>
+                    <p className="text-[13px] text-ink-2 leading-relaxed whitespace-pre-wrap line-clamp-4">{f.answer}</p>
+                  </div>
+                )}
+                {fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0 || fb.howToImprove) && (
+                  <div className="border-t border-line/70 pt-3">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#B88736] block mb-1.5">Feedback</span>
+                    {fb.summary && (
+                      <p className="text-[13.5px] text-ink leading-relaxed mb-2">{fb.summary}</p>
+                    )}
+                    {fb.strengths.length > 0 && (
+                      <ul className="mb-2 space-y-0.5">
+                        {fb.strengths.map((x, i) => (
+                          <li key={i} className="text-[13px] text-[#3F7A4E] leading-relaxed pl-3 relative before:content-['+'] before:absolute before:left-0">{x}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {fb.weaknesses.length > 0 && (
+                      <ul className="mb-2 space-y-0.5">
+                        {fb.weaknesses.map((x, i) => (
+                          <li key={i} className="text-[13px] text-[#B4452F] leading-relaxed pl-3 relative before:content-['\2212'] before:absolute before:left-0">{x}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {fb.howToImprove && (
+                      <p className="text-[12.5px] text-ink-2 leading-relaxed italic">{fb.howToImprove}</p>
+                    )}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </main>
