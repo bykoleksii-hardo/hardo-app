@@ -11,20 +11,21 @@ import { withLogging, logger } from '@/lib/observability';
 // which treats kind = 'deep_dive' the same as a case study.
 //
 // Access:
-//   - not authenticated            -> 401 (client redirects to /login)
-//   - authenticated, not subscribed -> 403 { reason: 'upgrade_required' } (client -> /pricing)
-//   - authenticated, question not yet unlocked -> 403 { reason: 'locked' }
-//   - subscribed + unlocked        -> 200 { interview_id }
+//   - not authenticated             -> 401 (client redirects to /login)
+//   - authenticated, not subscribed  -> 403 { reason: 'upgrade_required' } (client -> /pricing)
+//   - authenticated, question locked  -> 403 { reason: 'locked' }
+//   - subscribed + unlocked          -> 200 { interview_id }
 export const POST = withLogging('POST /api/question/[id]/start', async (
-  _req: Request,
-  ctx: { requestId: string; params?: Promise<{ id: string }> },
+  _request: Request,
+  ctx: { params: Promise<{ id: string }> },
+  logCtx: { requestId: string },
 ) => {
   const supabase = await getSupabaseServer();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
-  const params = ctx.params ? await ctx.params : undefined;
-  const questionId = Number(params?.id);
+  const { id: idStr } = await ctx.params;
+  const questionId = Number(idStr);
   if (!Number.isInteger(questionId) || questionId <= 0) {
     return NextResponse.json({ error: 'bad request' }, { status: 400 });
   }
@@ -104,6 +105,6 @@ export const POST = withLogging('POST /api/question/[id]/start', async (
     return NextResponse.json({ error: stepErr.message }, { status: 500 });
   }
 
-  logger.info('deep dive started', { requestId: ctx.requestId, userId: user.id, questionId, interviewId: interview.id });
+  logger.info('deep dive started', { requestId: logCtx.requestId, userId: user.id, questionId: String(questionId), interviewId: interview.id });
   return NextResponse.json({ interview_id: interview.id });
 });
