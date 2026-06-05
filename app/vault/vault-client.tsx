@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import type { VaultData, VaultQuestion } from '@/lib/vault/queries';
 
 const ALL = '__all__';
@@ -31,7 +32,7 @@ function LockedCard({ q }: { q: VaultQuestion }) {
 
 function UnlockedCard({ q }: { q: VaultQuestion }) {
   return (
-    <div className="group border border-line rounded-sm bg-paper p-5 transition-colors hover:border-[#B88736]/50">
+    <Link href={`/vault/${q.id}`} className="block group border border-line rounded-sm bg-paper p-5 transition-colors hover:border-[#B88736]/50">
       <div className="flex items-center justify-between mb-3">
         <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#B88736]">{q.category}</span>
         {q.bestGrade ? (
@@ -46,7 +47,7 @@ function UnlockedCard({ q }: { q: VaultQuestion }) {
       {q.subtopic && (
         <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-muted">{q.subtopic}</p>
       )}
-    </div>
+    </Link>
   );
 }
 

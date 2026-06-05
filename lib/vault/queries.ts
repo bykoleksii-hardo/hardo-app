@@ -99,3 +99,130 @@ export async function getVaultData(userId: string): Promise<VaultData> {
     unlockedCount,
   };
 }
+
+export type VaultFeedback = {
+  stepId: number;
+  interviewId: string;
+  kind: 'standard' | 'deep_dive';
+  grade: string | null;
+  scoreNumeric: number | null;
+  feedback: string | null;
+  answer: string | null;
+  createdAt: string | null;
+};
+
+export type VaultQuestionDetail = {
+  id: number;
+  category: string;
+  subtopic: string | null;
+  difficulty: number | null;
+  candidate_level: string | null;
+  question: string;
+  unlocked: boolean;
+  bestGrade: string | null;
+  attempts: number;
+  deepDiveCount: number;
+  avgScore: number | null;
+  feedback: VaultFeedback[];
+};
+
+// Loads a single question for the Vault detail page: the question itself, whether
+// the user has unlocked it, their best block grade, light stats, and the full
+// history of feedback they have received answering it (across standard interviews
+// and deep dives). RLS scopes interview_steps to the current user's interviews.
+export async function getQuestionDetail(
+  userId: string,
+  questionId: number,
+): Promise<VaultQuestionDetail | null> {
+  const supabase = await getSupabaseServer();
+
+  const [{ data: questionRaw }, { data: exposure }, { data: stepsRaw }] = await Promise.all([
+    supabase
+      .from('questions')
+      .select('id, category, subtopic, difficulty, candidate_level, question')
+      .eq('id', questionId)
+      .is('parent_id', null)
+      .maybeSingle(),
+    supabase
+      .from('question_exposure')
+      .select('question_id')
+      .eq('user_id', userId)
+      .eq('question_id', questionId)
+      .maybeSingle(),
+    // Base steps (block roots) for this question that have been graded. RLS already
+    // scopes this to the current user's own interviews; we join the interview kind.
+    supabase
+      .from('interview_steps')
+      .select('id, interview_id, ai_grade, score_numeric, ai_feedback, user_answer, created_at, interviews ( kind )')
+      .eq('question_id', questionId)
+      .eq('is_follow_up', false)
+      .not('ai_grade', 'is', null)
+      .order('created_at', { ascending: false }),
+  ]);
+
+  if (!questionRaw) return null;
+  const q = questionRaw as {
+    id: number;
+    category: string;
+    subtopic: string | null;
+    difficulty: number | null;
+    candidate_level: string | null;
+    question: string;
+  };
+
+  type StepRow = {
+    id: number;
+    interview_id: string;
+    ai_grade: string | null;
+    score_numeric: number | null;
+    ai_feedback: string | null;
+    user_answer: string | null;
+    created_at: string | null;
+    interviews: { kind: string | null } | { kind: string | null }[] | null;
+  };
+
+  const steps = (stepsRaw ?? []) as StepRow[];
+
+  const feedback: VaultFeedback[] = steps.map((s) => {
+    const iv = Array.isArray(s.interviews) ? s.interviews[0] : s.interviews;
+    const kind = iv?.kind === 'deep_dive' ? 'deep_dive' : 'standard';
+    return {
+      stepId: s.id,
+      interviewId: s.interview_id,
+      kind,
+      grade: s.ai_grade,
+      scoreNumeric: typeof s.score_numeric === 'number' ? s.score_numeric : null,
+      feedback: s.ai_feedback,
+      answer: s.user_answer,
+      createdAt: s.created_at,
+    };
+  });
+
+  let bestGrade: string | null = null;
+  let scoreSum = 0;
+  let scoreCount = 0;
+  let deepDiveCount = 0;
+  for (const f of feedback) {
+    bestGrade = bestOf(bestGrade, f.grade);
+    if (typeof f.scoreNumeric === 'number') {
+      scoreSum += f.scoreNumeric;
+      scoreCount += 1;
+    }
+    if (f.kind === 'deep_dive') deepDiveCount += 1;
+  }
+
+  return {
+    id: q.id,
+    category: q.category,
+    subtopic: q.subtopic,
+    difficulty: q.difficulty,
+    candidate_level: q.candidate_level,
+    question: q.question,
+    unlocked: Boolean(exposure),
+    bestGrade,
+    attempts: feedback.length,
+    deepDiveCount,
+    avgScore: scoreCount > 0 ? Math.round((scoreSum / scoreCount) * 10) / 10 : null,
+    feedback,
+  };
+}
