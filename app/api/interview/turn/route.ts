@@ -36,7 +36,7 @@ type StepRow = {
     subtopic: string | null;
     difficulty: number | null;
   } | null;
-  interviews: { candidate_level: string; total_questions: number | null; input_mode: string | null } | null;
+  interviews: { candidate_level: string; total_questions: number | null; input_mode: string | null; kind: string | null } | null;
 };
 
 type AnswerRow = {
@@ -79,7 +79,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   //    If it is itself a follow-up, walk up to its parent so we always grade at the block root.
   const { data: rawStep, error: stepErr } = await supabase
     .from('interview_steps')
-    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode)')
+    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind)')
     .eq('id', body.stepId)
     .maybeSingle();
   if (stepErr || !rawStep) {
@@ -89,7 +89,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   if (step.is_follow_up && step.parent_step_id) {
     const { data: parent } = await supabase
       .from('interview_steps')
-      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode)')
+      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind)')
       .eq('id', step.parent_step_id)
       .maybeSingle();
     if (parent) step = parent as unknown as StepRow;
@@ -101,7 +101,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   const subtopic = step.questions?.subtopic ?? null;
   const difficulty = step.questions?.difficulty ?? null;
   const level = (step.interviews?.candidate_level ?? 'analyst') as TurnContext['level'];
-  const isCase = category.toLowerCase() === 'case study';
+  const isCase = category.toLowerCase() === 'case study' || step.interviews?.kind === 'deep_dive';
   const maxFollowUps = isCase ? CASE_MAX_FOLLOWUPS : NORMAL_MAX_FOLLOWUPS;
 
   // 2. Find every child follow-up step under this base, ordered.
