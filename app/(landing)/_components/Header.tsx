@@ -24,6 +24,7 @@ export default function LandingHeader({ signedIn = false, isAdmin = false, isPai
           </>
         )}
         <Link href="/knowledge" className="hover:text-ink">Knowledge Hub</Link>
+        <Link href={signedIn ? '/vault' : '/login'} className="hover:text-ink">Question Vault</Link>
         {onLanding && (
           <a href="/#faq" className="hover:text-ink">FAQ</a>
         )}
