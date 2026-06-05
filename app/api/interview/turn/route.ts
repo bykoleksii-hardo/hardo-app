@@ -233,7 +233,8 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     const pct = turnMax > 0 ? cas / turnMax : 0;
     const belowAdvance = pct < ADVANCE_THRESHOLD;
     const atLimit = followUpsSoFar >= maxFollowUps;
-    if (belowAdvance || atLimit) {
+    const emptyFollowUp = ai.kind === 'follow_up' && (!ai.follow_up_question || !String(ai.follow_up_question).trim());
+    if (belowAdvance || atLimit || emptyFollowUp) {
       // Force close_block - either too weak or no follow-ups left.
       ai.kind = 'close_block';
       console.warn('[turn] forcing close_block', { reason: belowAdvance ? 'below_advance_threshold' : 'fu_limit_reached', score: cas, turnMax, pct, followUpsSoFar, maxFollowUps, baseStepId });
