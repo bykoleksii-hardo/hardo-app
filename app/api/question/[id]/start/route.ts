@@ -61,7 +61,7 @@ export const POST = withLogging('POST /api/question/[id]/start', async (
   // 3. Load the question to pick a sensible candidate level for the persona.
   const { data: question } = await supabase
     .from('questions')
-    .select('id, candidate_level')
+    .select('id, candidate_level, question')
     .eq('id', questionId)
     .maybeSingle();
   if (!question) {
@@ -99,6 +99,7 @@ export const POST = withLogging('POST /api/question/[id]/start', async (
       is_follow_up: false,
       ai_decision: 'deep_dive_seed',
       ai_reason: 'deep dive: single-question session (up to 5 follow-ups)',
+      delivered_question: (question as { question?: string | null }).question ?? null,
     });
   if (stepErr) {
     logger.error('deep_dive: failed to seed step', stepErr);
