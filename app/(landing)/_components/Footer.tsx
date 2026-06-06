@@ -27,6 +27,7 @@ export default function LandingFooter({ signedIn = false, isPaid = false }: Prop
               <li><a href="/#pricing" className="hover:text-ink">Pricing</a></li>
             )}
             <li><Link href="/knowledge" className="hover:text-ink">Knowledge Hub</Link></li>
+            <li><Link href="/vault" className="hover:text-ink">Question Vault</Link></li>
             {!isPaid && (
               <li><Link href="/upgrade" className="hover:text-ink">Upgrade</Link></li>
             )}
