@@ -97,6 +97,7 @@ export interface InterviewSummaryRow {
 export interface InterviewHistoryItem {
   id: string;
   candidate_level: CandidateLevel;
+  kind?: string;
   input_mode: string | null;
   status: InterviewStatus;
   started_at: string;
