@@ -16,7 +16,7 @@ import { withLogging, logger } from '@/lib/observability';
 //   - authenticated, question locked  -> 403 { reason: 'locked' }
 //   - subscribed + unlocked          -> 200 { interview_id }
 export const POST = withLogging('POST /api/question/[id]/start', async (
-  _request: Request,
+  request: Request,
   ctx: { params: Promise<{ id: string }> },
   logCtx: { requestId: string },
 ) => {
@@ -28,6 +28,15 @@ export const POST = withLogging('POST /api/question/[id]/start', async (
   const questionId = Number(idStr);
   if (!Number.isInteger(questionId) || questionId <= 0) {
     return NextResponse.json({ error: 'bad request' }, { status: 400 });
+  }
+
+  // Optional input mode (voice | text) chosen by the user before launching.
+  let inputMode: 'voice' | 'text' = 'text';
+  try {
+    const reqBody = (await request.json().catch(() => null)) as { input_mode?: unknown } | null;
+    if (reqBody && reqBody.input_mode === 'voice') inputMode = 'voice';
+  } catch {
+    // no body / invalid JSON -> keep default 'text'
   }
 
   // 1. Gate on active subscription via the canonical quota RPC.
@@ -81,6 +90,7 @@ export const POST = withLogging('POST /api/question/[id]/start', async (
       total_questions: 1,
       total_followups: 0,
       kind: 'deep_dive',
+      input_mode: inputMode,
     })
     .select('id')
     .maybeSingle();
