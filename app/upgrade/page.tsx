@@ -53,7 +53,8 @@ export default async function UpgradePage() {
                 <li>Unlimited interviews across Intern, Analyst, and Associate</li>
                 <li>Voice answers with Whisper transcription</li>
                 <li>Full history and trend tracking</li>
-                <li>Knowledge Hub access (when articles ship)</li>
+                <li>Full Knowledge Hub — playbooks and breakdowns</li>
+                <li>Question Vault — unlimited Deep Dives on any question</li>
               </ul>
 
               {isPaid ? (
@@ -82,14 +83,15 @@ export default async function UpgradePage() {
             <div className="border border-line rounded-md p-8 bg-paper">
               <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Why upgrade</div>
               <h2 className="mt-3 font-serif text-[26px] font-medium leading-snug">
-                Stop guessing if you{'\u2019'}re ready.
+                Train for the room that decides the offer.
               </h2>
               <p className="mt-4 text-[14.5px] text-ink-2 leading-relaxed">
                 The free interview is a single Intern-level session. HARDO opens up Analyst and Associate rooms, where the case is harder, follow-ups go deeper, and the bar is closer to a real superday.
               </p>
               <ul className="mt-6 space-y-2 text-[13.5px] text-ink-2">
-                <li>{'\u2022'} 3 rooms vs. 1</li>
-                <li>{'\u2022'} Up to 5 follow-ups on the case (vs. 2 on standard)</li>
+                <li>{'\u2022'} Three rooms — Intern, Analyst, and Associate</li>
+                <li>{'\u2022'} Unlimited interviews, not a single trial</li>
+                <li>{'\u2022'} Question Vault — Deep Dive any question, up to 5 follow-ups</li>
                 <li>{'\u2022'} Trend tracking session-over-session</li>
                 <li>{'\u2022'} $14.99 {'\u00b7'} less than one hour with a tutor.</li>
               </ul>
