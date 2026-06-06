@@ -35,11 +35,15 @@ function fmtDate(iso: string) {
 }
 
 function fmtDur(startIso: string, endIso: string | null) {
-  if (!endIso) return '—';
+  if (!endIso) return 'â';
   const ms = new Date(endIso).getTime() - new Date(startIso).getTime();
-  if (ms <= 0) return '—';
+  if (ms <= 0) return 'â';
   const min = Math.round(ms / 60000);
   return `${min}m`;
+}
+
+function kindLabel(kind: string | null | undefined): string {
+  return kind === 'deep_dive' ? 'Deep dive' : 'Full interview';
 }
 
 export default async function HistoryPage() {
@@ -52,10 +56,10 @@ export default async function HistoryPage() {
   if (history.length === 0) {
     return (
       <div className="border border-dashed border-[#11161E]/20 rounded-sm p-16 text-center">
-        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">— NO HISTORY YET</div>
+        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">â NO HISTORY YET</div>
         <h2 className="font-serif text-3xl mb-3">Every run lands here.</h2>
-        <p className="text-sm text-[#11161E]/65 max-w-md mx-auto mb-6">After each interview you'll see the level, your grade, and the interviewer's read — all in one place.</p>
-        <Link href="/interview/setup" className="inline-block bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-8 py-3.5 rounded-sm hover:bg-[#9C6F1E] transition-colors">Start your first interview →</Link>
+        <p className="text-sm text-[#11161E]/65 max-w-md mx-auto mb-6">After each interview you'll see the level, your grade, and the interviewer's read â all in one place.</p>
+        <Link href="/interview/setup" className="inline-block bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-8 py-3.5 rounded-sm hover:bg-[#9C6F1E] transition-colors">Start your first interview â</Link>
       </div>
     );
   }
@@ -67,15 +71,15 @@ export default async function HistoryPage() {
     <div className="space-y-12">
       {inFlight.length > 0 && (
         <section>
-          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— IN PROGRESS</div>
+          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">â IN PROGRESS</div>
           <ul className="space-y-3">
             {inFlight.map((h) => (
               <li key={h.id} className="flex items-center justify-between gap-6 border border-[#B88736]/40 rounded-sm px-6 py-4 bg-[#F2ECDF]/40">
                 <div>
                   <div className="font-serif text-xl capitalize">{h.candidate_level}</div>
-                  <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">Started {fmtDate(h.started_at)} · {(h.input_mode ?? 'text').toUpperCase()}</div>
+                  <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">Started {fmtDate(h.started_at)} Â· {(h.input_mode ?? 'text').toUpperCase()} · {kindLabel(h.kind)}</div>
                 </div>
-                <Link href={`/interview/${h.id}`} className="text-[11px] tracking-[0.18em] text-[#B88736] hover:text-[#11161E] transition-colors">RESUME ↗</Link>
+                <Link href={`/interview/${h.id}`} className="text-[11px] tracking-[0.18em] text-[#B88736] hover:text-[#11161E] transition-colors">RESUME â</Link>
               </li>
             ))}
           </ul>
@@ -83,13 +87,14 @@ export default async function HistoryPage() {
       )}
 
       <section>
-        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— COMPLETED</div>
+        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">â COMPLETED</div>
         <div className="overflow-hidden border border-[#11161E]/10 rounded-sm">
           <table className="w-full text-sm">
             <thead className="bg-[#F2ECDF] text-[10px] tracking-[0.22em] text-[#11161E]/55">
               <tr>
                 <th className="text-left px-5 py-4">DATE</th>
                 <th className="text-left px-5 py-4">LEVEL</th>
+                <th className="text-left px-5 py-4">TYPE</th>
                 <th className="text-left px-5 py-4">MODE</th>
                 <th className="text-left px-5 py-4">DURATION</th>
                 <th className="text-left px-5 py-4">SCORE</th>
@@ -103,15 +108,22 @@ export default async function HistoryPage() {
                 <tr key={h.id} className="border-t border-[#11161E]/10 hover:bg-[#F2ECDF]/40">
                   <td className="px-5 py-4 text-[#11161E]/85">{fmtDate(h.started_at)}</td>
                   <td className="px-5 py-4 capitalize">{h.candidate_level}</td>
+                  <td className="px-5 py-4">
+                    {h.kind === 'deep_dive' ? (
+                      <span className="text-[10px] tracking-[0.16em] text-[#B88736] border border-[#B88736]/40 rounded-sm px-2 py-0.5">DEEP DIVE</span>
+                    ) : (
+                      <span className="text-[10px] tracking-[0.16em] text-[#11161E]/55">FULL</span>
+                    )}
+                  </td>
                   <td className="px-5 py-4 text-[#11161E]/65">{(h.input_mode ?? 'text').toUpperCase()}</td>
                   <td className="px-5 py-4 text-[#11161E]/65">{fmtDur(h.started_at, h.finished_at)}</td>
-                  <td className="px-5 py-4">{h.overall_score !== null ? h.overall_score.toFixed(1) : '—'}</td>
-                  <td className={`px-5 py-4 font-serif text-lg ${gradeColor(h.letter_grade)}`}>{h.letter_grade ?? '—'}</td>
+                  <td className="px-5 py-4">{h.overall_score !== null ? h.overall_score.toFixed(1) : 'â'}</td>
+                  <td className={`px-5 py-4 font-serif text-lg ${gradeColor(h.letter_grade)}`}>{h.letter_grade ?? 'â'}</td>
                   <td className={`px-5 py-4 text-[11px] tracking-[0.18em] ${h.hire_recommendation ? (HIRE_COLOR[h.hire_recommendation] ?? '') : 'text-[#11161E]/55'}`}>
-                    {h.hire_recommendation ? (HIRE_LABEL[h.hire_recommendation] ?? h.hire_recommendation).toUpperCase() : '—'}
+                    {h.hire_recommendation ? (HIRE_LABEL[h.hire_recommendation] ?? h.hire_recommendation).toUpperCase() : 'â'}
                   </td>
                   <td className="px-5 py-4 text-right">
-                    <Link href={`/interview/${h.id}/summary`} className="text-[11px] tracking-[0.18em] text-[#B88736] hover:text-[#11161E] transition-colors">VIEW ↗</Link>
+                    <Link href={`/interview/${h.id}/summary`} className="text-[11px] tracking-[0.18em] text-[#B88736] hover:text-[#11161E] transition-colors">VIEW â</Link>
                   </td>
                 </tr>
               ))}

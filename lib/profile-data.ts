@@ -216,13 +216,14 @@ export async function getProfileHistory(userId: string): Promise<InterviewHistor
   const supabase = await getSupabaseServer();
   const { data: interviews } = await supabase
     .from('interviews')
-    .select('id, candidate_level, input_mode, status, started_at, finished_at')
+    .select('id, candidate_level, kind, input_mode, status, started_at, finished_at')
     .eq('user_id', userId)
     .order('started_at', { ascending: false });
 
   const rows = (interviews ?? []) as Array<{
     id: string;
     candidate_level: string;
+    kind: string | null;
     input_mode: string | null;
     status: string;
     started_at: string;
@@ -248,6 +249,7 @@ export async function getProfileHistory(userId: string): Promise<InterviewHistor
   return rows.map((r) => ({
     id: r.id,
     candidate_level: (r.candidate_level as any) ?? 'intern',
+    kind: r.kind ?? 'standard',
     input_mode: r.input_mode,
     status: (r.status as any) ?? 'pending',
     started_at: r.started_at,
