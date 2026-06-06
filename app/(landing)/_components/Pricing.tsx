@@ -47,7 +47,9 @@ export default function Pricing() {
             <ul className="mt-8 space-y-3 text-[14.5px] text-ink-2">
               <li>Unlimited interviews across all three rooms</li>
               <li>Intern, Analyst, and Associate question pools</li>
+              <li>Question Vault — Deep Dive any question</li>
               <li>Voice answers {'\u00b7'} Whisper transcription</li>
+              <li>Full Knowledge Hub — playbooks and breakdowns</li>
               <li>Full history and trend tracking</li>
             </ul>
             <Link
