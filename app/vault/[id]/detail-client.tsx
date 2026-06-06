@@ -62,6 +62,7 @@ export function QuestionDetailClient({
   const router = useRouter();
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inputMode, setInputMode] = useState<'text' | 'voice'>('text');
 
   async function startDeepDive() {
     if (starting) return;
@@ -72,7 +73,11 @@ export function QuestionDetailClient({
     setStarting(true);
     setError(null);
     try {
-      const res = await fetch(`/api/question/${detail.id}/start`, { method: 'POST' });
+      const res = await fetch(`/api/question/${detail.id}/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input_mode: inputMode }),
+      });
       if (res.status === 401) {
         router.push('/login');
         return;
@@ -143,6 +148,32 @@ export function QuestionDetailClient({
           Run this question on its own with up to five follow-ups, graded the same way as a real round.
           It will not use your free interview.
         </p>
+        {isPaid && (
+          <div className="mb-5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted block mb-2">How will you answer?</span>
+            <div className="inline-flex rounded-sm border border-line overflow-hidden">
+              {(['text', 'voice'] as const).map((m) => {
+                const isActive = m === inputMode;
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setInputMode(m)}
+                    aria-pressed={isActive}
+                    className={`font-mono text-[11px] uppercase tracking-[0.16em] px-4 py-2 transition-colors ${isActive ? 'bg-ink text-paper' : 'bg-paper text-ink-2 hover:text-ink'}`}
+                  >
+                    {m === 'text' ? 'Type' : 'Speak'}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-[12px] text-ink-2">
+              {inputMode === 'voice'
+                ? 'Speak your answer out loud \u2014 microphone required, transcript is editable.'
+                : 'Type your answer \u2014 quiet practice, edit before you send.'}
+            </p>
+          </div>
+        )}
         <button
           type="button"
           onClick={startDeepDive}
