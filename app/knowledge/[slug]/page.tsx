@@ -18,9 +18,28 @@ export async function generateMetadata(
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
   if (!article) return { title: 'Article not found \u2014 HARDO' };
+  const title = article.title + ' \u2014 HARDO';
+  const description = article.description ?? undefined;
+  const url = `/knowledge/${article.slug}`;
+  const images = article.cover_url ? [article.cover_url] : undefined;
   return {
-    title: article.title + ' \u2014 HARDO',
-    description: article.description ?? undefined,
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url,
+      ...(article.published_at ? { publishedTime: article.published_at } : {}),
+      ...(images ? { images } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      ...(images ? { images } : {}),
+    },
   };
 }
 
@@ -97,17 +116,17 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             className="prose-hardo mt-10"
             dangerouslySetInnerHTML={{ __html: html }}
           />
-        <div className="mt-14 border-t border-line pt-10 text-center">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-muted">
-            Reading is reps. Now take the rep. 
-          </p>
-          <Link
-            href={viewer.plan === 'anon' ? '/login' : '/interview/setup'}
-            className="hero-pulse mt-5 inline-flex items-center gap-2 bg-ink text-paper text-[15px] font-medium px-9 py-4 rounded-full hover:bg-navy transition-colors"
-          >
-            Drill this in a mock <span aria-hidden>{'\u2192'}</span>
-          </Link>
-        </div>
+          <div className="mt-14 border-t border-line pt-10 text-center">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted">
+              Reading is reps. Now take the rep.
+            </p>
+            <Link
+              href={viewer.plan === 'anon' ? '/login' : '/interview/setup'}
+              className="hero-pulse mt-5 inline-flex items-center gap-2 bg-ink text-paper text-[15px] font-medium px-9 py-4 rounded-full hover:bg-navy transition-colors"
+            >
+              Drill this in a mock <span aria-hidden>{'\u2192'}</span>
+            </Link>
+          </div>
         </article>
 
         <script
