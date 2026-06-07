@@ -161,10 +161,14 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                     HARDO
                   </div>
                 )}
-                <div className="mb-6 h-80 rounded-sm border border-[#11161E]/10 overflow-hidden relative">
+                <div className="mb-6 h-80 rounded-sm border border-[#11161E]/10 overflow-hidden relative bg-[#F2ECDF]">
                   <img
                     src={`/levels/${lvl.id}.png`}
                     alt={`${lvl.title} interview illustration`}
+                    width={1402}
+                    height={1122}
+                    loading="eager"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover object-top"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#FBF7EE] via-[#FBF7EE]/30 to-transparent" />
