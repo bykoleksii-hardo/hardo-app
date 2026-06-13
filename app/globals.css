@@ -1159,6 +1159,37 @@ body.font-sans {
 }
 .room-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(184,135,54,0.45), transparent); }
 
+/* Scannable feature blocks inside The Room */
+.room-feat {
+  position: relative;
+  padding-top: 22px;
+  border-top: 1px solid rgba(184, 135, 54, 0.28);
+}
+.room-feat-ico {
+  color: var(--gold);
+  margin-bottom: 14px;
+  display: inline-flex;
+}
+.room-feat-title {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 20px;
+  letter-spacing: -0.005em;
+  color: #F6F0E2;
+  line-height: 1.2;
+}
+.room-feat-num {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  color: var(--gold);
+  font-weight: 500;
+}
+.room-feat-desc {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(237, 230, 214, 0.70);
+}
+
 /* concentric "room" ring that breathes */
 .room-ring {
   position: absolute;
