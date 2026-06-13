@@ -1106,6 +1106,11 @@ body.font-sans {
   background:
     radial-gradient(60% 50% at 50% 0%, rgba(184, 135, 54, 0.20) 0%, transparent 60%),
     radial-gradient(40% 60% at 85% 110%, rgba(184, 135, 54, 0.10) 0%, transparent 55%);
+  animation: room-glow 9s ease-in-out infinite;
+}
+@keyframes room-glow {
+  0%, 100% { opacity: 0.8; }
+  50%      { opacity: 1; }
 }
 /* fine film grain */
 .room::after {
@@ -1164,12 +1169,42 @@ body.font-sans {
   position: relative;
   padding-top: 22px;
   border-top: 1px solid rgba(184, 135, 54, 0.28);
+  /* scroll-in entrance (revealed when an ancestor gets .is-in) */
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 740ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 740ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 320ms ease;
 }
+.is-in .room-feat { opacity: 1; transform: none; transition-delay: var(--d, 0ms); }
+.room-feat:hover { border-color: rgba(184, 135, 54, 0.7); }
 .room-feat-ico {
   color: var(--gold);
   margin-bottom: 14px;
   display: inline-flex;
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
+.room-feat:hover .room-feat-ico { transform: translateY(-3px); }
+/* Outline icons "draw" themselves in on reveal */
+.room-feat-ico svg :is(path, line, rect, circle, polyline) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 900ms ease;
+}
+.is-in .room-feat-ico svg :is(path, line, rect, circle, polyline) {
+  stroke-dashoffset: 0;
+  transition-delay: calc(var(--d, 0ms) + 180ms);
+}
+/* Header entrance inside The Room */
+.room .r-anim {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 760ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.room .is-in .r-anim { opacity: 1; transform: none; transition-delay: var(--d, 0ms); }
 .room-feat-title {
   font-family: var(--font-serif), Georgia, serif;
   font-weight: 400;
