@@ -1461,3 +1461,70 @@ body.font-sans {
   bottom: 0;
   background: linear-gradient(to top, #FBF7EE 0%, rgba(251,247,238,0.72) 26%, rgba(251,247,238,0) 100%);
 }
+
+
+/* =========================================================
+   Landing sections — premium hover + on-reveal life (Phase 9)
+   Reveal adds .is-in to each wrapper when it scrolls into view;
+   these rules animate the signature visuals at that moment.
+   All neutralized by the global prefers-reduced-motion rule.
+   ========================================================= */
+
+/* Hover lift for the bordered marketing cards */
+.ww-card {
+  transition: transform 340ms cubic-bezier(0.16,1,0.3,1), box-shadow 340ms ease, border-color 340ms ease;
+}
+.ww-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold-line);
+  box-shadow: 0 28px 54px -34px rgba(14, 30, 54, 0.28);
+}
+
+/* HowItWorks steps: gentle tint + gold accent on hover */
+.step-cell { transition: background-color 320ms ease; }
+.step-cell:hover { background: rgba(184, 135, 54, 0.045); }
+.step-cell:hover .step-visual { border-top-color: var(--gold-line); }
+
+/* on-reveal: the big letter grade pops in */
+.ww-bigA {
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity 720ms ease, transform 760ms cubic-bezier(0.16,1,0.3,1);
+}
+.is-in .ww-bigA { opacity: 1; transform: none; }
+
+/* on-reveal: the radar score polygon locks in from the centre */
+.ww-score-poly {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  transform: scale(0.25);
+  transition: opacity 600ms ease 160ms, transform 900ms cubic-bezier(0.16,1,0.3,1) 160ms;
+}
+.is-in .ww-score-poly { opacity: 1; transform: none; }
+
+/* on-reveal: follow-up dots fill one at a time */
+.ww-dots li.on {
+  transform: scale(0);
+  transition: transform 440ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.is-in .ww-dots li.on { transform: scale(1); }
+.is-in .ww-dots li.on:nth-of-type(1) { transition-delay: 140ms; }
+.is-in .ww-dots li.on:nth-of-type(2) { transition-delay: 270ms; }
+.is-in .ww-dots li.on:nth-of-type(3) { transition-delay: 400ms; }
+
+/* on-reveal: the "You" pin slides into the hire ladder */
+.ww-ladder .pin {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 520ms ease 320ms, transform 520ms cubic-bezier(0.16,1,0.3,1) 320ms;
+}
+.is-in .ww-ladder .pin { opacity: 1; transform: none; }
+
+/* on-reveal: HowItWorks step-02 waveform comes alive */
+.wave i { transform-origin: bottom; }
+.is-in .wave i { animation: wave-bar 1.25s ease-in-out infinite; }
+
+/* Knowledge teaser cards lift slightly on hover */
+.kn-card { transition: transform 320ms cubic-bezier(0.16,1,0.3,1); }
+.kn-card:hover { transform: translateY(-3px); }

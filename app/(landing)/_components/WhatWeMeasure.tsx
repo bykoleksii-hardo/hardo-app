@@ -104,6 +104,7 @@ export default function WhatWeMeasure() {
                   />
                   {/* score polygon */}
                   <polygon
+                    className="ww-score-poly"
                     points={[55, 48, 42, 32, 50, 58].map((r, i) => {
                       const a = (Math.PI / 3) * i - Math.PI / 2;
                       return (Math.cos(a) * r).toFixed(1) + ',' + (Math.sin(a) * r).toFixed(1);
