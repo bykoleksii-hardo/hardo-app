@@ -129,15 +129,15 @@ export function QuestionDetailClient({
       )}
 
       <div className="grid grid-cols-3 gap-3 mb-9">
-        <div className="border border-line rounded-sm bg-paper p-4 text-center">
+        <div className="lift border border-line rounded-sm bg-paper p-4 text-center">
           <p className="font-serif text-2xl text-ink">{detail.attempts}</p>
           <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Attempts</p>
         </div>
-        <div className="border border-line rounded-sm bg-paper p-4 text-center">
+        <div className="lift border border-line rounded-sm bg-paper p-4 text-center">
           <p className="font-serif text-2xl text-ink">{detail.avgScore ?? '\u2014'}</p>
           <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Avg score</p>
         </div>
-        <div className="border border-line rounded-sm bg-paper p-4 text-center">
+        <div className="lift border border-line rounded-sm bg-paper p-4 text-center">
           <p className="font-serif text-2xl text-ink">{detail.deepDiveCount}</p>
           <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Deep dives</p>
         </div>
@@ -204,7 +204,7 @@ export function QuestionDetailClient({
           {detail.feedback.map((f) => {
             const fb = parseFeedback(f.feedback);
             return (
-              <li key={f.stepId} className="border border-line rounded-sm bg-paper p-5">
+              <li key={f.stepId} className="border border-line rounded-sm bg-paper p-5 transition-colors hover:border-[#B88736]/40">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     {f.grade && (

@@ -157,7 +157,7 @@ export default function LoginClient() {
       <div className="flex flex-col justify-center px-8 sm:px-16 lg:px-24 py-16">
         <div className="max-w-md w-full mx-auto">
           {/* Brand */}
-          <div className="mb-12"><Brand size="md" href="/" /></div>
+          <div className="anim-rise d1 mb-12"><Brand size="md" href="/" /></div>
 
           {resetExpired ? (
             <div className="mb-6 rounded-md border border-[#9C2E2E]/30 bg-[#9C2E2E]/5 px-4 py-3">
@@ -187,12 +187,12 @@ export default function LoginClient() {
           )}
 
           {/* Heading */}
-          <h1 className="font-serif text-4xl sm:text-5xl leading-tight mb-3">
+          <h1 className="anim-rise d2 font-serif text-4xl sm:text-5xl leading-tight mb-3">
             {mode === 'signin' && (<>Welcome <em className="text-[#B88736] not-italic font-serif italic">back.</em></>)}
             {mode === 'signup' && (<>Start your <em className="text-[#B88736] not-italic font-serif italic">prep.</em></>)}
             {mode === 'verify' && (<>Confirm your <em className="text-[#B88736] not-italic font-serif italic">email.</em></>)}
           </h1>
-          <p className="text-[#11161E]/70 mb-10 leading-relaxed">
+          <p className="anim-rise d3 text-[#11161E]/70 mb-10 leading-relaxed">
             {mode === 'signin' && 'Pick up where you left off.'}
             {mode === 'signup' && 'Eight characters minimum. No SSO yet — keep it simple.'}
             {mode === 'verify' && `We sent a code to ${email}. Enter it below.`}
@@ -413,20 +413,20 @@ export default function LoginClient() {
       {/* RIGHT  -  pitch */}
       <div className="hidden lg:flex flex-col justify-center bg-[#F2ECDF] border-l border-[#11161E]/10 px-16 py-16">
         <div className="max-w-lg">
-          <div className="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-[#11161E]/60 mb-12">
+          <div className="anim-rise d2 flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase text-[#11161E]/60 mb-12">
             <span className="w-1.5 h-1.5 rounded-full bg-[#B88736]" />
             <span>Built for IB recruiting</span>
           </div>
 
-          <h2 className="font-serif text-4xl sm:text-5xl leading-[1.1] mb-8">
+          <h2 className="anim-rise d3 font-serif text-4xl sm:text-5xl leading-[1.1] mb-8">
             Mock interviews that <em className="text-[#B88736] not-italic font-serif italic">actually</em> resemble the real thing.
           </h2>
 
-          <p className="text-[#11161E]/70 leading-relaxed mb-12">
+          <p className="anim-rise d4 text-[#11161E]/70 leading-relaxed mb-12">
             Sharp answers. Unscripted follow-ups. A scorecard graded against bulge brackets and elite boutiques — not a generic rubric.
           </p>
 
-          <ol className="space-y-6 text-sm">
+          <ol className="anim-rise d5 space-y-6 text-sm">
             <Step n="01" title="Pick a vertical">M&amp;A, LBO, restructuring, valuation — or random.</Step>
             <Step n="02" title="Run the drill">Typed answers, technicals, fit. The interviewer presses back.</Step>
             <Step n="03" title="Read the scorecard">Specific feedback on math, structure, and what an MD would actually say.</Step>
