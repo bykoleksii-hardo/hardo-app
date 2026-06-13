@@ -3,6 +3,7 @@ import Brand from '@/app/_components/Brand';
 import ShareLinkButton from './share-button';
 import SummaryQuestions from './SummaryQuestions';
 import NextStepsCard from './NextStepsCard';
+import CountUp from '@/app/_components/CountUp';
 import { getSupabaseServer } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -187,11 +188,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
-        <div className="text-[11px] tracking-[0.22em] text-gold mb-3">{'> YOUR SCORECARD'}</div>
-        <h1 className="font-serif text-3xl sm:text-5xl leading-[1.15] mb-6">
+        <div className="anim-rise d1 text-[11px] tracking-[0.22em] text-gold mb-3">{'> YOUR SCORECARD'}</div>
+        <h1 className="anim-rise d2 font-serif text-3xl sm:text-5xl leading-[1.15] mb-6">
           {heading}
         </h1>
-        <p className="text-ink/65 max-w-2xl mb-12">
+        <p className="anim-rise d3 text-ink/65 max-w-2xl mb-12">
           {subheading}
         </p>
 
@@ -209,10 +210,10 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        <div className="border border-ink/15 bg-cream/40 p-6 sm:p-8 mb-12 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+        <div className="anim-rise d4 border border-ink/15 bg-cream/40 p-6 sm:p-8 mb-12 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
           <div>
             <div className="text-[11px] tracking-[0.22em] text-ink/45 mb-2">— OVERALL</div>
-            <div className="font-serif text-4xl text-ink">{(() => { const raw = summary?.overall_score ?? interview.final_score; return raw == null ? '-' : (Math.round((Number(raw) / 10) * 10) / 10).toFixed(1); })()}</div>
+            <div className="font-serif text-4xl text-ink">{(() => { const raw = summary?.overall_score ?? interview.final_score; return raw == null ? '-' : <CountUp value={Math.round(Number(raw)) / 10} decimals={1} />; })()}</div>
             <div className="text-[11px] text-ink/45 mt-1">{isCompleted ? 'out of 10' : 'awaiting AI review'}</div>
           </div>
           <div>

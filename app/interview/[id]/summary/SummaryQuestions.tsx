@@ -259,7 +259,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                   ref={(el) => { detailsRefs.current.set(s.id, el); }}
                   open={isOpen}
                   onToggle={(e) => toggle(s.id, (e.currentTarget as HTMLDetailsElement).open)}
-                  className="group border border-ink/10 bg-cream/30 hover:border-ink/20 transition-colors"
+                  className="group border border-ink/10 bg-cream/30 hover:border-gold/40 hover:shadow-[0_18px_40px_-30px_rgba(14,30,54,0.22)] transition-all duration-300"
                 >
                   <summary className="list-none cursor-pointer p-5 flex items-start gap-4 select-none">
                     <div className="flex-1 min-w-0">
