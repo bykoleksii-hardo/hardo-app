@@ -1,4 +1,5 @@
 import Reveal from '@/app/_components/Reveal';
+import Parallax from '@/app/_components/Parallax';
 
 const BAR_COUNT = 56;
 function makeBars() {
@@ -16,7 +17,8 @@ const BARS = makeBars();
 
 export default function VoiceMode() {
   return (
-    <section id="voice" className="border-t border-line bg-cream/60">
+    <section id="voice" className="relative overflow-hidden border-t border-line bg-cream/60">
+      <Parallax ariaHidden speed={0.22} className="bg-orb" style={{ top: '-160px', right: '-140px' }} />
       <Reveal>
         <div className="max-w-page mx-auto px-6 py-20 grid gap-12 md:gap-20 md:grid-cols-[1fr_1.18fr] md:items-center">
           <div>
