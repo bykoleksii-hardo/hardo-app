@@ -14,6 +14,7 @@ import {
 import { getTimeLimitSeconds } from '@/lib/timer-config';
 import { withLogging } from '@/lib/observability';
 import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
+import { tooLong, LIMITS } from '@/lib/validation';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -36,7 +37,7 @@ type StepRow = {
     subtopic: string | null;
     difficulty: number | null;
   } | null;
-  interviews: { candidate_level: string; total_questions: number | null; input_mode: string | null; kind: string | null } | null;
+  interviews: { candidate_level: string; total_questions: number | null; input_mode: string | null; kind: string | null; user_id: string } | null;
 };
 
 type AnswerRow = {
@@ -74,22 +75,29 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   if (message.length < 1) {
     return NextResponse.json({ error: 'message empty' }, { status: 400 });
   }
+  if (tooLong(message, LIMITS.ANSWER)) {
+    return NextResponse.json({ error: 'message too long' }, { status: 400 });
+  }
 
   // 1. Resolve the step. The "active" step from the client is the BASE step of the block.
   //    If it is itself a follow-up, walk up to its parent so we always grade at the block root.
   const { data: rawStep, error: stepErr } = await supabase
     .from('interview_steps')
-    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind)')
+    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind, user_id)')
     .eq('id', body.stepId)
     .maybeSingle();
   if (stepErr || !rawStep) {
-    return NextResponse.json({ error: stepErr?.message ?? 'step not found' }, { status: 404 });
+    return NextResponse.json({ error: 'step not found' }, { status: 404 });
   }
   let step = rawStep as unknown as StepRow;
+  // Defence-in-depth ownership check (don't rely on RLS alone for this write path).
+  if (!step.interviews || step.interviews.user_id !== user.id) {
+    return NextResponse.json({ error: 'not found' }, { status: 404 });
+  }
   if (step.is_follow_up && step.parent_step_id) {
     const { data: parent } = await supabase
       .from('interview_steps')
-      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind)')
+      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind, user_id)')
       .eq('id', step.parent_step_id)
       .maybeSingle();
     if (parent) step = parent as unknown as StepRow;
@@ -207,10 +215,10 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   } catch (e) {
     if (e instanceof OpenAIError) {
       console.error('[turn] openai error', { status: e.status, code: e.code, type: e.type, message: e.message, raw: e.rawBody });
-      return NextResponse.json({ error: e.message, code: e.code, friendly: e.friendly }, { status: 502 });
+      return NextResponse.json({ friendly: e.friendly }, { status: 502 });
     }
     console.error('[turn] openai error (unknown)', e);
-    return NextResponse.json({ error: (e as Error).message, friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
+    return NextResponse.json({ friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
   // Decision rule enforcement (Phase E.1 - force full block depth on strong answers).
@@ -344,11 +352,11 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
       });
       if (insertErr) {
         console.error('[turn] insert_followup_step transport error', insertErr);
-        return NextResponse.json({ error: insertErr.message }, { status: 500 });
+        return NextResponse.json({ error: 'Could not continue the interview. Please try again.' }, { status: 500 });
       }
       if (insertResult && (insertResult as { ok?: boolean }).ok === false) {
         console.error('[turn] insert_followup_step business error', { insertResult, baseStepId });
-        return NextResponse.json({ error: 'insert_followup_step rejected', detail: insertResult }, { status: 500 });
+        return NextResponse.json({ error: 'Could not continue the interview. Please try again.' }, { status: 500 });
       }
       const newStepId = (insertResult as { step_id?: string } | null)?.step_id ?? null;
       return NextResponse.json({
@@ -432,7 +440,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   });
   if (gradeErr) {
     console.error('[turn] apply_ai_grade transport error', gradeErr);
-    return NextResponse.json({ error: gradeErr.message }, { status: 500 });
+    return NextResponse.json({ error: 'Could not save your grade. Please try again.' }, { status: 500 });
   }
   if (gradeResult && (gradeResult as { ok?: boolean }).ok === false) {
     console.error('[turn] apply_ai_grade business error', { gradeResult, grade, baseStepId });

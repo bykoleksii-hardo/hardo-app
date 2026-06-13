@@ -161,7 +161,7 @@ function PaidHero() {
               Your profile
             </Link>
           </div>
-          <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Voice with live Whisper transcript. Real banker rubric at the end.</p>
+          <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Voice answers with an editable Whisper transcript. Real banker rubric at the end.</p>
           <div className="anim-rise d6 mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>Unlimited rooms</span>
             <span>{'\u00b7'} 12 questions / session</span>

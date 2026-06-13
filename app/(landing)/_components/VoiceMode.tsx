@@ -67,7 +67,7 @@ export default function VoiceMode() {
                 <b>1:42</b> <span className="cap">/ 2:00 cap</span>
               </div>
             </div>
-            <div className="vcard__transcript-label">Whisper {'\u00b7'} live transcript</div>
+            <div className="vcard__transcript-label">Whisper {'\u00b7'} transcript</div>
             <div className="vcard__transcript">
               {'\u201c'}I{'\u2019'}d lean on a risk-adjusted NPV. Build a peak-sales curve for the asset, apply a <em>probability of success by phase</em> {'\u2014'} Phase II to launch is roughly 15% in oncology
               <span className="vcard__caret" aria-hidden />
