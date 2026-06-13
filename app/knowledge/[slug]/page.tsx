@@ -5,6 +5,7 @@ import { getArticleBySlug } from '@/lib/knowledge/queries';
 import { renderMarkdown } from '@/lib/knowledge/markdown';
 import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
+import ArticleProgress from '@/app/_components/ArticleProgress';
 import { getViewerPlan } from '@/lib/quota/server';
 import { getUserRole } from '@/lib/auth/roles';
 
@@ -49,6 +50,11 @@ function fmtDate(s: string | null) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function readingTime(md: string): number {
+  const words = (md || '').replace(/[#>*`~\-\[\]()!]/g, ' ').split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 220));
+}
+
 export default async function ArticlePage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const article = await getArticleBySlug(slug);
@@ -75,6 +81,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   return (
     <>
       <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding />
+      <ArticleProgress />
       <main>
         <article className="max-w-3xl mx-auto px-6 pt-16 pb-20">
           <div className="mb-10">
@@ -100,7 +107,7 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             <p className="anim-rise d3 mt-5 text-[18px] text-ink-2 leading-relaxed">{article.description}</p>
           )}
           <div className="anim-rise d4 mt-6 font-mono text-[10.5px] uppercase tracking-widest text-muted">
-            {fmtDate(article.published_at)}
+            {fmtDate(article.published_at)}{article.body_md ? ` · ${readingTime(article.body_md)} min read` : ''}
           </div>
 
           {article.cover_url && (

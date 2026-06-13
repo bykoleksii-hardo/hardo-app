@@ -40,13 +40,24 @@ function safeImgUrl(u: string): string {
   return '';
 }
 
+/** URL-safe id for heading anchors / deep links. */
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[*_`#]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 60);
+}
+
 type FootnoteMap = Record<string, string>;
 
 function inline(s: string, footnotes: FootnoteMap, footnoteOrder: string[]): string {
   // First, capture footnote refs [^id] BEFORE escaping (so brackets are intact).
   // We replace them with a placeholder that survives escapeHtml.
   const refs: { id: string }[] = [];
-  let work = s.replace(/\[\^([^\]\s]+)\]/g, (_m, id) => {
+  const work = s.replace(/\[\^([^\]\s]+)\]/g, (_m, id) => {
     refs.push({ id });
     return `\u0000FN\u0000${refs.length - 1}\u0000`;
   });
@@ -153,11 +164,12 @@ export function renderMarkdown(md: string): string {
       const level = h[1].length;
       const text = inline(h[2].trim(), footnotes, footnoteOrder);
       const cls = level === 1
-        ? 'font-serif text-4xl text-ink mt-12 mb-6 leading-tight tracking-[-0.01em]'
+        ? 'font-serif text-4xl text-ink mt-12 mb-6 leading-tight tracking-[-0.01em] scroll-mt-24'
         : level === 2
-          ? 'font-serif text-3xl text-ink mt-10 mb-5 leading-tight tracking-[-0.01em]'
-          : 'font-serif text-2xl text-ink mt-8 mb-4 leading-snug';
-      html.push(`<h${level} class="${cls}">${text}</h${level}>`);
+          ? 'font-serif text-3xl text-ink mt-10 mb-5 leading-tight tracking-[-0.01em] scroll-mt-24'
+          : 'font-serif text-2xl text-ink mt-8 mb-4 leading-snug scroll-mt-24';
+      const id = slugify(h[2].trim());
+      html.push(`<h${level}${id ? ` id="${id}"` : ''} class="${cls}">${text}</h${level}>`);
       i++;
       continue;
     }
