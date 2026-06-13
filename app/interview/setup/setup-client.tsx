@@ -127,14 +127,14 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-inter">
-      <main className="max-w-[1320px] mx-auto px-12 py-16">
+    <div className="min-h-screen bg-paper text-ink font-sans">
+      <main className="max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-12 py-10 lg:py-16">
         <div className="mb-12">
-          <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— PICK YOUR ROOM</div>
-          <h1 className="font-playfair text-5xl leading-[1.05]">
-            Choose the <span className="italic text-[#B88736]">level</span> that matches today.
+          <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR ROOM</div>
+          <h1 className="font-serif text-4xl sm:text-5xl leading-[1.05]">
+            Choose the <span className="italic text-gold">level</span> that matches today.
           </h1>
-          <p className="mt-4 text-[#11161E]/65 max-w-xl text-lg">
+          <p className="mt-4 text-ink/65 max-w-xl text-lg">
             Twelve questions. Same superday flow — fit, technicals, deal walks, a curveball.
             What changes is how hard the room hits back.
           </p>
@@ -151,37 +151,38 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 onClick={() => setSelected(lvl.id)}
                 className={`text-left rounded-sm border transition-all p-7 flex flex-col relative ${
                   isActive
-                    ? 'border-[#B88736] bg-[#F2ECDF]'
-                    : 'border-[#11161E]/15 hover:border-[#11161E]/35 bg-transparent'
+                    ? 'border-gold bg-cream'
+                    : 'border-ink/15 hover:border-ink/35 bg-transparent'
                 } ${locked ? 'opacity-75' : ''}`}
                 aria-pressed={isActive}
               >
                 {locked && (
-                  <div className="absolute top-4 right-4 z-10 text-[10px] tracking-[0.22em] text-[#B88736] border border-[#B88736]/60 px-2.5 py-1 bg-[#FBF7EE]/80">
+                  <div className="absolute top-4 right-4 z-10 text-[10px] tracking-[0.22em] text-gold border border-gold/60 px-2.5 py-1 bg-paper/80">
                     HARDO
                   </div>
                 )}
-                <div className="mb-6 h-80 rounded-sm border border-[#11161E]/10 overflow-hidden relative bg-[#F2ECDF]">
+                <div className="mb-6 h-64 sm:h-80 rounded-sm border border-ink/10 overflow-hidden relative bg-cream">
                   <img
                     src={`/levels/${lvl.id}.png`}
                     alt={`${lvl.title} interview illustration`}
                     width={1402}
                     height={1122}
-                    loading="eager"
+                    loading={lvl.id === 'intern' ? 'eager' : 'lazy'}
+                    fetchPriority={lvl.id === 'intern' ? 'high' : 'auto'}
                     decoding="async"
                     className="absolute inset-0 w-full h-full object-cover object-top"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#FBF7EE] via-[#FBF7EE]/30 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-5 text-[10px] tracking-[0.22em] text-[#11161E]/75">
+                  <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/30 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-5 text-[10px] tracking-[0.22em] text-ink/75">
                     {lvl.id === 'intern' ? 'MORNING ROOM' : lvl.id === 'analyst' ? 'BOARDROOM' : 'LATE NIGHT'}
                   </div>
                 </div>
 
-                <h2 className="font-playfair text-3xl italic mb-3">{lvl.title}</h2>
-                <p className="text-sm text-[#11161E]/70 leading-relaxed mb-5 flex-1">{lvl.tagline}</p>
+                <h2 className="font-serif text-3xl italic mb-3">{lvl.title}</h2>
+                <p className="text-sm text-ink/70 leading-relaxed mb-5 flex-1">{lvl.tagline}</p>
                 <div className="flex items-center justify-between text-[11px] tracking-[0.18em]">
-                  <span className="text-[#B88736]">— 12 QUESTIONS</span>
-                  <span className="text-[#11161E]/45">{lvl.tone.toUpperCase()}</span>
+                  <span className="text-gold">— 12 QUESTIONS</span>
+                  <span className="text-ink/45">{lvl.tone.toUpperCase()}</span>
                 </div>
               </button>
             );
@@ -190,27 +191,27 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
 
         {/* PREVIEW SECTION */}
         <div className="grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-8 mt-14">
-          <div className="border-t border-[#11161E]/10 pt-8">
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-5">
-              WHAT YOU'LL GET <span className="text-[#B88736]">— {active.title.toUpperCase()}</span>
+          <div className="border-t border-ink/10 pt-8">
+            <div className="text-[11px] tracking-[0.22em] text-ink/55 mb-5">
+              WHAT YOU'LL GET <span className="text-gold">— {active.title.toUpperCase()}</span>
             </div>
-            <p className="font-playfair text-2xl leading-[1.4] text-[#11161E]/95">{active.pitch}</p>
+            <p className="font-serif text-2xl leading-[1.4] text-ink/95">{active.pitch}</p>
             <div className="flex flex-wrap gap-2 mt-6">
               {active.tags.map((t) => (
-                <span key={t} className="text-[11px] tracking-[0.18em] text-[#11161E]/65 border border-[#11161E]/15 px-3 py-1.5">
+                <span key={t} className="text-[11px] tracking-[0.18em] text-ink/65 border border-ink/15 px-3 py-1.5">
                   — {t.toUpperCase()}
                 </span>
               ))}
             </div>
           </div>
 
-          <div className="bg-[#F2ECDF] border border-[#11161E]/10 rounded-sm p-7">
+          <div className="bg-cream border border-ink/10 rounded-sm p-7">
             <div className="flex items-center justify-between mb-5 text-[11px] tracking-[0.22em]">
-              <span className="text-[#11161E]/55">SAMPLE QUESTION</span>
-              <span className="text-[#B88736]">— {active.title.toUpperCase()}</span>
+              <span className="text-ink/55">SAMPLE QUESTION</span>
+              <span className="text-gold">— {active.title.toUpperCase()}</span>
             </div>
-            <p className="font-playfair text-lg leading-[1.5] text-[#11161E]/95">{active.sample.q}</p>
-            <div className="flex items-center justify-between mt-6 pt-5 border-t border-[#11161E]/10 text-[11px] tracking-[0.18em] text-[#11161E]/55">
+            <p className="font-serif text-lg leading-[1.5] text-ink/95">{active.sample.q}</p>
+            <div className="flex items-center justify-between mt-6 pt-5 border-t border-ink/10 text-[11px] tracking-[0.18em] text-ink/55">
               <span>SAMPLE — {active.sample.phase.toUpperCase()}</span>
               <span>BENCHMARK: {active.sample.grade}</span>
             </div>
@@ -220,11 +221,11 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         {/* MODE PICKER (revealed after level is confirmed) */}
         {stage === 'mode' && (
           <div className="mt-14">
-            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— HOW WILL YOU ANSWER?</div>
-            <h2 className="font-playfair text-3xl leading-[1.1] mb-2">
-              Pick your <span className="italic text-[#B88736]">delivery</span> for this round.
+            <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— HOW WILL YOU ANSWER?</div>
+            <h2 className="font-serif text-3xl leading-[1.1] mb-2">
+              Pick your <span className="italic text-gold">delivery</span> for this round.
             </h2>
-            <p className="text-[#11161E]/60 text-sm max-w-xl mb-8">
+            <p className="text-ink/60 text-sm max-w-xl mb-8">
               You can’t switch mid-interview — choose the one closest to how you want to drill today.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -234,18 +235,18 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                   <button
                     key={m.id}
                     onClick={() => setInputMode(m.id)}
-                    className={`text-left rounded-sm border p-7 transition-all ${isActive ? 'border-[#B88736] bg-[#F2ECDF]' : 'border-[#11161E]/15 hover:border-[#11161E]/35 bg-transparent'}`}
+                    className={`text-left rounded-sm border p-7 transition-all ${isActive ? 'border-gold bg-cream' : 'border-ink/15 hover:border-ink/35 bg-transparent'}`}
                     aria-pressed={isActive}
                   >
                     <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
-                      <span className={isActive ? 'text-[#B88736]' : 'text-[#11161E]/55'}>
+                      <span className={isActive ? 'text-gold' : 'text-ink/55'}>
                         {m.id === 'voice' ? '— VOICE' : '— TEXT'}
                       </span>
-                      {isActive && <span className="text-[#B88736]">SELECTED</span>}
+                      {isActive && <span className="text-gold">SELECTED</span>}
                     </div>
-                    <h3 className="font-playfair text-2xl mb-2">{m.title}</h3>
-                    <p className="text-sm text-[#11161E]/70 mb-5 leading-relaxed">{m.tagline}</p>
-                    <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-[#11161E]/65">
+                    <h3 className="font-serif text-2xl mb-2">{m.title}</h3>
+                    <p className="text-sm text-ink/70 mb-5 leading-relaxed">{m.tagline}</p>
+                    <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-ink/65">
                       {m.bullets.map((b) => (
                         <li key={b}>— {b.toUpperCase()}</li>
                       ))}
@@ -259,7 +260,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
 
         {/* CTA */}
         <div className="mt-14 flex items-center justify-between flex-wrap gap-6">
-          <div className="text-xs tracking-[0.18em] text-[#11161E]/55">
+          <div className="text-xs tracking-[0.18em] text-ink/55">
             {blockedByLimit && !isLevelLocked(selected)
               ? 'YOUR FREE INTERVIEW IS USED. UPGRADE TO KEEP DRILLING.'
               : isLevelLocked(selected)
@@ -272,7 +273,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             {stage === 'mode' && (
               <button
                 onClick={() => setStage('level')}
-                className="text-[#11161E]/65 hover:text-[#B88736] tracking-[0.05em] px-5 py-4"
+                className="text-ink/65 hover:text-gold tracking-[0.05em] px-5 py-4"
                 type="button"
               >
                 Back
@@ -288,7 +289,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 }
               }}
               disabled={ctaDisabled}
-              className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#9C6F1E] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-gold text-paper font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#9C6F1E] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {stage === 'level'
                 ? (isLevelLocked(selected) || blockedByLimit ? ctaLabel : 'Continue \u2192')
@@ -298,7 +299,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         </div>
 
         {error && (
-          <div className="mt-6 text-sm text-[#e89292] border border-[#e89292]/40 px-4 py-3 rounded-sm">
+          <div role="alert" className="mt-6 text-sm text-[#B23B3B] border border-[#B23B3B]/40 px-4 py-3 rounded-sm">
             {error}
           </div>
         )}

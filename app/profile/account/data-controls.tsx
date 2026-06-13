@@ -84,7 +84,7 @@ export function DataControls() {
           {exporting ? 'Preparing…' : 'Download my data'}
         </button>
         {exportError ? (
-          <p className="text-[11px] text-[#9C2E2E] tracking-[0.04em]">{exportError}</p>
+          <p role="alert" className="text-[11px] text-[#9C2E2E] tracking-[0.04em]">{exportError}</p>
         ) : null}
       </div>
 
@@ -116,7 +116,7 @@ export function DataControls() {
               />
             </label>
             {deleteError ? (
-              <p className="text-[11px] text-[#9C2E2E] tracking-[0.04em]">{deleteError}</p>
+              <p role="alert" className="text-[11px] text-[#9C2E2E] tracking-[0.04em]">{deleteError}</p>
             ) : null}
             <div className="flex gap-3">
               <button

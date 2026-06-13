@@ -208,7 +208,7 @@ export default function LoginClient() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="you@school.edu"
                 />
               </Field>
@@ -228,7 +228,7 @@ export default function LoginClient() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="**********"
                 />
               </Field>
@@ -256,7 +256,7 @@ export default function LoginClient() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="you@school.edu"
                 />
               </Field>
@@ -277,7 +277,7 @@ export default function LoginClient() {
                   minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="At least 8 characters"
                 />
               </Field>
@@ -316,13 +316,14 @@ export default function LoginClient() {
                 <input
                   inputMode="numeric"
                   pattern="[0-9]*"
+                  autoComplete="one-time-code"
                   maxLength={10}
-              minLength={8}
+                  minLength={8}
                   required
                   autoFocus
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 text-2xl tracking-[0.5em] font-serif outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 text-2xl tracking-[0.5em] font-serif outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="******"
                 />
               </Field>
@@ -357,7 +358,7 @@ export default function LoginClient() {
                   autoFocus
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="you@school.edu"
                 />
               </Field>
@@ -463,9 +464,9 @@ function SubmitButton({ loading, children }: { loading: boolean; children: React
 function Alert({ error, info }: { error: string | null; info: string | null }) {
   if (!error && !info) return null;
   if (error) {
-    return <div className="border border-red-400/40 bg-red-400/5 text-red-300 text-sm px-4 py-3">{error}</div>;
+    return <div role="alert" className="border border-[#9C2E2E]/30 bg-[#9C2E2E]/5 text-[#9C2E2E] text-sm px-4 py-3">{error}</div>;
   }
-  return <div className="border border-[#B88736]/40 bg-[#B88736]/5 text-[#B88736] text-sm px-4 py-3">{info}</div>;
+  return <div role="status" className="border border-[#B88736]/40 bg-[#B88736]/8 text-[#11161E] text-sm px-4 py-3">{info}</div>;
 }
 
 function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {

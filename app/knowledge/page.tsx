@@ -83,7 +83,7 @@ export default async function KnowledgeIndex({ searchParams }: { searchParams: P
                   return (
                     <li key={a.id} className="border-t border-line pt-5">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-[10.5px] uppercase tracking-widest text-[#d4a04a]">{a.category}</span>
+                        <span className="font-mono text-[10.5px] uppercase tracking-widest text-gold-2">{a.category}</span>
                         {tag && (
                           <>
                             <span className="text-muted">{'\u00b7'}</span>

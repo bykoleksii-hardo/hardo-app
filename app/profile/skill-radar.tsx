@@ -101,7 +101,7 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
               cy={CENTER_Y}
               r={r}
               fill="none"
-              stroke="rgba(245,239,226,0.08)"
+              stroke="rgba(17,22,30,0.10)"
               strokeWidth={1}
             />
           );
@@ -115,7 +115,7 @@ export function SkillRadar({ axes, hireBar = 6 }: { axes: Axis[]; hireBar?: numb
             y1={CENTER_Y}
             x2={p.axisX}
             y2={p.axisY}
-            stroke="rgba(245,239,226,0.08)"
+            stroke="rgba(17,22,30,0.10)"
             strokeWidth={1}
           />
         ))}

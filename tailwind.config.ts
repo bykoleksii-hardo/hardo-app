@@ -22,7 +22,7 @@ const config: Config = {
         navy: '#0E1E36',
         'navy-2': '#14243F',
         muted: '#6A6354',
-        'muted-2': '#8A816C',
+        'muted-2': '#73695A',
         gold: '#B88736',
         'gold-2': '#9A6F26',
         line: 'rgba(14,30,54,0.12)',

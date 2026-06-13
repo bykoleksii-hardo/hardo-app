@@ -68,12 +68,12 @@ export default function SubscribeForm() {
           placeholder="you@school.edu"
           aria-label="Email for product updates"
           autoComplete="email"
-          className="flex-1 bg-transparent text-[13px] text-ink placeholder:text-muted outline-none py-1.5"
+          className="flex-1 bg-transparent text-[13px] text-ink placeholder:text-muted outline-none py-2.5"
         />
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="bg-ink text-paper text-[12px] px-3.5 py-1.5 rounded-full hover:bg-navy transition-colors disabled:opacity-60"
+          className="bg-ink text-paper text-[12px] px-3.5 py-2 min-h-[40px] rounded-full hover:bg-navy transition-colors disabled:opacity-60"
         >
           {status === 'loading' ? 'Sending…' : 'Notify me'}
         </button>

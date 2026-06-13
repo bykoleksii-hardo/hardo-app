@@ -46,7 +46,7 @@ export default function FeedbackButtons({ stepId, initialRating }: Props) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[10px] tracking-[0.22em] text-[#11161E]/45 mr-1">
+      <span className="text-[10px] tracking-[0.22em] text-ink/45 mr-1">
         DID YOU LIKE THIS QUESTION BLOCK?
       </span>
       <button
@@ -60,7 +60,7 @@ export default function FeedbackButtons({ stepId, initialRating }: Props) {
           'h-7 w-7 flex items-center justify-center border text-[14px] transition-colors ' +
           (upActive
             ? 'border-[#1F6F3D] text-[#1F6F3D] bg-[#1F6F3D]/10'
-            : 'border-[#11161E]/20 text-[#11161E]/55 hover:border-[#1F6F3D] hover:text-[#1F6F3D]') +
+            : 'border-ink/20 text-ink/55 hover:border-[#1F6F3D] hover:text-[#1F6F3D]') +
           (pending ? ' opacity-60 cursor-wait' : '')
         }
       >
@@ -80,7 +80,7 @@ export default function FeedbackButtons({ stepId, initialRating }: Props) {
           'h-7 w-7 flex items-center justify-center border text-[14px] transition-colors ' +
           (downActive
             ? 'border-[#9C2E2E] text-[#9C2E2E] bg-[#9C2E2E]/10'
-            : 'border-[#11161E]/20 text-[#11161E]/55 hover:border-[#9C2E2E] hover:text-[#9C2E2E]') +
+            : 'border-ink/20 text-ink/55 hover:border-[#9C2E2E] hover:text-[#9C2E2E]') +
           (pending ? ' opacity-60 cursor-wait' : '')
         }
       >

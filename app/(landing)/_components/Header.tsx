@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Brand from '@/app/_components/Brand';
+import MobileMenu from './MobileMenu';
 
 type Props = {
   signedIn?: boolean;
@@ -68,11 +69,12 @@ export default function LandingHeader({ signedIn = false, isAdmin = false, isPai
           )}
           <Link
             href={signedIn ? '/interview/setup' : '/login'}
-            className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 rounded-full hover:bg-navy transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 min-h-[44px] rounded-full hover:bg-navy transition-colors"
           >
             {signedIn ? 'Start interview' : 'Start free'}
             <span aria-hidden>{'\u2192'}</span>
           </Link>
+          <MobileMenu signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding={onLanding} />
         </div>
       </div>
     </header>

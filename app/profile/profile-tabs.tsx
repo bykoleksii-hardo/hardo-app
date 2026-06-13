@@ -15,7 +15,7 @@ export function ProfileTabs() {
   return (
     <div className="mb-12">
       <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— YOUR PROFILE</div>
-      <h1 className="font-serif text-5xl leading-[1.05] mb-8">
+      <h1 className="font-serif text-3xl sm:text-5xl leading-[1.05] mb-8">
         Your <span className="italic text-[#B88736]">superday</span> dashboard.
       </h1>
       <nav className="flex gap-5 sm:gap-8 border-b border-[#11161E]/10 overflow-x-auto whitespace-nowrap">

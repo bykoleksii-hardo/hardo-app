@@ -38,8 +38,14 @@ export default function TypewriterText({ id, text, onDone }: Props) {
       return;
     }
 
-    // Already animated in this session — render full text immediately.
-    if (seenIds.has(id)) {
+    // Already animated in this session, or the user prefers reduced motion —
+    // render full text immediately (no character-by-character animation).
+    const reducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (seenIds.has(id) || reducedMotion) {
+      seenIds.add(id);
       setShown(text.length);
       onDone?.();
       return;

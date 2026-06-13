@@ -380,7 +380,7 @@ export default function ArticleEditor({ initial, saveAction, deleteAction, previ
             </div>
           </Field>
 
-          <Field label="Body" hint={`Markdown {\u00b7} ${wordCount} words {\u00b7} ~${readMins} min`}>
+          <Field label="Body" hint={`Markdown \u00b7 ${wordCount} words \u00b7 ~${readMins} min`}>
             <div className="border border-line rounded focus-within:border-ink bg-paper overflow-hidden">
               <Toolbar
                 onBold={() => applyAround('**', '**', 'bold')}
