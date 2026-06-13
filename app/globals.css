@@ -1368,9 +1368,9 @@ body.font-sans {
    screens; small screens fall back to a static, readable layout.
    --present / --enter are written by the component on scroll.
    ========================================================= */
-.room-scroll { position: relative; --present: 1; --enter: 1; }
+.room-scroll { position: relative; --present: 1; --enter: 1; --exit: 0; }
 @media (min-width: 1024px) {
-  .room-scroll { min-height: 250vh; }
+  .room-scroll { min-height: 260vh; }
 }
 .room-stage {
   position: relative;
@@ -1385,32 +1385,30 @@ body.font-sans {
   position: relative;
   z-index: 2;
   width: 100%;
-  opacity: clamp(0, calc(var(--present) * 1.35), 1);
-  transform: scale(calc(0.93 + 0.07 * var(--present)));
-  transform-origin: center 42%;
+  opacity: var(--present);
+  filter: blur(calc((1 - var(--present)) * 6px));
+  transform: scale(calc(0.9 + 0.1 * var(--enter) + 0.06 * var(--exit))) translateY(calc((1 - var(--present)) * 16px));
+  transform-origin: center 46%;
+  will-change: transform, opacity, filter;
 }
-/* Light "exterior" doors that slide away as you enter the room. */
-.room-door {
+/* Doorway: darkness that irises open as you step in, and closes as you leave */
+.room-aperture {
   position: absolute;
-  top: 0; bottom: 0;
-  width: 51%;
-  z-index: 6;
-  background: var(--paper);
-  will-change: transform;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 46%,
+    rgba(6, 13, 24, 0) calc(var(--present) * 116%),
+    #060d18 calc(var(--present) * 116% + 6%));
 }
-.room-door--l { left: 0;  transform: translateX(calc(var(--present) * -101%)); box-shadow: inset -44px 0 64px -44px rgba(14, 30, 54, 0.40); }
-.room-door--r { right: 0; transform: translateX(calc(var(--present) * 101%));  box-shadow: inset 44px 0 64px -44px rgba(14, 30, 54, 0.40); }
-.room-door::after { content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background: var(--gold-line); }
-.room-door--l::after { right: 0; }
-.room-door--r::after { left: 0; }
 .room-vignette {
   position: absolute;
   inset: 0;
   z-index: 4;
   pointer-events: none;
-  box-shadow: inset 0 0 calc(80px + 120px * var(--present)) rgba(0, 0, 0, calc(0.45 * var(--present)));
+  box-shadow: inset 0 0 calc(60px + 130px * var(--present)) rgba(0, 0, 0, calc(0.5 * var(--present)));
 }
 @media (max-width: 1023px) {
-  .room-door { display: none; }
-  .room-stage__inner { opacity: 1; transform: none; }
+  .room-aperture { display: none; }
+  .room-stage__inner { opacity: 1; filter: none; transform: none; }
 }

@@ -83,41 +83,52 @@ export default function TheRoom() {
     const el = ref.current;
     if (!el) return;
 
-    const setStatic = () => {
-      el.style.setProperty('--enter', '1');
-      el.style.setProperty('--present', '1');
+    const writeVars = (s: number) => {
+      const enter = Math.min(1, s / 0.45);
+      const exit = Math.min(1, Math.max(0, (s - 0.6) / 0.4));
+      const present = enter * (1 - exit);
+      el.style.setProperty('--enter', enter.toFixed(4));
+      el.style.setProperty('--exit', exit.toFixed(4));
+      el.style.setProperty('--present', present.toFixed(4));
     };
 
     const reduced =
       typeof window !== 'undefined' &&
       window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
-      setStatic();
-      return;
-    }
+    if (reduced) { writeVars(1); return; }
 
-    let raf = 0;
-    const compute = () => {
-      raf = 0;
-      const lg = window.matchMedia('(min-width: 1024px)').matches;
-      if (!lg) { setStatic(); return; }
+    const computeTarget = (): number | null => {
+      if (!window.matchMedia('(min-width: 1024px)').matches) return null;
       const rect = el.getBoundingClientRect();
       const total = el.offsetHeight - window.innerHeight;
-      if (total <= 0) { setStatic(); return; }
+      if (total <= 0) return null;
       const scrolled = Math.min(Math.max(-rect.top, 0), total);
-      const p = scrolled / total;
-      const enterEnd = 0.4;
-      const exitStart = 0.66;
-      const enter = Math.min(1, p / enterEnd);
-      const exit = Math.min(1, Math.max(0, (p - exitStart) / (1 - exitStart)));
-      const present = enter * (1 - exit);
-      el.style.setProperty('--enter', enter.toFixed(4));
-      el.style.setProperty('--present', present.toFixed(4));
+      return scrolled / total;
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(compute); };
 
-    compute();
+    let target = 0;
+    let cur = 0;
+    let raf = 0;
+    const tick = () => {
+      // eased follow (lerp) gives the heavy, premium glide
+      cur += (target - cur) * 0.1;
+      if (Math.abs(target - cur) < 0.0006) cur = target;
+      writeVars(cur);
+      raf = cur !== target ? requestAnimationFrame(tick) : 0;
+    };
+    const onScroll = () => {
+      const t = computeTarget();
+      if (t === null) { writeVars(1); cur = 1; target = 1; return; }
+      target = t;
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    // initialise without animating from 0
+    const initial = computeTarget();
+    if (initial === null) { writeVars(1); }
+    else { target = initial; cur = initial; writeVars(initial); }
+
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
     return () => {
@@ -130,10 +141,6 @@ export default function TheRoom() {
   return (
     <section ref={ref} className="room-scroll">
       <div className="room room-stage">
-        {/* Light "exterior" doors that part as you enter, close as you leave */}
-        <div className="room-door room-door--l" aria-hidden />
-        <div className="room-door room-door--r" aria-hidden />
-
         <div
           aria-hidden
           className="room-ring room-ring--pulse"
@@ -171,6 +178,7 @@ export default function TheRoom() {
         </div>
 
         <div className="room-vignette" aria-hidden />
+        <div className="room-aperture" aria-hidden />
       </div>
     </section>
   );
