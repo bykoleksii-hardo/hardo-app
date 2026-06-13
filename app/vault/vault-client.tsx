@@ -20,7 +20,10 @@ function LockedCard({ q }: { q: VaultQuestion }) {
     <div className="relative border border-line rounded-sm bg-cream/40 p-5 overflow-hidden select-none">
       <div className="flex items-center justify-between mb-3">
         <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">{q.category}</span>
-        <span aria-hidden className="text-muted text-[13px]">{'\u{1F512}'}</span>
+        <svg aria-hidden width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-muted">
+          <rect x="3" y="11" width="18" height="11" rx="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
       </div>
       <p className="text-[14px] leading-relaxed text-ink/35 blur-[5px] pointer-events-none line-clamp-3">
         {q.question}
