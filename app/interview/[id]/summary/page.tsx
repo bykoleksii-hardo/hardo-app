@@ -160,7 +160,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
     : hireMeta?.tone === 'neutral_pos' ? 'text-[#3F7A4A]'
     : hireMeta?.tone === 'neutral_neg' ? 'text-[#A85A1F]'
     : hireMeta?.tone === 'neg' ? 'text-[#9C2E2E]'
-    : 'text-[#11161E]/75';
+    : 'text-ink/75';
 
   const heading = isCompleted
     ? 'Your scorecard is ready.'
@@ -170,28 +170,28 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
     : 'Detailed grading is being prepared. For now, here is the full transcript: your answers and where the interviewer will dig deeper next time.';
 
   return (
-    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-sans">
-      <header className="flex items-center justify-between gap-3 px-4 sm:px-8 py-4 border-b border-[#11161E]/10">
+    <div className="min-h-screen bg-paper text-ink font-sans">
+      <header className="flex items-center justify-between gap-3 px-4 sm:px-8 py-4 border-b border-ink/10">
         <div className="flex items-center gap-3 sm:gap-6 min-w-0">
           <Brand size="md" href="/" />
-          <span className="hidden sm:inline text-[11px] tracking-[0.22em] text-[#11161E]/45 truncate">
+          <span className="hidden sm:inline text-[11px] tracking-[0.22em] text-ink/45 truncate">
             {'SCORECARD / '}{interview.candidate_level.toUpperCase()}
           </span>
         </div>
         <div className="flex items-center gap-3">
           <ShareLinkButton />
-          <a href="/interview/setup" className="text-[11px] tracking-[0.22em] border border-[#11161E]/20 px-4 py-2 hover:text-[#B88736]">
+          <a href="/interview/setup" className="text-[11px] tracking-[0.22em] border border-ink/20 px-4 py-2 hover:text-gold">
             NEW INTERVIEW
           </a>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
-        <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">{'> YOUR SCORECARD'}</div>
+        <div className="text-[11px] tracking-[0.22em] text-gold mb-3">{'> YOUR SCORECARD'}</div>
         <h1 className="font-serif text-3xl sm:text-5xl leading-[1.15] mb-6">
           {heading}
         </h1>
-        <p className="text-[#11161E]/65 max-w-2xl mb-12">
+        <p className="text-ink/65 max-w-2xl mb-12">
           {subheading}
         </p>
 
@@ -199,7 +199,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           <div className="border border-[#A85A1F]/30 bg-[#A85A1F]/5 px-6 py-4 mb-8 flex flex-col sm:flex-row items-start sm:justify-between gap-4">
             <div>
               <div className="text-[11px] tracking-[0.22em] text-[#A85A1F] mb-1">— NOT COMPLETED</div>
-              <p className="text-[13px] text-[#11161E]/70 max-w-xl">
+              <p className="text-[13px] text-ink/70 max-w-xl">
                 You answered {answeredCount} of {interview.total_questions} questions. This is a partial result based on what you completed — start a fresh interview to get a full scorecard.
               </p>
             </div>
@@ -209,56 +209,56 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        <div className="border border-[#11161E]/15 bg-[#F2ECDF]/40 p-6 sm:p-8 mb-12 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+        <div className="border border-ink/15 bg-cream/40 p-6 sm:p-8 mb-12 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— OVERALL</div>
-            <div className="font-serif text-4xl text-[#11161E]">{(() => { const raw = summary?.overall_score ?? interview.final_score; return raw == null ? '-' : (Math.round((Number(raw) / 10) * 10) / 10).toFixed(1); })()}</div>
-            <div className="text-[11px] text-[#11161E]/45 mt-1">{isCompleted ? 'out of 10' : 'awaiting AI review'}</div>
+            <div className="text-[11px] tracking-[0.22em] text-ink/45 mb-2">— OVERALL</div>
+            <div className="font-serif text-4xl text-ink">{(() => { const raw = summary?.overall_score ?? interview.final_score; return raw == null ? '-' : (Math.round((Number(raw) / 10) * 10) / 10).toFixed(1); })()}</div>
+            <div className="text-[11px] text-ink/45 mt-1">{isCompleted ? 'out of 10' : 'awaiting AI review'}</div>
           </div>
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— QUESTIONS</div>
+            <div className="text-[11px] tracking-[0.22em] text-ink/45 mb-2">— QUESTIONS</div>
             <div className="font-serif text-4xl">{answeredCount} / {interview.total_questions}</div>
-            <div className="text-[11px] text-[#11161E]/45 mt-1">answered</div>
+            <div className="text-[11px] text-ink/45 mt-1">answered</div>
           </div>
           <div>
-            <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— RECOMMENDATION</div>
+            <div className="text-[11px] tracking-[0.22em] text-ink/45 mb-2">— RECOMMENDATION</div>
             <div className={`font-serif text-4xl ${hireToneClass}`}>{hireMeta?.label ?? '—'}</div>
-            <div className="text-[11px] text-[#11161E]/45 mt-1">
+            <div className="text-[11px] text-ink/45 mt-1">
               {interview.finished_at ? new Date(interview.finished_at).toLocaleString() : (isCompleted ? '' : interview.status?.toString().toUpperCase())}
             </div>
           </div>
         </div>
 
         {isCompleted && summary && (
-          <div className="border border-[#B88736]/30 bg-[#F2ECDF]/30 p-6 mb-12">
-            <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">— OVERALL FEEDBACK</div>
+          <div className="border border-gold/30 bg-cream/30 p-6 mb-12">
+            <div className="text-[11px] tracking-[0.22em] text-gold mb-3">— OVERALL FEEDBACK</div>
             {(() => {
               const final = parseFinalFeedback(summary.final_feedback);
               return (
                 <>
                   {final.summary && (
-                    <p className="text-[#11161E]/85 text-[14px] leading-[1.7] whitespace-pre-wrap mb-5">{final.summary}</p>
+                    <p className="text-ink/85 text-[14px] leading-[1.7] whitespace-pre-wrap mb-5">{final.summary}</p>
                   )}
                   {(final.weakest_block_label || final.strongest_moment) && (
                     <div className="grid sm:grid-cols-2 gap-4 mb-5">
                       {final.strongest_moment && (
                         <div className="border border-[#1F6F3D]/30 bg-[#1F6F3D]/[0.04] rounded-md px-4 py-3">
                           <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">STRONGEST MOMENT</div>
-                          <p className="text-[#11161E]/85 text-[13px] leading-[1.55]">{final.strongest_moment}</p>
+                          <p className="text-ink/85 text-[13px] leading-[1.55]">{final.strongest_moment}</p>
                         </div>
                       )}
                       {final.weakest_block_label && (
                         <div className="border border-[#9C2E2E]/30 bg-[#9C2E2E]/[0.04] rounded-md px-4 py-3">
                           <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WEAKEST BLOCK</div>
-                          <p className="text-[#11161E]/85 text-[13px] leading-[1.55]">{final.weakest_block_label}</p>
+                          <p className="text-ink/85 text-[13px] leading-[1.55]">{final.weakest_block_label}</p>
                         </div>
                       )}
                     </div>
                   )}
                   {final.next_steps_plan.length > 0 && (
-                    <div className="border border-[#B88736]/30 bg-[#B88736]/[0.05] rounded-md px-5 py-4 mb-5">
-                      <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-2">YOUR PREP PLAN</div>
-                      <ol className="list-decimal list-inside text-[#11161E]/85 text-[14px] leading-[1.7] space-y-1">
+                    <div className="border border-gold/30 bg-gold/[0.05] rounded-md px-5 py-4 mb-5">
+                      <div className="text-[10px] tracking-[0.22em] text-gold mb-2">YOUR PREP PLAN</div>
+                      <ol className="list-decimal list-inside text-ink/85 text-[14px] leading-[1.7] space-y-1">
                         {final.next_steps_plan.map((step, i) => (
                           <li key={i}>{step}</li>
                         ))}
@@ -271,11 +271,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">— STRENGTHS</div>
-                <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_strengths}</p>
+                <p className="text-ink/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_strengths}</p>
               </div>
               <div>
                 <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">— WEAKNESSES</div>
-                <p className="text-[#11161E]/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_weaknesses}</p>
+                <p className="text-ink/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_weaknesses}</p>
               </div>
             </div>
           </div>

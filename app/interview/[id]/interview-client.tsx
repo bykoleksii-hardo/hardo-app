@@ -85,16 +85,16 @@ function QuestionTimer(props: { startedAt: string | null; limitSeconds: number; 
       <span className="font-mono text-[14px] tracking-normal" style={{ color }}>{display}</span>
       {isOver ? (
         <>
-          <span className="text-[#11161E]/30">|</span>
-          <span className="text-[#11161E]/55 tracking-normal text-[10px]">auto-lock in {formatMMSS(overtimeRemain)}</span>
+          <span className="text-ink/30">|</span>
+          <span className="text-ink/55 tracking-normal text-[10px]">auto-lock in {formatMMSS(overtimeRemain)}</span>
         </>
       ) : (
         <>
-          <span className="text-[#11161E]/30">|</span>
-          <span className="text-[#11161E]/45 tracking-normal text-[10px]">soft limit {formatMMSS(limitSeconds)}</span>
+          <span className="text-ink/30">|</span>
+          <span className="text-ink/45 tracking-normal text-[10px]">soft limit {formatMMSS(limitSeconds)}</span>
         </>
       )}
-      <div className="flex-1 h-[2px] bg-[#11161E]/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
+      <div className="flex-1 h-[2px] bg-ink/10 rounded-full overflow-hidden ml-2 min-w-[60px]">
         <div style={{ width: pct + '%', height: '100%', background: color, transition: 'width 250ms linear' }} />
       </div>
     </div>
@@ -672,11 +672,11 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   }
 
   return (
-    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-sans flex flex-col">
-      <header className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[#11161E]/10">
+    <div className="min-h-screen bg-paper text-ink font-sans flex flex-col">
+      <header className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-ink/10">
         <div className="flex items-center gap-3 sm:gap-6 min-w-0">
           <Brand size="md" href="/" />
-          <span className="hidden sm:inline text-[11px] tracking-[0.22em] text-[#11161E]/45 truncate">
+          <span className="hidden sm:inline text-[11px] tracking-[0.22em] text-ink/45 truncate">
             SESSIONS / {level.toUpperCase()} / Q{String(answeredCount + 1).padStart(2, '0')}
             {activeQ ? ' - ' + activeQ.category.toUpperCase() : ''}
           </span>
@@ -684,17 +684,17 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         <button
           onClick={handleEndSession}
           disabled={endingSession}
-          className="text-[11px] tracking-[0.22em] text-[#11161E]/70 hover:text-[#B88736] border border-[#11161E]/20 px-4 py-2"
+          className="text-[11px] tracking-[0.22em] text-ink/70 hover:text-gold border border-ink/20 px-4 py-2"
         >
           {endingSession ? 'ENDING...' : 'END SESSION'}
         </button>
       </header>
 
       <div className="flex flex-1 min-h-0">
-        <aside className="hidden lg:block w-80 border-r border-[#11161E]/10 px-6 py-6 overflow-y-auto">
-          <div className="text-[10px] tracking-[0.22em] text-[#11161E]/45 mb-1">THE ROOM</div>
-          <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-6">{level.toUpperCase()} INTERVIEW</div>
-          <div className="text-[10px] tracking-[0.22em] text-[#11161E]/45 mb-3 flex items-center justify-between">
+        <aside className="hidden lg:block w-80 border-r border-ink/10 px-6 py-6 overflow-y-auto">
+          <div className="text-[10px] tracking-[0.22em] text-ink/45 mb-1">THE ROOM</div>
+          <div className="text-[10px] tracking-[0.22em] text-gold mb-6">{level.toUpperCase()} INTERVIEW</div>
+          <div className="text-[10px] tracking-[0.22em] text-ink/45 mb-3 flex items-center justify-between">
             <span>PROGRESS</span>
             <span>{String(answeredCount).padStart(2, '0')} / {String(totalQuestions).padStart(2, '0')}</span>
           </div>
@@ -711,35 +711,35 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                   <button
                     onClick={() => (done || active || s.id === firstPendingId) ? setActiveBaseId(s.id) : null}
                     disabled={locked}
-                    className={`w-full text-left flex items-center gap-2 px-2 py-2 text-[12px] ${active ? 'bg-[#B88736]/10 border-l-2 border-[#B88736]' : ''}`}
+                    className={`w-full text-left flex items-center gap-2 px-2 py-2 text-[12px] ${active ? 'bg-gold/10 border-l-2 border-gold' : ''}`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: revealed ? colorFor(cat) : 'rgba(17,22,30,0.2)' }} />
-                    <span className={`flex-1 ${revealed ? 'text-[#11161E]/85' : 'text-[#11161E]/35'}`}>
+                    <span className={`flex-1 ${revealed ? 'text-ink/85' : 'text-ink/35'}`}>
                       {revealed ? shortLabel(s.questions, s.order_index) : lockedLabel(s.order_index)}
                     </span>
                     {done && <span className="text-[10px] tracking-[0.18em] text-[#9ab87a]">DONE</span>}
-                    {active && !done && <span className="text-[10px] tracking-[0.18em] text-[#B88736]">NOW</span>}
-                    {locked && <span className="text-[10px] text-[#11161E]/30">LOCKED</span>}
+                    {active && !done && <span className="text-[10px] tracking-[0.18em] text-gold">NOW</span>}
+                    {locked && <span className="text-[10px] text-ink/30">LOCKED</span>}
                   </button>
                 </li>
               );
             })}
           </ol>
-          <p className="text-[10px] tracking-[0.18em] text-[#11161E]/35 mt-6">Grades are revealed at the end.</p>
+          <p className="text-[10px] tracking-[0.18em] text-ink/35 mt-6">Grades are revealed at the end.</p>
         </aside>
 
         <main className="flex-1 flex flex-col min-h-0">
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-6 lg:py-10">
             <div className="max-w-3xl mx-auto">
-              <div className="lg:hidden flex items-center justify-between text-[10px] tracking-[0.22em] text-[#11161E]/45 mb-6 pb-3 border-b border-[#11161E]/10">
+              <div className="lg:hidden flex items-center justify-between text-[10px] tracking-[0.22em] text-ink/45 mb-6 pb-3 border-b border-ink/10">
                 <span>{level.toUpperCase()} INTERVIEW</span>
                 <span>{String(answeredCount).padStart(2, '0')} / {String(totalQuestions).padStart(2, '0')}</span>
               </div>
               {activeBase && activeQ && (
-                <div className="flex items-center gap-3 text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-6">
+                <div className="flex items-center gap-3 text-[11px] tracking-[0.22em] text-ink/55 mb-6">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: colorFor(activeQ.category) }} />
                   <span>{activeQ.category.toUpperCase()}</span>
-                  <span className="text-[#11161E]/30">|</span>
+                  <span className="text-ink/30">|</span>
                   <span>QUESTION {String(activeBase.order_index).padStart(2, '0')} / {totalQuestions} - {blockClosed ? 'COMPLETED' : 'IN PROGRESS'}</span>
                 </div>
               )}
@@ -750,7 +750,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
               if (m.stepId === (roundKey ?? "")) return null;
                     return (
                       <div key={i} className={i > 0 ? "mt-8" : ""}>
-                        <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-2">INTERVIEWER</div>
+                        <div className="text-[10px] tracking-[0.22em] text-gold mb-2">INTERVIEWER</div>
                         <h2 className="font-serif text-3xl leading-[1.35]"><TypewriterText id={'q:' + m.stepId} text={m.text} /></h2>
                       </div>
                     );
@@ -758,15 +758,15 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                   if (m.role === 'ai' && m.kind === 'follow_up') {
               if (m.stepId === (roundKey ?? "")) return null;
                     return (
-                      <div key={i} className="border-l-2 border-[#B88736]/50 pl-5">
-                        <div className="text-[10px] tracking-[0.22em] text-[#B88736]/80 mb-1">FOLLOW-UP</div>
-                        <p className="font-serif italic text-xl text-[#11161E]/95"><TypewriterText id={'fu:' + m.stepId} text={m.text} /></p>
+                      <div key={i} className="border-l-2 border-gold/50 pl-5">
+                        <div className="text-[10px] tracking-[0.22em] text-gold/80 mb-1">FOLLOW-UP</div>
+                        <p className="font-serif italic text-xl text-ink/95"><TypewriterText id={'fu:' + m.stepId} text={m.text} /></p>
                       </div>
                     );
                   }
                   if (m.role === 'ai' && m.kind === 'clarification_response') {
                     return (
-                      <div key={i} className="text-[12px] italic text-[#11161E]/55">
+                      <div key={i} className="text-[12px] italic text-ink/55">
                         Interviewer (clarification): <TypewriterText id={'cr:' + i + ':' + m.text.slice(0,32)} text={m.text} />
                       </div>
                     );
@@ -775,21 +775,21 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div key={i} className="border border-[#9ab87a]/30 bg-[#9ab87a]/5 px-4 py-3">
                         <div className="text-[10px] tracking-[0.22em] text-[#9ab87a]/80 mb-1">BLOCK CLOSED</div>
-                        <p className="text-[14px] text-[#11161E]/85"><TypewriterText id={'cb:' + i + ':' + m.text.slice(0,32)} text={m.text} /></p>
+                        <p className="text-[14px] text-ink/85"><TypewriterText id={'cb:' + i + ':' + m.text.slice(0,32)} text={m.text} /></p>
                       </div>
                     );
                   }
                   if (m.role === 'candidate' && m.kind === 'answer') {
                     return (
-                      <div key={i} className="bg-[#F2ECDF]/60 border border-[#11161E]/10 px-4 py-3">
-                        <div className="text-[10px] tracking-[0.22em] text-[#11161E]/45 mb-1">YOU</div>
-                        <p className="text-[15px] text-[#11161E] whitespace-pre-wrap leading-[1.55]">{m.text}</p>
+                      <div key={i} className="bg-cream/60 border border-ink/10 px-4 py-3">
+                        <div className="text-[10px] tracking-[0.22em] text-ink/45 mb-1">YOU</div>
+                        <p className="text-[15px] text-ink whitespace-pre-wrap leading-[1.55]">{m.text}</p>
                       </div>
                     );
                   }
                   // candidate clarification
                   return (
-                    <div key={i} className="text-[12px] italic text-[#11161E]/55">
+                    <div key={i} className="text-[12px] italic text-ink/55">
                       You (clarification): {m.text}
                     </div>
                   );
@@ -831,7 +831,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         const _n = _idx >= 0 ? _idx + 1 : _siblings.length;
                         return <span>{_baseLabel + " · FU " + String(_n)}</span>;
                       })()}
-                      <span className="text-[#11161E]/30">|</span>
+                      <span className="text-ink/30">|</span>
                       <span>
                         {prepActive
                           ? "Get ready " + String(prepRemainSec).padStart(2, "0") + "s"
@@ -926,10 +926,10 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         type="button"
                         onClick={startRecording}
                         disabled={submitting || finalizing || blockClosed || prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || reviewActive}
-                        className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#B88736] hover:text-[#a47628] disabled:opacity-40"
+                        className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] text-gold hover:text-[#a47628] disabled:opacity-40"
                         title={prepActive ? "Wait for the prep timer to finish" : ""}
                       >
-                        <span className="w-2 h-2 rounded-full bg-[#B88736]" />
+                        <span className="w-2 h-2 rounded-full bg-gold" />
                         <span>RECORD</span>
                       </button>
                       {recError && <span role="alert" className="text-[11px] text-[#B23B3B]">{recError}</span>}
@@ -972,7 +972,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       onChange={(e) => setDraft(e.target.value)}
                       placeholder={inputMode === "voice" ? "Your spoken answer will appear here..." : "Start typing your answer..."}
                       rows={6}
-                      className={"w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/45 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing") ? "opacity-60 cursor-not-allowed" : "")}
+                      className={"w-full bg-transparent border-0 outline-none resize-none text-ink placeholder:text-ink/45 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing") ? "opacity-60 cursor-not-allowed" : "")}
                       disabled={submitting || finalizing || blockClosed || prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing"}
                     />
                   </div>
@@ -993,17 +993,17 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       const phase = ((roundPhase as Record<string, string>)[_rkey2] ?? "answering");
                       if (prepActive) {
                         return (
-                          <button disabled className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 opacity-40">Get ready...</button>
+                          <button disabled className="bg-gold text-paper font-medium tracking-wide px-6 py-2.5 opacity-40">Get ready...</button>
                         );
                       }
                       if (submitting || finalizing) {
                         return (
-                          <button disabled className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 opacity-60">Thinking...</button>
+                          <button disabled className="bg-gold text-paper font-medium tracking-wide px-6 py-2.5 opacity-60">Thinking...</button>
                         );
                       }
                       if (phase === "review") {
                         return (
-                          <button disabled className="bg-[#9ab87a] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 opacity-60">
+                          <button disabled className="bg-[#9ab87a] text-paper font-medium tracking-wide px-6 py-2.5 opacity-60">
                             {recState === "transcribing" ? "Transcribing..." : "Reviewing 00:" + String(reviewRemainSec).padStart(2, "0")}
                           </button>
                         );
@@ -1013,7 +1013,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                           <button
                             onClick={() => { void handleSubmit(); }}
                             disabled={submitting || finalizing || draft.trim().length < 1}
-                            className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-[#B88736]"
+                            className="bg-gold text-paper font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-gold"
                           >
                             Send
                           </button>
@@ -1023,7 +1023,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         <button
                           onClick={lockAnswerForReview}
                           disabled={draft.trim().length < 1}
-                          className="bg-[#B88736] text-[#FBF7EE] font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-[#B88736]"
+                          className="bg-gold text-paper font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-gold"
                           title="Lock your answer and start a 10-second review window"
                         >
                           Done
@@ -1036,15 +1036,15 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
               )}
 
               {blockClosed && (
-                <div className="mt-10 text-[12px] tracking-[0.18em] text-[#11161E]/55">
+                <div className="mt-10 text-[12px] tracking-[0.18em] text-ink/55">
                   Block complete. Your grade will appear in the final scorecard.
                 </div>
               )}
 
               {!activeQ && (
-                <div className="text-center text-[#11161E]/55 mt-32">
+                <div className="text-center text-ink/55 mt-32">
                   <p className="font-serif italic text-3xl mb-4">All questions answered.</p>
-                  <a href={`/interview/${interviewId}/summary`} className="text-[#B88736] underline">View your scorecard</a>
+                  <a href={`/interview/${interviewId}/summary`} className="text-gold underline">View your scorecard</a>
                 </div>
               )}
             </div>

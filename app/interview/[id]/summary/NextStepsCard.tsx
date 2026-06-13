@@ -56,11 +56,11 @@ export default function NextStepsCard({ level, inputMode }: Props) {
   return (
     <section className="mt-12">
       <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">WHAT&apos;S NEXT</div>
-      <div className="border border-[#11161E]/10 bg-[#F4ECD8]/50 px-6 py-7 md:px-8 md:py-8">
-        <div className="text-[20px] md:text-[22px] leading-snug text-[#11161E] font-medium mb-1">
+      <div className="border border-ink/10 bg-[#F4ECD8]/50 px-6 py-7 md:px-8 md:py-8">
+        <div className="text-[20px] md:text-[22px] leading-snug text-ink font-medium mb-1">
           Ready for another rep?
         </div>
-        <p className="text-[14px] text-[#11161E]/70 leading-relaxed mb-6 max-w-[60ch]">
+        <p className="text-[14px] text-ink/70 leading-relaxed mb-6 max-w-[60ch]">
           Stay sharp. Run the same setup again to drill the level, or step into a different difficulty band.
         </p>
 
@@ -69,19 +69,19 @@ export default function NextStepsCard({ level, inputMode }: Props) {
             type="button"
             onClick={runAgain}
             disabled={busy}
-            className="inline-flex items-center justify-center bg-[#B88736] text-[#FBF7EE] tracking-wide px-8 py-3 font-medium hover:bg-[#9F7530] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="inline-flex items-center justify-center bg-gold text-paper tracking-wide px-8 py-3 font-medium hover:bg-[#9F7530] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
             {busy ? 'Starting…' : 'Run another interview —→'}
           </button>
           <Link
             href="/interview/setup"
-            className="inline-flex items-center justify-center border border-[#11161E]/30 text-[#11161E] tracking-wide px-8 py-3 font-medium hover:border-[#11161E]/60 hover:bg-[#11161E]/[0.03] transition-colors"
+            className="inline-flex items-center justify-center border border-ink/30 text-ink tracking-wide px-8 py-3 font-medium hover:border-ink/60 hover:bg-ink/[0.03] transition-colors"
           >
             Try a different level
           </Link>
         </div>
 
-        <div className="text-[11px] text-[#11161E]/50 mt-4 tracking-wide">
+        <div className="text-[11px] text-ink/50 mt-4 tracking-wide">
           CURRENT SETUP · {levelLabel.toUpperCase()} · {inputMode === 'voice' ? 'VOICE' : 'TEXT'}
         </div>
 
