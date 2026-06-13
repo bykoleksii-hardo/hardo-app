@@ -99,30 +99,31 @@ function FreeHero({ remaining }: { remaining: number }) {
   const noun = left === 1 ? 'interview' : 'interviews';
   return (
     <section className="relative border-b border-line overflow-hidden">
-      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center hero-fade-in">
+      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '460px', left: '-0.06em', bottom: '-0.22em' }}>&amp;</Parallax>
+      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center relative">
         <div>
-          <div className="eyebrow mb-5">Welcome back {'\u00b7'} Free tier</div>
-          <h1 className="font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
+          <div className="eyebrow anim-rise anim-dash d1 mb-5">Welcome back {'\u00b7'} Free tier</div>
+          <h1 className="anim-rise d2 font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
             Back to{' '}
-            <span className="italic-gold">the bar</span>
+            <span className="italic-gold gold-underline">the bar</span>
             <span className="text-gold">.</span>
           </h1>
-          <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
+          <p className="anim-rise d3 mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
             You have <b className="text-ink font-medium">{left} {noun} left</b> on the free tier. Pick up where you stopped, or start a new room.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
+          <div className="anim-rise d4 mt-9 flex flex-wrap items-center gap-4">
             <Link
               href="/interview/setup"
-              className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
+              className="cta cta-pill group inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
             >
-              Continue {'\u2192'}
+              Continue <span className="cta-arrow" aria-hidden>{'\u2192'}</span>
             </Link>
-            <Link href="/profile" className="text-[14px] text-ink-2 hover:text-ink">
+            <Link href="/profile" className="link-underline text-[14px] text-ink-2 hover:text-ink">
               Your profile
             </Link>
           </div>
-          <p className="mt-3 text-[13px] text-[color:var(--muted)]">Voice or text. Same scorecard either way.</p>
-          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
+          <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Voice or text. Same scorecard either way.</p>
+          <div className="anim-rise d6 mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>{left}/1 free room left</span>
             <span>{'\u00b7'} 12 questions / session</span>
             <span>{'\u00b7'} Letter grade per answer</span>
@@ -137,30 +138,31 @@ function FreeHero({ remaining }: { remaining: number }) {
 function PaidHero() {
   return (
     <section className="relative border-b border-line overflow-hidden">
-      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center hero-fade-in">
+      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '460px', left: '-0.06em', bottom: '-0.22em' }}>&amp;</Parallax>
+      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center relative">
         <div>
-          <div className="eyebrow mb-5">Welcome back {'\u00b7'} Paid {'\u00b7'} Unlimited</div>
-          <h1 className="font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
+          <div className="eyebrow anim-rise anim-dash d1 mb-5">Welcome back {'\u00b7'} Paid {'\u00b7'} Unlimited</div>
+          <h1 className="anim-rise d2 font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
             The room is{' '}
-            <span className="italic-gold">always open</span>
+            <span className="italic-gold gold-underline">always open</span>
             <span className="text-gold">.</span>
           </h1>
-          <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
+          <p className="anim-rise d3 mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
             Unlimited rooms. Full scorecard history. Pace, filler, jargon hygiene scored on delivery. Run one before the real one.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
+          <div className="anim-rise d4 mt-9 flex flex-wrap items-center gap-4">
             <Link
               href="/interview/setup"
-              className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
+              className="cta cta-pill group inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
             >
-              Start a room {'\u2192'}
+              Start a room <span className="cta-arrow" aria-hidden>{'\u2192'}</span>
             </Link>
-            <Link href="/profile" className="text-[14px] text-ink-2 hover:text-ink">
+            <Link href="/profile" className="link-underline text-[14px] text-ink-2 hover:text-ink">
               Your profile
             </Link>
           </div>
-          <p className="mt-3 text-[13px] text-[color:var(--muted)]">Voice with live Whisper transcript. Real banker rubric at the end.</p>
-          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
+          <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Voice with live Whisper transcript. Real banker rubric at the end.</p>
+          <div className="anim-rise d6 mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>Unlimited rooms</span>
             <span>{'\u00b7'} 12 questions / session</span>
             <span>{'\u00b7'} Letter grade per answer</span>
