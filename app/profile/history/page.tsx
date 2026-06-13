@@ -70,11 +70,11 @@ export default async function HistoryPage() {
   return (
     <div className="space-y-12">
       {inFlight.length > 0 && (
-        <section>
+        <section className="anim-rise d1">
           <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— IN PROGRESS</div>
           <ul className="space-y-3">
             {inFlight.map((h) => (
-              <li key={h.id} className="flex items-center justify-between gap-6 border border-[#B88736]/40 rounded-sm px-6 py-4 bg-[#F2ECDF]/40">
+              <li key={h.id} className="lift flex items-center justify-between gap-6 border border-[#B88736]/40 rounded-sm px-6 py-4 bg-[#F2ECDF]/40">
                 <div>
                   <div className="font-serif text-xl capitalize">{h.candidate_level}</div>
                   <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">Started {fmtDate(h.started_at)} · {(h.input_mode ?? 'text').toUpperCase()} · {kindLabel(h.kind)}</div>
@@ -86,7 +86,7 @@ export default async function HistoryPage() {
         </section>
       )}
 
-      <section>
+      <section className="anim-rise d2">
         <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— COMPLETED</div>
         <div className="overflow-hidden border border-[#11161E]/10 rounded-sm">
           <table className="w-full text-sm">

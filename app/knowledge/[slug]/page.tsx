@@ -83,8 +83,8 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-[10.5px] uppercase tracking-widest text-paper bg-[#d4a04a] px-2 py-0.5 rounded">{article.category}</span>
+          <div className="anim-rise d1 flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-[10.5px] uppercase tracking-widest text-paper bg-gold px-2 py-0.5 rounded">{article.category}</span>
             {tag && (
               <>
                 <span className="text-muted">{'\u00b7'}</span>
@@ -93,13 +93,13 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
             )}
           </div>
 
-          <h1 className="mt-3 font-serif text-[40px] md:text-[52px] font-light leading-[1.05] tracking-[-0.022em]">
+          <h1 className="anim-rise d2 mt-3 font-serif text-[40px] md:text-[52px] font-light leading-[1.05] tracking-[-0.022em]">
             {article.title}
           </h1>
           {article.description && (
-            <p className="mt-5 text-[18px] text-ink-2 leading-relaxed">{article.description}</p>
+            <p className="anim-rise d3 mt-5 text-[18px] text-ink-2 leading-relaxed">{article.description}</p>
           )}
-          <div className="mt-6 font-mono text-[10.5px] uppercase tracking-widest text-muted">
+          <div className="anim-rise d4 mt-6 font-mono text-[10.5px] uppercase tracking-widest text-muted">
             {fmtDate(article.published_at)}
           </div>
 
