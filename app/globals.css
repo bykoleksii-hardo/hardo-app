@@ -1237,3 +1237,130 @@ body.font-sans {
   50%      { transform: scale(1.04); opacity: 0.9; }
 }
 .room-ring--pulse { animation: room-breathe 6s ease-in-out infinite; }
+
+/* =========================================================
+   The Room — grand feature cards (each one distinct)
+   ========================================================= */
+.room-card {
+  position: relative;
+  overflow: hidden;
+  padding: 30px 30px 28px;
+  border: 1px solid rgba(184, 135, 54, 0.22);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.012) 100%);
+  /* scroll-in entrance */
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 780ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 360ms ease,
+    box-shadow 360ms ease;
+}
+.is-in .room-card { opacity: 1; transform: none; transition-delay: var(--d, 0ms); }
+.room-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(130% 80% at 100% 0%, rgba(184, 135, 54, 0.16) 0%, transparent 55%);
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+.room-card:hover {
+  border-color: rgba(184, 135, 54, 0.62);
+  transform: translateY(-5px);
+  box-shadow: 0 36px 70px -40px rgba(0, 0, 0, 0.75);
+}
+.room-card:hover::after { opacity: 1; }
+.room-card__top { display: flex; align-items: center; justify-content: space-between; }
+.room-card__idx {
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 44px;
+  line-height: 1;
+  color: rgba(246, 240, 226, 0.20);
+}
+.room-card:hover .room-card__idx { color: rgba(184, 135, 54, 0.45); transition: color 380ms ease; }
+.room-card__chip {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+  border: 1px solid rgba(184, 135, 54, 0.4);
+  border-radius: 999px;
+  padding: 5px 11px;
+  white-space: nowrap;
+}
+.room-card__visual {
+  height: 90px;
+  margin: 20px 0 18px;
+  display: flex;
+  align-items: center;
+}
+.room-card__title {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 400;
+  font-size: 26px;
+  letter-spacing: -0.008em;
+  line-height: 1.15;
+  color: #F6F0E2;
+}
+.room-card__desc {
+  margin-top: 9px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(237, 230, 214, 0.70);
+  max-width: 42ch;
+}
+
+/* --- Motif 1: live waveform + caret (voice/text) --- */
+.rm-wave { display: flex; align-items: center; gap: 4px; height: 56px; }
+.rm-wave i {
+  display: block;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--gold);
+  transform: scaleY(0.4);
+  animation: wave-bar 1.25s ease-in-out infinite;
+}
+.rm-caret {
+  display: inline-block;
+  width: 2px; height: 30px;
+  margin-left: 8px;
+  background: #F6F0E2;
+  animation: caret 1.1s steps(2) infinite;
+}
+
+/* --- Motif 2: follow-up branch nodes --- */
+.rm-node { animation: rm-node-pulse 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.rm-node--2 { animation-delay: 0.3s; }
+.rm-node--3 { animation-delay: 0.6s; }
+@keyframes rm-node-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+/* --- Motif 3: delivery gauge needle sweep --- */
+.rm-needle {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  transform: rotate(-74deg);
+  transition: transform 1150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.is-in .rm-needle { transform: rotate(36deg); transition-delay: calc(var(--d, 0ms) + 280ms); }
+
+/* --- Motif 4: big verdict grade + radar --- */
+.rm-grade-wrap { position: relative; display: inline-flex; align-items: center; gap: 16px; }
+.rm-grade {
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 64px;
+  line-height: 0.8;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+  transform: scale(0.7);
+  opacity: 0;
+  transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1), opacity 760ms ease;
+}
+.is-in .rm-grade { transform: none; opacity: 1; transition-delay: calc(var(--d, 0ms) + 260ms); }
