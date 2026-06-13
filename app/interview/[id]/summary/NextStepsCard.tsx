@@ -71,7 +71,7 @@ export default function NextStepsCard({ level, inputMode }: Props) {
             disabled={busy}
             className="inline-flex items-center justify-center bg-gold text-paper tracking-wide px-8 py-3 font-medium hover:bg-[#9F7530] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
-            {busy ? 'Starting…' : 'Run another interview —→'}
+            {busy ? 'Starting…' : 'Run another interview →'}
           </button>
           <Link
             href="/interview/setup"

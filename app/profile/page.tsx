@@ -28,14 +28,14 @@ export default async function OverviewPage() {
 
   return (
     <div className="space-y-12">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+      <div className="anim-rise d1 grid grid-cols-2 md:grid-cols-4 gap-5">
         <StatCard label="Interviews" value={totals.total_interviews} hint={`${totals.completed_interviews} completed`} />
         <StatCard label="Avg score" value={totals.avg_score !== null ? totals.avg_score.toFixed(1) : '\u2014'} hint="across completed runs" />
         <StatCard label="Best grade" value={totals.best_grade ?? '\u2014'} hint="highest letter awarded" />
         <StatCard label="Streak" value={totals.streak_days} hint={totals.streak_days === 1 ? 'consecutive day' : 'consecutive days'} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-8">
+      <div className="anim-rise d2 grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-8">
         <div className="border border-[#11161E]/10 rounded-sm p-7 bg-[#F2ECDF]/50">
           <div className="flex items-baseline justify-between mb-1">
             <div className="text-[11px] tracking-[0.22em] text-[#B88736]">— SKILL RADAR</div>
@@ -54,7 +54,7 @@ export default async function OverviewPage() {
           {recent.length > 0 ? (
             <ul className="space-y-3">
               {recent.map((r) => (
-                <li key={r.id} className="flex items-center justify-between gap-4 border border-[#11161E]/10 px-4 py-3 rounded-sm">
+                <li key={r.id} className="lift flex items-center justify-between gap-4 border border-[#11161E]/10 px-4 py-3 rounded-sm">
                   <div className="min-w-0">
                     <div className="font-serif text-lg capitalize">{r.candidate_level}</div>
                     <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">{fmtDate(r.started_at)} {'\u00b7'} {(r.input_mode ?? 'text').toUpperCase()}</div>
@@ -96,7 +96,7 @@ export default async function OverviewPage() {
 
 function StatCard({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
   return (
-    <div className="border border-[#11161E]/10 rounded-sm p-5 bg-[#F2ECDF]/50">
+    <div className="lift border border-[#11161E]/10 rounded-sm p-5 bg-[#F2ECDF]/50">
       <div className="text-[10px] tracking-[0.22em] text-[#11161E]/55">{label.toUpperCase()}</div>
       <div className="font-serif text-3xl mt-2">{value}</div>
       {hint && <div className="text-[11px] tracking-[0.05em] text-[#11161E]/45 mt-1">{hint}</div>}

@@ -130,11 +130,11 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
     <div className="min-h-screen bg-paper text-ink font-sans">
       <main className="max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-12 py-10 lg:py-16">
         <div className="mb-12">
-          <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR ROOM</div>
-          <h1 className="font-serif text-4xl sm:text-5xl leading-[1.05]">
+          <div className="anim-rise d1 text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR ROOM</div>
+          <h1 className="anim-rise d2 font-serif text-4xl sm:text-5xl leading-[1.05]">
             Choose the <span className="italic text-gold">level</span> that matches today.
           </h1>
-          <p className="mt-4 text-ink/65 max-w-xl text-lg">
+          <p className="anim-rise d3 mt-4 text-ink/65 max-w-xl text-lg">
             Twelve questions. Same superday flow — fit, technicals, deal walks, a curveball.
             What changes is how hard the room hits back.
           </p>
@@ -149,10 +149,10 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
               <button
                 key={lvl.id}
                 onClick={() => setSelected(lvl.id)}
-                className={`text-left rounded-sm border transition-all p-7 flex flex-col relative ${
+                className={`group text-left rounded-sm border transition-all duration-300 p-7 flex flex-col relative hover:-translate-y-1 ${
                   isActive
-                    ? 'border-gold bg-cream'
-                    : 'border-ink/15 hover:border-ink/35 bg-transparent'
+                    ? 'border-gold bg-cream shadow-[0_22px_45px_-30px_rgba(184,135,54,0.55)]'
+                    : 'border-ink/15 hover:border-ink/40 bg-transparent'
                 } ${locked ? 'opacity-75' : ''}`}
                 aria-pressed={isActive}
               >
@@ -170,7 +170,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                     loading={lvl.id === 'intern' ? 'eager' : 'lazy'}
                     fetchPriority={lvl.id === 'intern' ? 'high' : 'auto'}
                     decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover object-top"
+                    className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-paper via-paper/30 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-5 text-[10px] tracking-[0.22em] text-ink/75">
@@ -235,7 +235,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                   <button
                     key={m.id}
                     onClick={() => setInputMode(m.id)}
-                    className={`text-left rounded-sm border p-7 transition-all ${isActive ? 'border-gold bg-cream' : 'border-ink/15 hover:border-ink/35 bg-transparent'}`}
+                    className={`text-left rounded-sm border p-7 transition-all duration-300 hover:-translate-y-0.5 ${isActive ? 'border-gold bg-cream shadow-[0_18px_38px_-28px_rgba(184,135,54,0.5)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'}`}
                     aria-pressed={isActive}
                   >
                     <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
