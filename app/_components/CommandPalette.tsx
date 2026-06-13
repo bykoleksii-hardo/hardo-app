@@ -82,12 +82,20 @@ export default function CommandPalette({ isAdmin = false }: { isAdmin?: boolean 
   }, [open]);
 
   useEffect(() => {
-    if (open) {
-      setQ('');
-      setActive(0);
-      // focus next tick
-      setTimeout(() => inputRef.current?.focus(), 10);
-    }
+    if (!open) return;
+    setQ('');
+    setActive(0);
+    // Remember what was focused so we can restore it on close, and lock
+    // background scroll while the palette is open.
+    const prevActive = document.activeElement as HTMLElement | null;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const t = setTimeout(() => inputRef.current?.focus(), 10);
+    return () => {
+      clearTimeout(t);
+      document.body.style.overflow = prevOverflow;
+      prevActive?.focus?.();
+    };
   }, [open]);
 
   const results = useMemo(() => {
@@ -162,7 +170,12 @@ export default function CommandPalette({ isAdmin = false }: { isAdmin?: boolean 
             onKeyDown={onKeyDown}
             placeholder="Type a command or search…"
             aria-label="Command input"
-            className="flex-1 bg-transparent text-[14px] text-[#11161E] placeholder:text-[#11161E]/40 outline-none"
+            role="combobox"
+            aria-expanded={results.length > 0}
+            aria-controls="cmdk-listbox"
+            aria-activedescendant={results[active] ? `cmdk-opt-${active}` : undefined}
+            autoComplete="off"
+            className="flex-1 bg-transparent text-[14px] text-[#11161E] placeholder:text-[#11161E]/50 outline-none"
           />
           <button
             type="button"
@@ -174,7 +187,7 @@ export default function CommandPalette({ isAdmin = false }: { isAdmin?: boolean 
           </button>
         </div>
 
-        <div className="max-h-[60vh] overflow-y-auto py-2">
+        <div className="max-h-[60vh] overflow-y-auto py-2" role="listbox" id="cmdk-listbox" aria-label="Commands">
           {results.length === 0 ? (
             <div className="px-4 py-8 text-center text-[13px] text-[#11161E]/55">
               No results.
@@ -190,9 +203,12 @@ export default function CommandPalette({ isAdmin = false }: { isAdmin?: boolean 
                       runningIdx++;
                       const isActive = runningIdx === active;
                       return (
-                        <li key={c.id}>
+                        <li key={c.id} role="presentation">
                           <button
                             type="button"
+                            role="option"
+                            id={`cmdk-opt-${runningIdx}`}
+                            aria-selected={isActive}
                             onMouseEnter={() => setActive(runningIdx)}
                             onClick={() => run(c)}
                             className={
