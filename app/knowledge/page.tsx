@@ -1,12 +1,10 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { listPublishedArticles, ARTICLE_CATEGORIES, isArticleCategory, type ArticleCategory } from '@/lib/knowledge/queries';
-import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
 import JsonLd from '@/app/_components/JsonLd';
+import HeaderAuth from '@/app/_components/HeaderAuth';
 import { breadcrumbLd, collectionLd } from '@/lib/seo';
-import { getViewerPlan } from '@/lib/quota/server';
-import { getUserRole } from '@/lib/auth/roles';
 
 const PAGE_TITLE = 'Knowledge Hub \u2014 HARDO';
 const PAGE_DESC = 'Tactical breakdowns of the questions that decide an offer. Platform updates, IB industry context, and the rubric behind every grade.';
@@ -38,15 +36,10 @@ export default async function KnowledgeIndex({ searchParams }: { searchParams: P
   const sp = await searchParams;
   const active: ArticleCategory | null = isArticleCategory(sp?.category) ? (sp.category as ArticleCategory) : null;
   const articles = await listPublishedArticles({ limit: 50, category: active ?? undefined });
-  const viewer = await getViewerPlan();
-  const signedIn = viewer.plan !== 'anon';
-  const role = signedIn ? await getUserRole() : 'user';
-  const isAdmin = role === 'admin' || role === 'editor';
-  const isPaid = viewer.plan === 'paid';
 
   return (
     <>
-      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding />
+      <HeaderAuth onLanding />
       <main>
         <section className="border-b border-line">
           <div className="max-w-page mx-auto px-6 pt-20 pb-16">
