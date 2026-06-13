@@ -1142,7 +1142,7 @@ body.font-sans {
   letter-spacing: -0.02em;
   line-height: 1.04;
   color: #F6F0E2;
-  font-size: clamp(40px, 6vw, 76px);
+  font-size: clamp(34px, 4.6vw, 54px);
 }
 .room-title em { font-style: italic; color: var(--gold); }
 .room-sub { color: rgba(237, 230, 214, 0.72); line-height: 1.6; }
@@ -1242,7 +1242,7 @@ body.font-sans {
 .room-card {
   position: relative;
   overflow: hidden;
-  padding: 30px 30px 28px;
+  padding: 22px 24px 22px;
   border: 1px solid rgba(184, 135, 54, 0.22);
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.012) 100%);
@@ -1271,7 +1271,7 @@ body.font-sans {
   font-family: var(--font-serif), Georgia, serif;
   font-style: italic;
   font-weight: 300;
-  font-size: 44px;
+  font-size: 34px;
   line-height: 1;
   color: rgba(246, 240, 226, 0.20);
 }
@@ -1288,23 +1288,23 @@ body.font-sans {
   white-space: nowrap;
 }
 .room-card__visual {
-  height: 90px;
-  margin: 20px 0 18px;
+  height: 72px;
+  margin: 14px 0 14px;
   display: flex;
   align-items: center;
 }
 .room-card__title {
   font-family: var(--font-serif), Georgia, serif;
   font-weight: 400;
-  font-size: 26px;
+  font-size: 22px;
   letter-spacing: -0.008em;
   line-height: 1.15;
   color: #F6F0E2;
 }
 .room-card__desc {
-  margin-top: 9px;
-  font-size: 14.5px;
-  line-height: 1.6;
+  margin-top: 7px;
+  font-size: 13.5px;
+  line-height: 1.55;
   color: rgba(237, 230, 214, 0.70);
   max-width: 42ch;
 }
@@ -1367,7 +1367,7 @@ body.font-sans {
    --open: 0 = closed door, 1 = fully open (dark fills the view).
    ========================================================= */
 .door-scroll { position: relative; --open: 1; }
-@media (min-width: 1024px) { .door-scroll { min-height: 320vh; } }
+@media (min-width: 1024px) { .door-scroll { min-height: 360vh; } }
 
 .door-stage {
   position: relative;

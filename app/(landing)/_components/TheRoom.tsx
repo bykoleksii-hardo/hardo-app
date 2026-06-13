@@ -51,7 +51,7 @@ const FEATURES: Feature[] = [
     title: 'Pace, filler, jargon',
     desc: 'We score how you sound, not just what you say — the delivery feedback you never get anywhere else.',
     visual: (
-      <svg width="138" height="80" viewBox="0 0 138 80" fill="none" aria-hidden>
+      <svg width="124" height="70" viewBox="0 0 138 80" fill="none" aria-hidden>
         <path d="M14 68 A52 52 0 0 1 118 68" stroke="rgba(184,135,54,0.28)" strokeWidth="2.5" strokeLinecap="round" />
         <path d="M14 68 A52 52 0 0 1 92 19" stroke="#B88736" strokeWidth="2.5" strokeLinecap="round" />
         <line className="rm-needle" x1="66" y1="68" x2="66" y2="24" stroke="#F6F0E2" strokeWidth="2.5" strokeLinecap="round" />
@@ -97,8 +97,10 @@ export default function TheRoom() {
       if (total <= 0) return 1;
       const scrolled = Math.min(Math.max(-rect.top, 0), total);
       const p = scrolled / total;
-      const enter = Math.min(1, p / 0.4);
-      const exit = Math.min(1, Math.max(0, (p - 0.62) / 0.38));
+      // open quickly, then hold the room fully open for a long stretch so it
+      // can't be scrolled past unseen, then close.
+      const enter = Math.min(1, p / 0.28);
+      const exit = Math.min(1, Math.max(0, (p - 0.72) / 0.28));
       return enter * (1 - exit);
     };
 
@@ -138,7 +140,7 @@ export default function TheRoom() {
           />
 
           <div className="door-content">
-            <div className="max-w-page mx-auto px-6 py-24 md:py-16">
+            <div className="max-w-page mx-auto px-6 py-12 md:py-14">
               <div className="max-w-3xl">
                 <div className="room-eyebrow mb-6">Inside the room</div>
                 <h2 className="room-title">
@@ -151,7 +153,7 @@ export default function TheRoom() {
                 </p>
               </div>
 
-              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {FEATURES.map((f, i) => (
                   <article key={f.index} className="room-card" style={{ '--t': 0.42 + i * 0.12 } as React.CSSProperties}>
                     <div className="room-card__top">
