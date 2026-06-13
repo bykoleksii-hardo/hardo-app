@@ -93,7 +93,7 @@ export default function ResetForm({ email }: Props) {
       </div>
 
       {error && (
-        <div className="border border-[#9C2E2E]/30 bg-[#9C2E2E]/5 text-[13px] text-[#9C2E2E] px-4 py-3">
+        <div role="alert" className="border border-[#9C2E2E]/30 bg-[#9C2E2E]/5 text-[13px] text-[#9C2E2E] px-4 py-3">
           {error}
         </div>
       )}
