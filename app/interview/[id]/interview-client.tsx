@@ -711,7 +711,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                   <button
                     onClick={() => (done || active || s.id === firstPendingId) ? setActiveBaseId(s.id) : null}
                     disabled={locked}
-                    className={`w-full text-left flex items-center gap-2 px-2 py-2 text-[12px] ${active ? 'bg-gold/10 border-l-2 border-gold' : ''}`}
+                    className={`w-full text-left flex items-center gap-2 px-2 py-2 text-[12px] rounded-sm transition-colors ${active ? 'bg-gold/10 border-l-2 border-gold' : locked ? '' : 'hover:bg-ink/[0.04]'}`}
                   >
                     <span className="w-1.5 h-1.5 rounded-full" style={{ background: revealed ? colorFor(cat) : 'rgba(17,22,30,0.2)' }} />
                     <span className={`flex-1 ${revealed ? 'text-ink/85' : 'text-ink/35'}`}>

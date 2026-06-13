@@ -1539,3 +1539,14 @@ body.font-sans {
   pointer-events: none;
   z-index: 0;
 }
+
+/* Editorial drop cap on the first paragraph of a Knowledge Hub article */
+.prose-hardo > p:first-of-type::first-letter {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 500;
+  font-size: 3.4em;
+  line-height: 0.78;
+  float: left;
+  margin: 0.06em 0.1em 0 0;
+  color: var(--gold);
+}
