@@ -1094,8 +1094,6 @@ body.font-sans {
     radial-gradient(120% 90% at 50% -10%, #16263f 0%, #0E1E36 45%, #0a1730 100%);
   color: #EDE6D6;
   overflow: hidden;
-  border-top: 1px solid rgba(184, 135, 54, 0.22);
-  border-bottom: 1px solid rgba(184, 135, 54, 0.22);
 }
 /* warm gold spotlight from above */
 .room::before {
@@ -1248,13 +1246,16 @@ body.font-sans {
   border: 1px solid rgba(184, 135, 54, 0.22);
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.012) 100%);
-  /* progress-driven reveal: --present (0..1) is set by the scroll stage;
-     --t is a per-card threshold so the four cards appear in sequence. */
-  --bp: clamp(0, calc((var(--present, 1) - var(--t, 0)) * 3.4), 1);
-  opacity: var(--bp);
-  transform: translateY(calc((1 - var(--bp)) * 30px));
-  transition: border-color 360ms ease, box-shadow 360ms ease;
+  /* staggered cascade in when the section scrolls into view (.is-in via RoomInView) */
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 760ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 760ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 360ms ease,
+    box-shadow 360ms ease;
 }
+.is-in .room-card { opacity: 1; transform: none; transition-delay: var(--d, 0ms); }
 .room-card::after {
   content: '';
   position: absolute;
@@ -1368,47 +1369,34 @@ body.font-sans {
    screens; small screens fall back to a static, readable layout.
    --present / --enter are written by the component on scroll.
    ========================================================= */
-.room-scroll { position: relative; --present: 1; --enter: 1; --exit: 0; }
-@media (min-width: 1024px) {
-  .room-scroll { min-height: 260vh; }
-}
-.room-stage {
-  position: relative;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-}
-@media (min-width: 1024px) {
-  .room-stage { position: sticky; top: 0; height: 100vh; }
-}
-.room-stage__inner {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  opacity: var(--present);
-  filter: blur(calc((1 - var(--present)) * 6px));
-  transform: scale(calc(0.9 + 0.1 * var(--enter) + 0.06 * var(--exit))) translateY(calc((1 - var(--present)) * 16px));
-  transform-origin: center 46%;
-  will-change: transform, opacity, filter;
-}
-/* Doorway: darkness that irises open as you step in, and closes as you leave */
-.room-aperture {
+/* =========================================================
+   The Room — seamless light → dark → light blend
+   The light sections above/below melt into the dark room
+   instead of meeting it at a hard line, like walking into a
+   dimly-lit room and back out into the light.
+   ========================================================= */
+.room__inner { position: relative; z-index: 2; }
+.room__fade {
   position: absolute;
-  inset: 0;
-  z-index: 5;
+  left: 0; right: 0;
+  z-index: 1;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 46%,
-    rgba(6, 13, 24, 0) calc(var(--present) * 116%),
-    #060d18 calc(var(--present) * 116% + 6%));
+  height: 110px;
 }
-.room-vignette {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-  box-shadow: inset 0 0 calc(60px + 130px * var(--present)) rgba(0, 0, 0, calc(0.5 * var(--present)));
+@media (min-width: 768px) { .room__fade { height: 20vh; } }
+.room__fade--top {
+  top: 0;
+  background: linear-gradient(to bottom,
+    #FBF7EE 0%,
+    rgba(251, 247, 238, 0.72) 24%,
+    rgba(251, 247, 238, 0.28) 56%,
+    rgba(251, 247, 238, 0) 100%);
 }
-@media (max-width: 1023px) {
-  .room-aperture { display: none; }
-  .room-stage__inner { opacity: 1; filter: none; transform: none; }
+.room__fade--bottom {
+  bottom: 0;
+  background: linear-gradient(to top,
+    #FBF7EE 0%,
+    rgba(251, 247, 238, 0.72) 24%,
+    rgba(251, 247, 238, 0.28) 56%,
+    rgba(251, 247, 238, 0) 100%);
 }
