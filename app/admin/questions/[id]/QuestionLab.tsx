@@ -139,12 +139,12 @@ export default function QuestionLab({ question }: { question: AdminQuestion }) {
     <div className="grid gap-10 lg:grid-cols-[1fr_420px]">
       <div>
         {/* Question header */}
-        <div className="kicker mb-2">Question Â· ID {question.id}</div>
+        <div className="kicker mb-2">Question · ID {question.id}</div>
         <h1 className="font-serif text-[28px] leading-snug font-medium mb-4">{question.question}</h1>
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono uppercase tracking-widest text-muted mb-8">
           <span>{question.category}</span>
-          {question.subtopic && <><span>Â·</span><span>{question.subtopic}</span></>}
-          {question.difficulty !== null && <><span>Â·</span><span>Difficulty {question.difficulty}</span></>}
+          {question.subtopic && <><span>·</span><span>{question.subtopic}</span></>}
+          {question.difficulty !== null && <><span>·</span><span>Difficulty {question.difficulty}</span></>}
         </div>
 
         {/* Level selector */}
@@ -201,8 +201,8 @@ export default function QuestionLab({ question }: { question: AdminQuestion }) {
               <div key={i} className="text-[14px] leading-relaxed">
                 <div className="font-mono text-[10px] uppercase tracking-widest text-muted mb-1">
                   {t.role === 'candidate'
-                    ? (t.kind === 'clarification' ? 'You Â· clarification' : 'You Â· answer')
-                    : (t.kind === 'follow_up' ? 'Interviewer Â· follow-up' : 'Interviewer Â· clarification reply')}
+                    ? (t.kind === 'clarification' ? 'You · clarification' : 'You · answer')
+                    : (t.kind === 'follow_up' ? 'Interviewer · follow-up' : 'Interviewer · clarification reply')}
                 </div>
                 <div className={t.role === 'ai' ? 'text-ink' : 'text-ink-2'}>{t.text}</div>
               </div>
