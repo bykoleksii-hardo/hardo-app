@@ -26,11 +26,11 @@ export default async function UpgradePage() {
       <main>
         <section className="border-b border-line">
           <div className="max-w-page mx-auto px-6 pt-20 pb-16">
-            <div className="kicker mb-3">Account {'\u00b7'} Subscription</div>
-            <h1 className="font-serif text-[44px] md:text-[58px] font-light leading-[1.05] tracking-[-0.022em] max-w-3xl">
+            <div className="kicker anim-rise d1 mb-3">Account {'\u00b7'} Subscription</div>
+            <h1 className="anim-rise d2 font-serif text-[44px] md:text-[58px] font-light leading-[1.05] tracking-[-0.022em] max-w-3xl">
               {isPaid ? 'You\u2019re on HARDO. Unlimited.' : 'Switch to HARDO. Unlimited interviews.'}
             </h1>
-            <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
+            <p className="anim-rise d3 mt-5 text-ink-2 max-w-2xl leading-relaxed">
               {isPaid
                 ? 'Your subscription is active. Manage billing or cancel anytime below \u2014 access continues through the end of the current period.'
                 : 'One plan, $14.99 a month, billed monthly. Cancel anytime. No annual lock-in.'}
@@ -40,7 +40,7 @@ export default async function UpgradePage() {
 
         <section className="border-b border-line">
           <div className="max-w-page mx-auto px-6 py-16 grid gap-10 md:grid-cols-2">
-            <div className="border border-ink rounded-md p-8 bg-cream relative">
+            <div className="lift border border-ink rounded-md p-8 bg-cream relative">
               <div className="absolute -top-3 left-8 bg-ink text-paper text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full">
                 {isPaid ? 'Current plan' : 'Subscription'}
               </div>
@@ -80,7 +80,7 @@ export default async function UpgradePage() {
               )}
             </div>
 
-            <div className="border border-line rounded-md p-8 bg-paper">
+            <div className="lift border border-line rounded-md p-8 bg-paper">
               <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Why upgrade</div>
               <h2 className="mt-3 font-serif text-[26px] font-medium leading-snug">
                 Train for the room that decides the offer.

@@ -22,16 +22,16 @@ export default async function ResetPasswordPage() {
   return (
     <main className="min-h-screen bg-[#FBF7EE] grid place-items-center px-6 py-16">
       <div className="w-full max-w-md">
-        <div className="mb-10">
+        <div className="anim-rise d1 mb-10">
           <Brand size="md" href="/" />
         </div>
-        <div className="text-[10px] tracking-[0.25em] uppercase text-[#11161E]/50 mb-3">
+        <div className="anim-rise d2 text-[10px] tracking-[0.25em] uppercase text-[#11161E]/50 mb-3">
           {'\u2014 PASSWORD RESET'}
         </div>
-        <h1 className="font-serif text-4xl leading-tight mb-3">
+        <h1 className="anim-rise d3 font-serif text-4xl leading-tight mb-3">
           Set a new password.
         </h1>
-        <p className="text-[#11161E]/70 mb-8 text-[14px] leading-relaxed">
+        <p className="anim-rise d4 text-[#11161E]/70 mb-8 text-[14px] leading-relaxed">
           Pick something at least 8 characters. You{'\u2019'}ll be signed in right after.
         </p>
         <ResetForm email={user.email ?? ''} />
