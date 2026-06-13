@@ -162,6 +162,9 @@ export function renderMarkdown(md: string): string {
     const h = /^(#{1,3})\s+(.+)$/.exec(line);
     if (h) {
       const level = h[1].length;
+      // The page <h1> is the article title; clamp body headings to <h2>+ so a
+      // stray "# " can't emit a second <h1> and break the heading outline.
+      const tagLevel = Math.max(2, level);
       const text = inline(h[2].trim(), footnotes, footnoteOrder);
       const cls = level === 1
         ? 'font-serif text-4xl text-ink mt-12 mb-6 leading-tight tracking-[-0.01em] scroll-mt-24'
@@ -169,7 +172,7 @@ export function renderMarkdown(md: string): string {
           ? 'font-serif text-3xl text-ink mt-10 mb-5 leading-tight tracking-[-0.01em] scroll-mt-24'
           : 'font-serif text-2xl text-ink mt-8 mb-4 leading-snug scroll-mt-24';
       const id = slugify(h[2].trim());
-      html.push(`<h${level}${id ? ` id="${id}"` : ''} class="${cls}">${text}</h${level}>`);
+      html.push(`<h${tagLevel}${id ? ` id="${id}"` : ''} class="${cls}">${text}</h${tagLevel}>`);
       i++;
       continue;
     }

@@ -3,12 +3,25 @@ import type { Metadata } from 'next';
 import { listPublishedArticles, ARTICLE_CATEGORIES, isArticleCategory, type ArticleCategory } from '@/lib/knowledge/queries';
 import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
+import JsonLd from '@/app/_components/JsonLd';
+import { breadcrumbLd, collectionLd } from '@/lib/seo';
 import { getViewerPlan } from '@/lib/quota/server';
 import { getUserRole } from '@/lib/auth/roles';
 
+const PAGE_TITLE = 'Knowledge Hub \u2014 HARDO';
+const PAGE_DESC = 'Tactical breakdowns of the questions that decide an offer. Platform updates, IB industry context, and the rubric behind every grade.';
+
+// All category-filtered views (?category=\u2026) canonicalize to the clean /knowledge
+// URL so the filtered slices don't compete as duplicate/thin pages.
 export const metadata: Metadata = {
-  title: 'Knowledge Hub \u2014 HARDO',
-  description: 'Tactical breakdowns of the questions that decide an offer. Platform updates, IB industry context, and the rubric behind every grade.',
+  title: PAGE_TITLE,
+  description: PAGE_DESC,
+  alternates: {
+    canonical: '/knowledge',
+    types: { 'application/rss+xml': '/knowledge/feed.xml' },
+  },
+  openGraph: { type: 'website', title: PAGE_TITLE, description: PAGE_DESC, url: '/knowledge', images: ['/og.png'] },
+  twitter: { card: 'summary_large_image', title: PAGE_TITLE, description: PAGE_DESC, images: ['/og.png'] },
 };
 
 export const dynamic = 'force-dynamic';
@@ -111,6 +124,20 @@ export default async function KnowledgeIndex({ searchParams }: { searchParams: P
         </section>
       </main>
       <LandingFooter />
+      <JsonLd
+        data={[
+          breadcrumbLd([
+            { name: 'Home', url: '/' },
+            { name: 'Knowledge Hub', url: '/knowledge' },
+          ]),
+          collectionLd({
+            url: '/knowledge',
+            name: 'Knowledge Hub',
+            description: PAGE_DESC,
+            items: articles.map((a) => ({ slug: a.slug, title: a.title })),
+          }),
+        ]}
+      />
     </>
   );
 }

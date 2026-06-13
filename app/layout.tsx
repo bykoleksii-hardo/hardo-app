@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import CommandPalette from '@/app/_components/CommandPalette';
 import { getUserRole } from '@/lib/auth/roles';
+import { SITE_URL } from '@/lib/seo';
 import { Inter_Tight, Fraunces, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
@@ -26,7 +27,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://hardo.app'),
+  metadataBase: new URL(SITE_URL),
   title: 'HARDO \u2014 AI mock interviews for IB',
   description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
   applicationName: 'HARDO',
