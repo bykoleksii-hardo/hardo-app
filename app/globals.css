@@ -1246,16 +1246,12 @@ body.font-sans {
   border: 1px solid rgba(184, 135, 54, 0.22);
   border-radius: 12px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.012) 100%);
-  /* staggered cascade in when the section scrolls into view (.is-in via RoomInView) */
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 760ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 760ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 360ms ease,
-    box-shadow 360ms ease;
+  /* revealed as the door opens (--open from the stage; --t staggers the four) */
+  --bp: clamp(0, calc((var(--open, 1) - var(--t, 0)) / 0.18), 1);
+  opacity: var(--bp);
+  transform: translateY(calc((1 - var(--bp)) * 26px));
+  transition: border-color 360ms ease, box-shadow 360ms ease;
 }
-.is-in .room-card { opacity: 1; transform: none; transition-delay: var(--d, 0ms); }
 .room-card::after {
   content: '';
   position: absolute;
@@ -1341,10 +1337,8 @@ body.font-sans {
 .rm-needle {
   transform-box: fill-box;
   transform-origin: bottom center;
-  transform: rotate(-74deg);
-  transition: transform 1150ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: rotate(36deg);
 }
-.is-in .rm-needle { transform: rotate(36deg); transition-delay: calc(var(--d, 0ms) + 280ms); }
 
 /* --- Motif 4: big verdict grade + radar --- */
 .rm-grade-wrap { position: relative; display: inline-flex; align-items: center; gap: 16px; }
@@ -1356,11 +1350,7 @@ body.font-sans {
   line-height: 0.8;
   color: var(--gold);
   letter-spacing: -0.02em;
-  transform: scale(0.7);
-  opacity: 0;
-  transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1), opacity 760ms ease;
 }
-.is-in .rm-grade { transform: none; opacity: 1; transition-delay: calc(var(--d, 0ms) + 260ms); }
 
 /* =========================================================
    The Room — scroll-driven "enter / exit the room"
@@ -1370,33 +1360,104 @@ body.font-sans {
    --present / --enter are written by the component on scroll.
    ========================================================= */
 /* =========================================================
-   The Room — seamless light → dark → light blend
-   The light sections above/below melt into the dark room
-   instead of meeting it at a hard line, like walking into a
-   dimly-lit room and back out into the light.
+   The Room — a dark "door" on the light page that opens as you
+   scroll in (the page goes dark and the four boxes appear) and
+   closes + recedes as you scroll out. Pinned on large screens;
+   small screens / reduced-motion get a static, readable room.
+   --open: 0 = closed door, 1 = fully open (dark fills the view).
    ========================================================= */
-.room__inner { position: relative; z-index: 2; }
-.room__fade {
-  position: absolute;
-  left: 0; right: 0;
-  z-index: 1;
-  pointer-events: none;
-  height: 110px;
+.door-scroll { position: relative; --open: 1; }
+@media (min-width: 1024px) { .door-scroll { min-height: 320vh; } }
+
+.door-stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-@media (min-width: 768px) { .room__fade { height: 20vh; } }
+@media (min-width: 1024px) {
+  .door-stage { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+}
+
+/* The dark room, revealed through an opening door (clip-path). */
+.door-panel {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+@media (min-width: 1024px) {
+  .door-panel {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(
+      calc((1 - var(--open)) * 16vh)
+      calc((1 - var(--open)) * 39%)
+      calc((1 - var(--open)) * 16vh)
+      calc((1 - var(--open)) * 39%)
+      round calc((1 - var(--open)) * 18px)
+    );
+    box-shadow: 0 50px 100px -45px rgba(14, 30, 54, calc(0.5 * (1 - var(--open))));
+    will-change: clip-path;
+  }
+}
+
+/* Warm light spilling from the doorway as it opens (peaks mid-open). */
+.door-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: calc(4 * var(--open) * (1 - var(--open)));
+  background: radial-gradient(58% 44% at 50% 50%, rgba(184, 135, 54, 0.30), transparent 70%);
+}
+
+.door-content { position: relative; z-index: 2; width: 100%; }
+@media (min-width: 1024px) {
+  .door-content {
+    opacity: clamp(0, calc((var(--open) - 0.34) * 2.2), 1);
+    transform: scale(calc(0.96 + 0.04 * var(--open)));
+    transform-origin: center 46%;
+  }
+}
+
+/* Closed-door face: frame, handle, label — fades out as the door opens. */
+.door-face {
+  position: absolute;
+  top: 16vh; bottom: 16vh; left: 39%; right: 39%;
+  z-index: 4;
+  pointer-events: none;
+  display: none;
+  border: 1px solid var(--gold-line);
+  border-radius: 18px;
+  box-shadow: 0 50px 90px -40px rgba(14, 30, 54, 0.4);
+  opacity: clamp(0, calc(1 - var(--open) * 4), 1);
+}
+@media (min-width: 1024px) { .door-face { display: block; } }
+.door-face__handle {
+  position: absolute; top: 50%; right: 16px; transform: translateY(-50%);
+  width: 4px; height: 46px; border-radius: 4px; background: var(--gold);
+}
+.door-face__label {
+  position: absolute; left: 0; right: 0; bottom: 26px; text-align: center;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.3em;
+  color: var(--gold);
+}
+.door-face__hint {
+  position: absolute; left: 0; right: 0; top: 24px; text-align: center;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.26em;
+  color: rgba(237, 230, 214, 0.55);
+}
+
+/* Mobile / no-pin: soft light→dark→light edges so there's no hard line. */
+.room__fade { position: absolute; left: 0; right: 0; z-index: 5; pointer-events: none; height: 110px; }
 .room__fade--top {
   top: 0;
-  background: linear-gradient(to bottom,
-    #FBF7EE 0%,
-    rgba(251, 247, 238, 0.72) 24%,
-    rgba(251, 247, 238, 0.28) 56%,
-    rgba(251, 247, 238, 0) 100%);
+  background: linear-gradient(to bottom, #FBF7EE 0%, rgba(251,247,238,0.72) 26%, rgba(251,247,238,0) 100%);
 }
 .room__fade--bottom {
   bottom: 0;
-  background: linear-gradient(to top,
-    #FBF7EE 0%,
-    rgba(251, 247, 238, 0.72) 24%,
-    rgba(251, 247, 238, 0.28) 56%,
-    rgba(251, 247, 238, 0) 100%);
+  background: linear-gradient(to top, #FBF7EE 0%, rgba(251,247,238,0.72) 26%, rgba(251,247,238,0) 100%);
 }

@@ -1,4 +1,6 @@
-import RoomInView from './RoomInView';
+'use client';
+
+import { useEffect, useRef } from 'react';
 
 const WAVE_BARS = [16, 28, 44, 34, 52, 24, 42, 20, 34, 14, 30, 22];
 
@@ -75,48 +77,106 @@ const FEATURES: Feature[] = [
 ];
 
 export default function TheRoom() {
+  const ref = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const setOpen = (v: number) => el.style.setProperty('--open', v.toFixed(4));
+
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) { setOpen(1); return; }
+
+    const computeTarget = (): number => {
+      if (!window.matchMedia('(min-width: 1024px)').matches) return 1;
+      const rect = el.getBoundingClientRect();
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) return 1;
+      const scrolled = Math.min(Math.max(-rect.top, 0), total);
+      const p = scrolled / total;
+      const enter = Math.min(1, p / 0.4);
+      const exit = Math.min(1, Math.max(0, (p - 0.62) / 0.38));
+      return enter * (1 - exit);
+    };
+
+    let target = computeTarget();
+    let cur = target;
+    let raf = 0;
+    setOpen(cur);
+    const tick = () => {
+      cur += (target - cur) * 0.1; // eased follow → weighted, premium glide
+      if (Math.abs(target - cur) < 0.0006) cur = target;
+      setOpen(cur);
+      raf = cur !== target ? requestAnimationFrame(tick) : 0;
+    };
+    const onScroll = () => {
+      target = computeTarget();
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <section className="room">
-      {/* light melts into the dark room at the top, and back into light at the bottom */}
-      <div className="room__fade room__fade--top" aria-hidden />
+    <section ref={ref} className="door-scroll">
+      <div className="door-stage">
+        <div className="room door-panel">
+          <div className="door-glow" aria-hidden />
+          <div className="room__fade room__fade--top lg:hidden" aria-hidden />
+          <div
+            aria-hidden
+            className="room-ring room-ring--pulse"
+            style={{ width: 520, height: 520, top: '-220px', right: '-160px' }}
+          />
 
-      <div
-        aria-hidden
-        className="room-ring room-ring--pulse"
-        style={{ width: 520, height: 520, top: '-220px', right: '-160px' }}
-      />
+          <div className="door-content">
+            <div className="max-w-page mx-auto px-6 py-24 md:py-16">
+              <div className="max-w-3xl">
+                <div className="room-eyebrow mb-6">Inside the room</div>
+                <h2 className="room-title">
+                  A mock interview that{' '}
+                  <em>pushes back.</em>
+                </h2>
+                <p className="room-sub mt-6 max-w-2xl text-[17px]">
+                  Twelve questions a session — technicals, behavioral, a case — across three levels,
+                  graded like a real superday. Four things make it bite.
+                </p>
+              </div>
 
-      <RoomInView>
-        <div className="room__inner max-w-page mx-auto px-6 py-28 md:py-[22vh]">
-          <div className="max-w-3xl">
-            <div className="room-eyebrow r-anim mb-6" style={{ '--d': '0ms' } as React.CSSProperties}>Inside the room</div>
-            <h2 className="room-title r-anim" style={{ '--d': '90ms' } as React.CSSProperties}>
-              A mock interview that{' '}
-              <em>pushes back.</em>
-            </h2>
-            <p className="room-sub r-anim mt-6 max-w-2xl text-[17px]" style={{ '--d': '200ms' } as React.CSSProperties}>
-              Twelve questions a session — technicals, behavioral, a case — across three levels,
-              graded like a real superday. Four things make it bite.
-            </p>
+              <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5">
+                {FEATURES.map((f, i) => (
+                  <article key={f.index} className="room-card" style={{ '--t': 0.42 + i * 0.12 } as React.CSSProperties}>
+                    <div className="room-card__top">
+                      <span className="room-card__idx">{f.index}</span>
+                      <span className="room-card__chip">{f.chip}</span>
+                    </div>
+                    <div className="room-card__visual">{f.visual}</div>
+                    <h3 className="room-card__title">{f.title}</h3>
+                    <p className="room-card__desc">{f.desc}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="mt-14 grid grid-cols-1 md:grid-cols-2 gap-5">
-            {FEATURES.map((f, i) => (
-              <article key={f.index} className="room-card" style={{ '--d': `${340 + i * 130}ms` } as React.CSSProperties}>
-                <div className="room-card__top">
-                  <span className="room-card__idx">{f.index}</span>
-                  <span className="room-card__chip">{f.chip}</span>
-                </div>
-                <div className="room-card__visual">{f.visual}</div>
-                <h3 className="room-card__title">{f.title}</h3>
-                <p className="room-card__desc">{f.desc}</p>
-              </article>
-            ))}
-          </div>
+          <div className="room__fade room__fade--bottom lg:hidden" aria-hidden />
         </div>
-      </RoomInView>
 
-      <div className="room__fade room__fade--bottom" aria-hidden />
+        {/* closed-door face on the light page (large screens) */}
+        <div className="door-face" aria-hidden>
+          <span className="door-face__hint">Scroll to enter</span>
+          <span className="door-face__handle" />
+          <span className="door-face__label">The Room</span>
+        </div>
+      </div>
     </section>
   );
 }
