@@ -1,4 +1,6 @@
-import RoomInView from './RoomInView';
+'use client';
+
+import { useEffect, useRef } from 'react';
 
 const WAVE_BARS = [16, 28, 44, 34, 52, 24, 42, 20, 34, 14, 30, 22];
 
@@ -75,43 +77,101 @@ const FEATURES: Feature[] = [
 ];
 
 export default function TheRoom() {
+  const ref = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const setStatic = () => {
+      el.style.setProperty('--enter', '1');
+      el.style.setProperty('--present', '1');
+    };
+
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      setStatic();
+      return;
+    }
+
+    let raf = 0;
+    const compute = () => {
+      raf = 0;
+      const lg = window.matchMedia('(min-width: 1024px)').matches;
+      if (!lg) { setStatic(); return; }
+      const rect = el.getBoundingClientRect();
+      const total = el.offsetHeight - window.innerHeight;
+      if (total <= 0) { setStatic(); return; }
+      const scrolled = Math.min(Math.max(-rect.top, 0), total);
+      const p = scrolled / total;
+      const enterEnd = 0.4;
+      const exitStart = 0.66;
+      const enter = Math.min(1, p / enterEnd);
+      const exit = Math.min(1, Math.max(0, (p - exitStart) / (1 - exitStart)));
+      const present = enter * (1 - exit);
+      el.style.setProperty('--enter', enter.toFixed(4));
+      el.style.setProperty('--present', present.toFixed(4));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(compute); };
+
+    compute();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <section className="room">
-      <div
-        aria-hidden
-        className="room-ring room-ring--pulse"
-        style={{ width: 520, height: 520, top: '-240px', right: '-180px' }}
-      />
+    <section ref={ref} className="room-scroll">
+      <div className="room room-stage">
+        {/* Light "exterior" doors that part as you enter, close as you leave */}
+        <div className="room-door room-door--l" aria-hidden />
+        <div className="room-door room-door--r" aria-hidden />
 
-      <RoomInView>
-        <div className="relative max-w-page mx-auto px-6 py-24 md:py-28">
-          <div className="max-w-3xl">
-            <div className="room-eyebrow r-anim mb-6" style={{ '--d': '0ms' } as React.CSSProperties}>Inside the room</div>
-            <h2 className="room-title r-anim" style={{ '--d': '90ms' } as React.CSSProperties}>
-              A mock interview that{' '}
-              <em>pushes back.</em>
-            </h2>
-            <p className="room-sub r-anim mt-6 max-w-2xl text-[17px]" style={{ '--d': '200ms' } as React.CSSProperties}>
-              Twelve questions a session — technicals, behavioral, a case — across three levels,
-              graded like a real superday. Four things make it bite.
-            </p>
-          </div>
+        <div
+          aria-hidden
+          className="room-ring room-ring--pulse"
+          style={{ width: 520, height: 520, top: '-240px', right: '-180px' }}
+        />
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-5">
-            {FEATURES.map((f, i) => (
-              <article key={f.index} className="room-card" style={{ '--d': `${340 + i * 130}ms` } as React.CSSProperties}>
-                <div className="room-card__top">
-                  <span className="room-card__idx">{f.index}</span>
-                  <span className="room-card__chip">{f.chip}</span>
-                </div>
-                <div className="room-card__visual">{f.visual}</div>
-                <h3 className="room-card__title">{f.title}</h3>
-                <p className="room-card__desc">{f.desc}</p>
-              </article>
-            ))}
+        <div className="room-stage__inner">
+          <div className="max-w-page mx-auto px-6 py-16 md:py-20">
+            <div className="max-w-3xl">
+              <div className="room-eyebrow mb-6">Inside the room</div>
+              <h2 className="room-title">
+                A mock interview that{' '}
+                <em>pushes back.</em>
+              </h2>
+              <p className="room-sub mt-6 max-w-2xl text-[17px]">
+                Twelve questions a session — technicals, behavioral, a case — across three levels,
+                graded like a real superday. Four things make it bite.
+              </p>
+            </div>
+
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5">
+              {FEATURES.map((f, i) => (
+                <article key={f.index} className="room-card" style={{ '--t': i * 0.16 } as React.CSSProperties}>
+                  <div className="room-card__top">
+                    <span className="room-card__idx">{f.index}</span>
+                    <span className="room-card__chip">{f.chip}</span>
+                  </div>
+                  <div className="room-card__visual">{f.visual}</div>
+                  <h3 className="room-card__title">{f.title}</h3>
+                  <p className="room-card__desc">{f.desc}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
-      </RoomInView>
+
+        <div className="room-vignette" aria-hidden />
+      </div>
     </section>
   );
 }
