@@ -11,6 +11,7 @@ import Pricing from './(landing)/_components/Pricing';
 import KnowledgeTeaser from './(landing)/_components/KnowledgeTeaser';
 import FAQ from './(landing)/_components/FAQ';
 import Scorecard from './(landing)/_components/Scorecard';
+import TheRoom from './(landing)/_components/TheRoom';
 
 export const metadata: Metadata = {
   title: 'HARDO \u2014 AI mock interviews for IB',
@@ -36,6 +37,7 @@ export default async function Page() {
 
         <HowItWorks />
         <VoiceMode />
+        <TheRoom />
         <WhatWeMeasure />
         {viewer.plan !== 'paid' && <Pricing />}
         <KnowledgeTeaser />
@@ -50,28 +52,29 @@ export default async function Page() {
 function AnonHero() {
   return (
     <section className="relative border-b border-line overflow-hidden">
-      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center hero-fade-in">
+      <div aria-hidden className="hero-figure hidden lg:block" style={{ fontSize: '460px', left: '-0.06em', bottom: '-0.22em' }}>&amp;</div>
+      <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center relative">
         <div>
-          <div className="eyebrow mb-5">AI mock interviews {'\u00b7'} Investment banking</div>
-          <h1 className="font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
+          <div className="eyebrow anim-rise anim-dash d1 mb-5">AI mock interviews {'\u00b7'} Investment banking</div>
+          <h1 className="anim-rise d2 font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
             Practice against the bar.{' '}
-            <span className="italic-gold">Not a chatbot</span>
+            <span className="italic-gold gold-underline">Not a chatbot</span>
             <span className="text-gold">.</span>
           </h1>
-          <p className="mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
+          <p className="anim-rise d3 mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
             Twelve questions per session. Technicals, behavioral, a case. Voice or text. A real scorecard at the end {'\u2014'} graded the way a real banker reviews a candidate.
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
+          <div className="anim-rise d4 mt-9 flex flex-wrap items-center gap-4">
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
+              className="cta cta-pill group inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy transition-colors hero-pulse"
             >
-              Try one free interview {'\u2192'}
+              Try one free interview <span className="cta-arrow" aria-hidden>{'\u2192'}</span>
             </Link>
-            <a href="#how" className="text-[14px] text-ink-2 hover:text-ink">How it works</a>
+            <a href="#how" className="link-underline text-[14px] text-ink-2 hover:text-ink">How it works</a>
           </div>
-          <p className="mt-3 text-[13px] text-[color:var(--muted)]">Email + password. Verification code on first sign-up.</p>
-          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
+          <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Email + password. Verification code on first sign-up.</p>
+          <div className="anim-rise d6 mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>No card required</span>
             <span>{'\u00b7'} 12 questions / session</span>
             <span>{'\u00b7'} 1 room</span>

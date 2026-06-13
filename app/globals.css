@@ -994,3 +994,180 @@ body.font-sans {
   border-left: 2px solid var(--gold);
   padding-left: 14px;
 }
+
+
+/* =========================================================
+   Cinematic landing layer (Phase 8)
+   Orchestrated entrances, scroll choreography, depth, the
+   dark "The Room" interstitial. All gated by the global
+   prefers-reduced-motion rule near the top of this file.
+   ========================================================= */
+
+/* --- Orchestrated entrance: rise + fade, staggered via delay utils --- */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-rise { opacity: 0; animation: rise-in 760ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.d1 { animation-delay: 80ms; }
+.d2 { animation-delay: 180ms; }
+.d3 { animation-delay: 300ms; }
+.d4 { animation-delay: 440ms; }
+.d5 { animation-delay: 600ms; }
+.d6 { animation-delay: 780ms; }
+
+/* Gold underline that draws itself under a heading word */
+.gold-underline { position: relative; display: inline-block; }
+.gold-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -0.04em;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: underline-draw 800ms cubic-bezier(0.16, 1, 0.3, 1) 720ms both;
+}
+@keyframes underline-draw { to { transform: scaleX(1); } }
+
+/* Eyebrow dash that grows on entrance */
+@keyframes dash-grow { from { width: 0; } to { width: 24px; } }
+.eyebrow.anim-dash::before { animation: dash-grow 700ms cubic-bezier(0.16, 1, 0.3, 1) 220ms both; }
+
+/* --- Scroll choreography helpers (paired with the Reveal observer) --- */
+.reveal-up { opacity: 0; transform: translateY(20px); transition: opacity 700ms cubic-bezier(0.16,1,0.3,1), transform 700ms cubic-bezier(0.16,1,0.3,1); }
+.reveal-up.is-in { opacity: 1; transform: none; }
+
+/* Headline clip reveal — text wipes up from a mask */
+.clip-reveal { clip-path: inset(0 0 100% 0); transition: clip-path 900ms cubic-bezier(0.16,1,0.3,1); }
+.clip-reveal.is-in { clip-path: inset(0 0 -10% 0); }
+
+/* --- Micro-interactions --- */
+/* CTA arrow nudges forward on hover of an ancestor marked .cta */
+.cta .cta-arrow { display: inline-block; transition: transform 260ms cubic-bezier(0.16,1,0.3,1); }
+.cta:hover .cta-arrow { transform: translateX(5px); }
+
+/* Animated gold underline for inline text links */
+.link-underline {
+  background-image: linear-gradient(var(--gold), var(--gold));
+  background-size: 0% 1.5px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 320ms cubic-bezier(0.16,1,0.3,1);
+  padding-bottom: 1px;
+}
+.link-underline:hover { background-size: 100% 1.5px; }
+
+/* Card hover lift + gold edge */
+.lift { transition: transform 320ms cubic-bezier(0.16,1,0.3,1), box-shadow 320ms ease, border-color 320ms ease; }
+.lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 48px -28px rgba(14, 30, 54, 0.30);
+  border-color: var(--gold-line);
+}
+
+/* Magnetic-ish pill CTA: subtle gold halo grows on hover */
+.cta-pill { position: relative; transition: transform 240ms cubic-bezier(0.16,1,0.3,1); }
+.cta-pill:hover { transform: translateY(-1px); }
+
+/* --- Depth: parallax-friendly decorative ledger glyph in the hero --- */
+.hero-figure {
+  position: absolute;
+  pointer-events: none;
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--gold);
+  opacity: 0.06;
+  line-height: 0.8;
+  user-select: none;
+  will-change: transform;
+}
+
+/* =========================================================
+   The Room — dark cinematic interstitial
+   ========================================================= */
+.room {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(120% 90% at 50% -10%, #16263f 0%, #0E1E36 45%, #0a1730 100%);
+  color: #EDE6D6;
+  overflow: hidden;
+  border-top: 1px solid rgba(184, 135, 54, 0.22);
+  border-bottom: 1px solid rgba(184, 135, 54, 0.22);
+}
+/* warm gold spotlight from above */
+.room::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(184, 135, 54, 0.20) 0%, transparent 60%),
+    radial-gradient(40% 60% at 85% 110%, rgba(184, 135, 54, 0.10) 0%, transparent 55%);
+}
+/* fine film grain */
+.room::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+.room-eyebrow {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.room-eyebrow::before {
+  content: '';
+  width: 26px; height: 1px;
+  background: var(--gold);
+  display: inline-block;
+}
+.room-title {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+  color: #F6F0E2;
+  font-size: clamp(40px, 6vw, 76px);
+}
+.room-title em { font-style: italic; color: var(--gold); }
+.room-sub { color: rgba(237, 230, 214, 0.72); line-height: 1.6; }
+.room-stat-n {
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(34px, 4.4vw, 52px);
+  color: #F6F0E2;
+  letter-spacing: -0.01em;
+}
+.room-stat-l {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: rgba(237, 230, 214, 0.55);
+}
+.room-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(184,135,54,0.45), transparent); }
+
+/* concentric "room" ring that breathes */
+.room-ring {
+  position: absolute;
+  border: 1px solid rgba(184, 135, 54, 0.16);
+  border-radius: 50%;
+  pointer-events: none;
+}
+@keyframes room-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%      { transform: scale(1.04); opacity: 0.9; }
+}
+.room-ring--pulse { animation: room-breathe 6s ease-in-out infinite; }
