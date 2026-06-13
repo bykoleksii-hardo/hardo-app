@@ -12,6 +12,7 @@ import KnowledgeTeaser from './(landing)/_components/KnowledgeTeaser';
 import FAQ from './(landing)/_components/FAQ';
 import Scorecard from './(landing)/_components/Scorecard';
 import TheRoom from './(landing)/_components/TheRoom';
+import Parallax from './_components/Parallax';
 
 export const metadata: Metadata = {
   title: 'HARDO \u2014 AI mock interviews for IB',
@@ -52,7 +53,7 @@ export default async function Page() {
 function AnonHero() {
   return (
     <section className="relative border-b border-line overflow-hidden">
-      <div aria-hidden className="hero-figure hidden lg:block" style={{ fontSize: '460px', left: '-0.06em', bottom: '-0.22em' }}>&amp;</div>
+      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '460px', left: '-0.06em', bottom: '-0.22em' }}>&amp;</Parallax>
       <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center relative">
         <div>
           <div className="eyebrow anim-rise anim-dash d1 mb-5">AI mock interviews {'\u00b7'} Investment banking</div>

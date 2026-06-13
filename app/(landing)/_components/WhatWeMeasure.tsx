@@ -1,9 +1,11 @@
 import Reveal from '@/app/_components/Reveal';
+import Parallax from '@/app/_components/Parallax';
 
 export default function WhatWeMeasure() {
   return (
-    <section id="what-we-measure" className="border-t border-line bg-cream/60">
-      <div className="mx-auto max-w-[1200px] px-6 py-24 md:py-32">
+    <section id="what-we-measure" className="relative overflow-hidden border-t border-line bg-cream/60">
+      <Parallax ariaHidden speed={0.18} className="bg-orb" style={{ bottom: '-200px', left: '-160px' }} />
+      <div className="relative mx-auto max-w-[1200px] px-6 py-24 md:py-32">
         <Reveal>
           <div className="eyebrow"><span className="dash" aria-hidden /> What we measure</div>
         </Reveal>
