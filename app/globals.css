@@ -13,7 +13,7 @@
   --gold-2: #9A6F26;
   --line: rgba(14,30,54,0.12);
   --line-2: rgba(14,30,54,0.22);
-  --muted: rgba(17, 22, 30, 0.55);
+  --muted: rgba(17, 22, 30, 0.66);
   --gold-soft: rgba(184, 135, 54, 0.10);
   --gold-line: rgba(184, 135, 54, 0.35);
   --rec: #A0432E;
@@ -30,6 +30,19 @@ html, body {
 ::selection {
   background: rgba(184, 135, 54, 0.25);
   color: var(--ink);
+}
+
+/* Respect reduced-motion: neutralize the infinite/looping landing & interview
+   animations (hero-pulse, rec-pulse, mic-halo, wave-bar, iv-pulse, caret, …). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .kicker {
@@ -479,7 +492,7 @@ body.font-sans {
 :root {
   --good: #3D6B3E;
   --bad: #A0432E;
-  --muted-2: rgba(17, 22, 30, 0.42);
+  --muted-2: rgba(17, 22, 30, 0.6);
 }
 .ww-h2 {
   margin-top: 14px;

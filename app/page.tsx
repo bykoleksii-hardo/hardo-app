@@ -29,7 +29,7 @@ export default async function Page() {
   return (
     <>
       <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding />
-      <main>
+      <main className={viewer.plan === 'anon' ? 'pb-24 md:pb-0' : undefined}>
         {viewer.plan === 'anon' && <AnonHero />}
         {viewer.plan === 'free' && <FreeHero remaining={viewer.interviews_remaining ?? 0} />}
         {viewer.plan === 'paid' && <PaidHero />}
@@ -82,7 +82,7 @@ function AnonHero() {
       </div>
       <div className="md:hidden fixed inset-x-0 bottom-0 z-50 border-t border-line bg-paper/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3">
         <span className="text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">No card required</span>
-        <Link href="/login" className="inline-flex items-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 rounded-full">
+        <Link href="/login" className="inline-flex items-center justify-center gap-1.5 bg-ink text-paper text-[13px] px-5 py-2 min-h-[44px] rounded-full">
           Try free {'\u2192'}
         </Link>
       </div>
