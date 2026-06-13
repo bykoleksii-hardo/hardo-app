@@ -141,6 +141,7 @@ export function AboutForm({ initial, email }: Props) {
             onClick={() => update('use_in_persona', !state.use_in_persona)}
             className={`relative w-12 h-7 rounded-full transition-colors shrink-0 ${state.use_in_persona ? 'bg-[#B88736]' : 'bg-[#11161E]/20'}`}
             aria-pressed={state.use_in_persona}
+            aria-label="Use my profile in interviews"
           >
             <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-[#FBF7EE] transition-transform ${state.use_in_persona ? 'translate-x-5' : 'translate-x-0'}`} />
           </button>
@@ -149,8 +150,8 @@ export function AboutForm({ initial, email }: Props) {
 
       <Section title="IDENTITY" subtitle="Your name and how the interviewer should address you.">
         <Row>
-          <Field label="First name" value={state.first_name} onChange={(v) => update('first_name', v)} />
-          <Field label="Last name" value={state.last_name} onChange={(v) => update('last_name', v)} />
+          <Field label="First name" autoComplete="given-name" value={state.first_name} onChange={(v) => update('first_name', v)} />
+          <Field label="Last name" autoComplete="family-name" value={state.last_name} onChange={(v) => update('last_name', v)} />
         </Row>
         <Row>
           <Field label="Preferred name (optional)" value={state.preferred_name} onChange={(v) => update('preferred_name', v)} />
@@ -160,8 +161,8 @@ export function AboutForm({ initial, email }: Props) {
 
       <Section title="LOCATION" subtitle="Where you're based right now.">
         <Row>
-          <Field label="Country" value={state.country} onChange={(v) => update('country', v)} />
-          <Field label="City" value={state.city} onChange={(v) => update('city', v)} />
+          <Field label="Country" autoComplete="country-name" value={state.country} onChange={(v) => update('country', v)} />
+          <Field label="City" autoComplete="address-level2" value={state.city} onChange={(v) => update('city', v)} />
         </Row>
         <label className="block">
           <span className="text-[11px] tracking-[0.18em] text-[#11161E]/55">INTERVIEW REGION</span>
@@ -210,9 +211,9 @@ export function AboutForm({ initial, email }: Props) {
       </Section>
 
       <div className="sticky bottom-6 flex items-center justify-between gap-4 border border-[#11161E]/15 rounded-sm bg-[#F2ECDF]/95 backdrop-blur px-6 py-4">
-        <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">
+        <div role="status" aria-live="polite" className="text-[11px] tracking-[0.18em] text-[#11161E]/55">
           {error ? <span className="text-[#B23B3B]">{error.toUpperCase()}</span>
-            : savedAt ? <span className="text-[#9ed490]">SAVED</span>
+            : savedAt ? <span className="text-[#1F6F3D]">SAVED</span>
             : <span>SIGNED IN AS {email.toUpperCase()}</span>}
         </div>
         <button
@@ -243,13 +244,14 @@ function Row({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{children}</div>;
 }
 
-function Field({ label, value, onChange, type = 'text', hint }: { label: string; value: string; onChange: (v: string) => void; type?: string; hint?: string }) {
+function Field({ label, value, onChange, type = 'text', hint, autoComplete }: { label: string; value: string; onChange: (v: string) => void; type?: string; hint?: string; autoComplete?: string }) {
   return (
     <label className="block">
       <span className="text-[11px] tracking-[0.18em] text-[#11161E]/55">{label.toUpperCase()}</span>
       <input
         type={type}
         value={value}
+        autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}
         className="mt-2 w-full bg-[#F2ECDF] border border-[#11161E]/15 px-4 py-3 rounded-sm text-[#11161E] focus:outline-none focus:border-[#B88736] transition-colors"
       />
