@@ -45,6 +45,15 @@ html, body {
   }
 }
 
+/* Visible keyboard-focus ring on every interactive element. :focus-visible
+   keeps it off mouse clicks; !important overrides the scattered
+   `focus:outline-none` utilities so the gold ring always wins for keyboard. */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--gold) !important;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .kicker {
   font-family: var(--font-mono);
   text-transform: uppercase;

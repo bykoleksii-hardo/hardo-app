@@ -208,7 +208,7 @@ export default function LoginClient() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="you@school.edu"
                 />
               </Field>
@@ -228,7 +228,7 @@ export default function LoginClient() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="**********"
                 />
               </Field>
@@ -256,7 +256,7 @@ export default function LoginClient() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="you@school.edu"
                 />
               </Field>
@@ -277,7 +277,7 @@ export default function LoginClient() {
                   minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="At least 8 characters"
                 />
               </Field>
@@ -322,7 +322,7 @@ export default function LoginClient() {
                   autoFocus
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 text-2xl tracking-[0.5em] font-serif outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 text-2xl tracking-[0.5em] font-serif outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="******"
                 />
               </Field>
@@ -357,7 +357,7 @@ export default function LoginClient() {
                   autoFocus
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+                  className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
                   placeholder="you@school.edu"
                 />
               </Field>

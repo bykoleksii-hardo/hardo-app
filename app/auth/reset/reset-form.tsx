@@ -72,7 +72,7 @@ export default function ResetForm({ email }: Props) {
           autoFocus
           value={pw}
           onChange={(e) => setPw(e.target.value)}
-          className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+          className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
           placeholder="At least 8 characters"
         />
       </div>
@@ -87,7 +87,7 @@ export default function ResetForm({ email }: Props) {
           minLength={8}
           value={pw2}
           onChange={(e) => setPw2(e.target.value)}
-          className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/30"
+          className="w-full bg-transparent border border-[#11161E]/20 px-4 py-3 outline-none focus:border-[#B88736] transition placeholder:text-[#11161E]/45"
           placeholder="Re-enter your password"
         />
       </div>

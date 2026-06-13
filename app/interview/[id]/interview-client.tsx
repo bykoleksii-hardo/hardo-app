@@ -968,7 +968,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       onChange={(e) => setDraft(e.target.value)}
                       placeholder={inputMode === "voice" ? "Your spoken answer will appear here..." : "Start typing your answer..."}
                       rows={6}
-                      className={"w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/30 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing") ? "opacity-60 cursor-not-allowed" : "")}
+                      className={"w-full bg-transparent border-0 outline-none resize-none text-[#11161E] placeholder:text-[#11161E]/45 font-serif italic text-[17px] leading-[1.55] " + ((prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing") ? "opacity-60 cursor-not-allowed" : "")}
                       disabled={submitting || finalizing || blockClosed || prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing"}
                     />
                   </div>
