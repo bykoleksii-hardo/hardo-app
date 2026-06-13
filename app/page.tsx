@@ -53,7 +53,7 @@ export default async function Page() {
 function AnonHero() {
   return (
     <section className="relative border-b border-line overflow-hidden">
-      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '460px', left: '-0.06em', bottom: '-0.22em' }}>&amp;</Parallax>
+      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '340px', left: '-0.03em', bottom: '-0.14em' }}>&amp;</Parallax>
       <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center relative">
         <div>
           <div className="eyebrow anim-rise anim-dash d1 mb-5">AI mock interviews {'\u00b7'} Investment banking</div>
@@ -99,7 +99,7 @@ function FreeHero({ remaining }: { remaining: number }) {
   const noun = left === 1 ? 'interview' : 'interviews';
   return (
     <section className="relative border-b border-line overflow-hidden">
-      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '460px', left: '-0.06em', bottom: '-0.22em' }}>&amp;</Parallax>
+      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '340px', left: '-0.03em', bottom: '-0.14em' }}>&amp;</Parallax>
       <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center relative">
         <div>
           <div className="eyebrow anim-rise anim-dash d1 mb-5">Welcome back {'\u00b7'} Free tier</div>
@@ -138,7 +138,7 @@ function FreeHero({ remaining }: { remaining: number }) {
 function PaidHero() {
   return (
     <section className="relative border-b border-line overflow-hidden">
-      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '460px', left: '-0.06em', bottom: '-0.22em' }}>&amp;</Parallax>
+      <Parallax ariaHidden speed={0.12} className="hero-figure hidden lg:block" style={{ fontSize: '340px', left: '-0.03em', bottom: '-0.14em' }}>&amp;</Parallax>
       <div className="max-w-page mx-auto px-6 pt-20 pb-24 grid gap-14 md:grid-cols-[1.1fr_1fr] md:items-center relative">
         <div>
           <div className="eyebrow anim-rise anim-dash d1 mb-5">Welcome back {'\u00b7'} Paid {'\u00b7'} Unlimited</div>
