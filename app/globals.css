@@ -1078,7 +1078,7 @@ body.font-sans {
   font-style: italic;
   font-weight: 300;
   color: var(--gold);
-  opacity: 0.06;
+  opacity: 0.035;
   line-height: 0.8;
   user-select: none;
   will-change: transform;
