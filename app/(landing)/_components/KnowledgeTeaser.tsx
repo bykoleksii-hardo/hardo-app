@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Reveal from '@/app/_components/Reveal';
 import { listPublishedArticles } from '@/lib/knowledge/queries';
 
 function fmtDate(s: string | null) {
@@ -13,13 +14,15 @@ export default async function KnowledgeTeaser() {
   return (
     <section id="knowledge" className="border-t border-line bg-cream/40">
       <div className="max-w-page mx-auto px-6 py-20">
-        <div className="kicker mb-3">Knowledge Hub</div>
-        <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-2xl">
-          Notes from the desk.
-        </h2>
-        <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
-          Tactical breakdowns of the questions that decide an offer. Platform updates, industry context, and the rubric behind every grade.
-        </p>
+        <Reveal>
+          <div className="kicker mb-3">Knowledge Hub</div>
+          <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em] max-w-2xl">
+            Notes from the desk.
+          </h2>
+          <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
+            Tactical breakdowns of the questions that decide an offer. Platform updates, industry context, and the rubric behind every grade.
+          </p>
+        </Reveal>
 
         {articles.length === 0 ? (
           <div className="mt-14 border border-line rounded-md bg-paper p-10 text-center">
@@ -35,12 +38,12 @@ export default async function KnowledgeTeaser() {
                 <Link
                   key={a.id}
                   href={`/knowledge/${a.slug}`}
-                  className="group block border-t border-line pt-5"
+                  className="kn-card group block border-t border-line pt-5"
                 >
-                  <div className="font-mono text-[10.5px] uppercase tracking-widest text-[#a87a1f]">
+                  <div className="font-mono text-[10.5px] uppercase tracking-widest text-gold-2">
                     {a.category}
                   </div>
-                  <h3 className="mt-3 font-serif text-[22px] leading-snug font-medium group-hover:text-ink/80 transition-colors">
+                  <h3 className="mt-3 font-serif text-[22px] leading-snug font-medium group-hover:text-gold transition-colors">
                     {a.title}
                   </h3>
                   {a.description && (

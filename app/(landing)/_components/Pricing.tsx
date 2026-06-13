@@ -40,7 +40,7 @@ export default function Pricing() {
 
           <div className="grid gap-6 md:grid-cols-2 md:items-stretch">
             {/* FREE */}
-            <div className="border border-line rounded-lg p-8 md:p-10 bg-paper flex flex-col">
+            <div className="lift border border-line rounded-lg p-8 md:p-10 bg-paper flex flex-col">
               <div className="font-mono text-[11px] uppercase tracking-widest text-muted">Free</div>
               <div className="mt-6 flex items-end gap-3">
                 <span className="font-serif text-[64px] font-light leading-none">$0</span>
@@ -67,7 +67,7 @@ export default function Pricing() {
             </div>
 
             {/* PAID */}
-            <div className="relative rounded-lg p-8 md:p-10 bg-ink text-paper flex flex-col overflow-hidden">
+            <div className="lift relative rounded-lg p-8 md:p-10 bg-ink text-paper flex flex-col overflow-hidden">
               <div className="absolute top-6 right-0 bg-gold text-ink text-[10px] font-mono uppercase tracking-widest px-4 py-1.5 rounded-l-full flex items-center gap-1.5">
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-ink" /> Recommended
               </div>
