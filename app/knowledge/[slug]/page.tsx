@@ -2,10 +2,11 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getArticleBySlug } from '@/lib/knowledge/queries';
-import { renderMarkdown } from '@/lib/knowledge/markdown';
+import { renderMarkdown, extractHeadings } from '@/lib/knowledge/markdown';
 import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
 import ArticleProgress from '@/app/_components/ArticleProgress';
+import ArticleToc from '@/app/_components/ArticleToc';
 import { getViewerPlan } from '@/lib/quota/server';
 import { getUserRole } from '@/lib/auth/roles';
 
@@ -67,6 +68,8 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const isPaid = viewer.plan === 'paid';
   const html = renderMarkdown(article.body_md);
   const tag = article.tags?.[0];
+  const toc = extractHeadings(article.body_md);
+  const hasToc = toc.length >= 3;
 
   const ld = {
     '@context': 'https://schema.org',
@@ -83,7 +86,13 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
       <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding />
       <ArticleProgress />
       <main>
-        <article className="max-w-3xl mx-auto px-6 pt-16 pb-20">
+        <div className={hasToc ? 'mx-auto max-w-6xl px-6 pt-16 pb-20 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-14' : 'mx-auto max-w-3xl px-6 pt-16 pb-20'}>
+          {hasToc && (
+            <aside className="hidden lg:block">
+              <ArticleToc items={toc} />
+            </aside>
+          )}
+          <article className={hasToc ? 'min-w-0 max-w-3xl mx-auto lg:mx-0' : ''}>
           <div className="mb-10">
             <Link href="/knowledge" className="font-mono text-[11px] uppercase tracking-widest text-muted hover:text-ink">
               <span aria-hidden>{'\u2190'}</span> Knowledge Hub
@@ -134,7 +143,8 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
               Drill this in a mock <span aria-hidden>{'\u2192'}</span>
             </Link>
           </div>
-        </article>
+          </article>
+        </div>
 
         <script
           type="application/ld+json"

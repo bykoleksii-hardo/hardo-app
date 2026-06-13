@@ -257,3 +257,26 @@ export function renderMarkdown(md: string): string {
 
   return html.join('\n');
 }
+
+export type TocItem = { level: number; text: string; slug: string };
+
+/** Extracts H2/H3 headings (skipping code fences) for an article table of contents. */
+export function extractHeadings(md: string): TocItem[] {
+  const out: TocItem[] = [];
+  const lines = (md || '').replace(/\r\n/g, '\n').split('\n');
+  const FENCE = '```';
+  let inFence = false;
+  for (const line of lines) {
+    if (line.startsWith(FENCE)) { inFence = !inFence; continue; }
+    if (inFence) continue;
+    const m = /^(#{2,3})\s+(.+)$/.exec(line);
+    if (!m) continue;
+    const raw = m[2].trim();
+    const text = raw
+      .replace(/\*\*|\*|`/g, '')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .trim();
+    out.push({ level: m[1].length, text, slug: slugify(raw) });
+  }
+  return out;
+}
