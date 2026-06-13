@@ -47,13 +47,16 @@ export const GET = withLogging('subscribe.confirm', async (req: Request, _ctx) =
   if (apiKey && email) {
     try {
       if (audienceId) {
-        const r = await fetch(`https://api.resend.com/audiences/${audienceId}/contacts`, {
+        // Resend's current Contacts API: POST /contacts with the audience
+        // referenced via the segments[] array (the legacy
+        // /audiences/{id}/contacts route no longer writes to the unified audience).
+        const r = await fetch('https://api.resend.com/contacts', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${apiKey}`,
           },
-          body: JSON.stringify({ email, unsubscribed: false }),
+          body: JSON.stringify({ email, unsubscribed: false, segments: [{ id: audienceId }] }),
         });
         if (!r.ok) {
           const txt = await r.text().catch(() => '');
