@@ -167,7 +167,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
   return (
     <>
       <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
-        <h2 className="font-playfair text-2xl">Question by question</h2>
+        <h2 className="font-serif text-2xl">Question by question</h2>
         <div className="flex items-center gap-3 flex-wrap">
           {filteredSteps.length > 0 && (
             <button
@@ -272,10 +272,10 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                           <span className="text-[#B88736]">{followUpCount} FOLLOW-UP{followUpCount === 1 ? '' : 'S'}</span>
                         )}
                       </div>
-                      <p className="font-playfair text-[17px] leading-[1.45] text-[#11161E] line-clamp-2 group-open:line-clamp-none">{s.questions?.question}</p>
+                      <p className="font-serif text-[17px] leading-[1.45] text-[#11161E] line-clamp-2 group-open:line-clamp-none">{s.questions?.question}</p>
                     </div>
                     <div className={`shrink-0 border ${tone} px-3 py-1.5 text-center min-w-[52px]`}>
-                      <div className="font-playfair text-xl leading-none">{g || 'N/A'}</div>
+                      <div className="font-serif text-xl leading-none">{g || 'N/A'}</div>
                       <div className="text-[8.5px] tracking-[0.22em] mt-1 opacity-75">GRADE</div>
                     </div>
                     <div className="shrink-0 text-[#11161E]/40 text-[18px] leading-none mt-1.5 transition-transform group-open:rotate-90" aria-hidden="true">›</div>
@@ -331,7 +331,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                         <div className="text-[10px] tracking-[0.22em] text-[#B88736]">— FOLLOW-UPS</div>
                         {followUps.map(f => (
                           <div key={f.id} className="text-[13px]">
-                            <p className="font-playfair italic text-[#11161E]/75 mb-1">{f.custom_question ?? f.questions?.question}</p>
+                            <p className="font-serif italic text-[#11161E]/75 mb-1">{f.custom_question ?? f.questions?.question}</p>
                             <p className="text-[#11161E]/85 leading-[1.6] whitespace-pre-wrap">{f.user_answer ?? <span className="text-[#11161E]/35 italic">not answered</span>}</p>
                           </div>
                         ))}

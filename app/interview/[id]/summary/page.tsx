@@ -170,11 +170,11 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
     : 'Detailed grading is being prepared. For now, here is the full transcript: your answers and where the interviewer will dig deeper next time.';
 
   return (
-    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-inter">
-      <header className="flex items-center justify-between px-8 py-4 border-b border-[#11161E]/10">
-        <div className="flex items-center gap-6">
+    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-sans">
+      <header className="flex items-center justify-between gap-3 px-4 sm:px-8 py-4 border-b border-[#11161E]/10">
+        <div className="flex items-center gap-3 sm:gap-6 min-w-0">
           <Brand size="md" href="/" />
-          <span className="text-[11px] tracking-[0.22em] text-[#11161E]/45">
+          <span className="hidden sm:inline text-[11px] tracking-[0.22em] text-[#11161E]/45 truncate">
             {'SCORECARD / '}{interview.candidate_level.toUpperCase()}
           </span>
         </div>
@@ -186,9 +186,9 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-8 py-12">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10 sm:py-12">
         <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-3">{'> YOUR SCORECARD'}</div>
-        <h1 className="font-playfair text-5xl leading-[1.15] mb-6">
+        <h1 className="font-serif text-3xl sm:text-5xl leading-[1.15] mb-6">
           {heading}
         </h1>
         <p className="text-[#11161E]/65 max-w-2xl mb-12">
@@ -196,7 +196,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
         </p>
 
         {answeredCount < interview.total_questions && (
-          <div className="border border-[#A85A1F]/30 bg-[#A85A1F]/5 px-6 py-4 mb-8 flex items-start justify-between gap-4">
+          <div className="border border-[#A85A1F]/30 bg-[#A85A1F]/5 px-6 py-4 mb-8 flex flex-col sm:flex-row items-start sm:justify-between gap-4">
             <div>
               <div className="text-[11px] tracking-[0.22em] text-[#A85A1F] mb-1">— NOT COMPLETED</div>
               <p className="text-[13px] text-[#11161E]/70 max-w-xl">
@@ -209,20 +209,20 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        <div className="border border-[#11161E]/15 bg-[#F2ECDF]/40 p-8 mb-12 grid grid-cols-3 gap-8">
+        <div className="border border-[#11161E]/15 bg-[#F2ECDF]/40 p-6 sm:p-8 mb-12 grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
           <div>
             <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— OVERALL</div>
-            <div className="font-playfair text-4xl text-[#11161E]">{(() => { const raw = summary?.overall_score ?? interview.final_score; return raw == null ? '-' : (Math.round((Number(raw) / 10) * 10) / 10).toFixed(1); })()}</div>
+            <div className="font-serif text-4xl text-[#11161E]">{(() => { const raw = summary?.overall_score ?? interview.final_score; return raw == null ? '-' : (Math.round((Number(raw) / 10) * 10) / 10).toFixed(1); })()}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">{isCompleted ? 'out of 10' : 'awaiting AI review'}</div>
           </div>
           <div>
             <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— QUESTIONS</div>
-            <div className="font-playfair text-4xl">{answeredCount} / {interview.total_questions}</div>
+            <div className="font-serif text-4xl">{answeredCount} / {interview.total_questions}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">answered</div>
           </div>
           <div>
             <div className="text-[11px] tracking-[0.22em] text-[#11161E]/45 mb-2">— RECOMMENDATION</div>
-            <div className={`font-playfair text-4xl ${hireToneClass}`}>{hireMeta?.label ?? '—'}</div>
+            <div className={`font-serif text-4xl ${hireToneClass}`}>{hireMeta?.label ?? '—'}</div>
             <div className="text-[11px] text-[#11161E]/45 mt-1">
               {interview.finished_at ? new Date(interview.finished_at).toLocaleString() : (isCompleted ? '' : interview.status?.toString().toUpperCase())}
             </div>

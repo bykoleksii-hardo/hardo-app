@@ -127,11 +127,11 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-inter">
-      <main className="max-w-[1320px] mx-auto px-12 py-16">
+    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-sans">
+      <main className="max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-12 py-10 lg:py-16">
         <div className="mb-12">
           <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— PICK YOUR ROOM</div>
-          <h1 className="font-playfair text-5xl leading-[1.05]">
+          <h1 className="font-serif text-4xl sm:text-5xl leading-[1.05]">
             Choose the <span className="italic text-[#B88736]">level</span> that matches today.
           </h1>
           <p className="mt-4 text-[#11161E]/65 max-w-xl text-lg">
@@ -161,7 +161,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                     HARDO
                   </div>
                 )}
-                <div className="mb-6 h-80 rounded-sm border border-[#11161E]/10 overflow-hidden relative bg-[#F2ECDF]">
+                <div className="mb-6 h-64 sm:h-80 rounded-sm border border-[#11161E]/10 overflow-hidden relative bg-[#F2ECDF]">
                   <img
                     src={`/levels/${lvl.id}.png`}
                     alt={`${lvl.title} interview illustration`}
@@ -177,7 +177,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                   </div>
                 </div>
 
-                <h2 className="font-playfair text-3xl italic mb-3">{lvl.title}</h2>
+                <h2 className="font-serif text-3xl italic mb-3">{lvl.title}</h2>
                 <p className="text-sm text-[#11161E]/70 leading-relaxed mb-5 flex-1">{lvl.tagline}</p>
                 <div className="flex items-center justify-between text-[11px] tracking-[0.18em]">
                   <span className="text-[#B88736]">— 12 QUESTIONS</span>
@@ -194,7 +194,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             <div className="text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-5">
               WHAT YOU'LL GET <span className="text-[#B88736]">— {active.title.toUpperCase()}</span>
             </div>
-            <p className="font-playfair text-2xl leading-[1.4] text-[#11161E]/95">{active.pitch}</p>
+            <p className="font-serif text-2xl leading-[1.4] text-[#11161E]/95">{active.pitch}</p>
             <div className="flex flex-wrap gap-2 mt-6">
               {active.tags.map((t) => (
                 <span key={t} className="text-[11px] tracking-[0.18em] text-[#11161E]/65 border border-[#11161E]/15 px-3 py-1.5">
@@ -209,7 +209,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
               <span className="text-[#11161E]/55">SAMPLE QUESTION</span>
               <span className="text-[#B88736]">— {active.title.toUpperCase()}</span>
             </div>
-            <p className="font-playfair text-lg leading-[1.5] text-[#11161E]/95">{active.sample.q}</p>
+            <p className="font-serif text-lg leading-[1.5] text-[#11161E]/95">{active.sample.q}</p>
             <div className="flex items-center justify-between mt-6 pt-5 border-t border-[#11161E]/10 text-[11px] tracking-[0.18em] text-[#11161E]/55">
               <span>SAMPLE — {active.sample.phase.toUpperCase()}</span>
               <span>BENCHMARK: {active.sample.grade}</span>
@@ -221,7 +221,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         {stage === 'mode' && (
           <div className="mt-14">
             <div className="text-[11px] tracking-[0.22em] text-[#B88736] mb-4">— HOW WILL YOU ANSWER?</div>
-            <h2 className="font-playfair text-3xl leading-[1.1] mb-2">
+            <h2 className="font-serif text-3xl leading-[1.1] mb-2">
               Pick your <span className="italic text-[#B88736]">delivery</span> for this round.
             </h2>
             <p className="text-[#11161E]/60 text-sm max-w-xl mb-8">
@@ -243,7 +243,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                       </span>
                       {isActive && <span className="text-[#B88736]">SELECTED</span>}
                     </div>
-                    <h3 className="font-playfair text-2xl mb-2">{m.title}</h3>
+                    <h3 className="font-serif text-2xl mb-2">{m.title}</h3>
                     <p className="text-sm text-[#11161E]/70 mb-5 leading-relaxed">{m.tagline}</p>
                     <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-[#11161E]/65">
                       {m.bullets.map((b) => (
@@ -298,7 +298,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         </div>
 
         {error && (
-          <div className="mt-6 text-sm text-[#e89292] border border-[#e89292]/40 px-4 py-3 rounded-sm">
+          <div role="alert" className="mt-6 text-sm text-[#B23B3B] border border-[#B23B3B]/40 px-4 py-3 rounded-sm">
             {error}
           </div>
         )}

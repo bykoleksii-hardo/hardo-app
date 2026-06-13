@@ -211,7 +211,7 @@ export function AboutForm({ initial, email }: Props) {
 
       <div className="sticky bottom-6 flex items-center justify-between gap-4 border border-[#11161E]/15 rounded-sm bg-[#F2ECDF]/95 backdrop-blur px-6 py-4">
         <div className="text-[11px] tracking-[0.18em] text-[#11161E]/55">
-          {error ? <span className="text-[#e89292]">{error.toUpperCase()}</span>
+          {error ? <span className="text-[#B23B3B]">{error.toUpperCase()}</span>
             : savedAt ? <span className="text-[#9ed490]">SAVED</span>
             : <span>SIGNED IN AS {email.toUpperCase()}</span>}
         </div>

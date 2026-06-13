@@ -70,7 +70,7 @@ function QuestionTimer(props: { startedAt: string | null; limitSeconds: number; 
   const overtimeRatio = isOver ? overtimeElapsed / OVERTIME_LIMIT_SECONDS : 0;
   const ratio = elapsedSec / Math.max(1, limitSeconds);
   // green < 70%, gold 70-100%, red > 100%
-  const color = isOver ? '#d47a7a' : ratio >= 0.7 ? '#B88736' : '#9ab87a';
+  const color = isOver ? '#B23B3B' : ratio >= 0.7 ? '#B88736' : '#9ab87a';
   // Urgent: last 10s of overtime — pulse.
   const urgent = isOver && overtimeRemain <= 10;
   const label = isOver ? 'OVERTIME' : 'TIME LEFT';
@@ -127,7 +127,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Behavioral / Fit': '#d4c47a',
   'Case Study': '#a87ad4',
   'Due Diligence': '#7ad4c4',
-  'Venture Capital': '#d47a7a',
+  'Venture Capital': '#B23B3B',
   'Business Acumen / Markets': '#7ab8d4',
 };
 function colorFor(cat?: string | null) {
@@ -672,11 +672,11 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   }
 
   return (
-    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-inter flex flex-col">
-      <header className="flex items-center justify-between px-8 py-4 border-b border-[#11161E]/10">
-        <div className="flex items-center gap-6">
+    <div className="min-h-screen bg-[#FBF7EE] text-[#11161E] font-sans flex flex-col">
+      <header className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-[#11161E]/10">
+        <div className="flex items-center gap-3 sm:gap-6 min-w-0">
           <Brand size="md" href="/" />
-          <span className="text-[11px] tracking-[0.22em] text-[#11161E]/45">
+          <span className="hidden sm:inline text-[11px] tracking-[0.22em] text-[#11161E]/45 truncate">
             SESSIONS / {level.toUpperCase()} / Q{String(answeredCount + 1).padStart(2, '0')}
             {activeQ ? ' - ' + activeQ.category.toUpperCase() : ''}
           </span>
@@ -691,7 +691,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
       </header>
 
       <div className="flex flex-1 min-h-0">
-        <aside className="w-80 border-r border-[#11161E]/10 px-6 py-6 overflow-y-auto">
+        <aside className="hidden lg:block w-80 border-r border-[#11161E]/10 px-6 py-6 overflow-y-auto">
           <div className="text-[10px] tracking-[0.22em] text-[#11161E]/45 mb-1">THE ROOM</div>
           <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-6">{level.toUpperCase()} INTERVIEW</div>
           <div className="text-[10px] tracking-[0.22em] text-[#11161E]/45 mb-3 flex items-center justify-between">
@@ -729,8 +729,12 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         </aside>
 
         <main className="flex-1 flex flex-col min-h-0">
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-12 py-10">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 sm:px-8 lg:px-12 py-6 lg:py-10">
             <div className="max-w-3xl mx-auto">
+              <div className="lg:hidden flex items-center justify-between text-[10px] tracking-[0.22em] text-[#11161E]/45 mb-6 pb-3 border-b border-[#11161E]/10">
+                <span>{level.toUpperCase()} INTERVIEW</span>
+                <span>{String(answeredCount).padStart(2, '0')} / {String(totalQuestions).padStart(2, '0')}</span>
+              </div>
               {activeBase && activeQ && (
                 <div className="flex items-center gap-3 text-[11px] tracking-[0.22em] text-[#11161E]/55 mb-6">
                   <span className="w-1.5 h-1.5 rounded-full" style={{ background: colorFor(activeQ.category) }} />
@@ -747,7 +751,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div key={i} className={i > 0 ? "mt-8" : ""}>
                         <div className="text-[10px] tracking-[0.22em] text-[#B88736] mb-2">INTERVIEWER</div>
-                        <h2 className="font-playfair text-3xl leading-[1.35]"><TypewriterText id={'q:' + m.stepId} text={m.text} /></h2>
+                        <h2 className="font-serif text-3xl leading-[1.35]"><TypewriterText id={'q:' + m.stepId} text={m.text} /></h2>
                       </div>
                     );
                   }
@@ -756,7 +760,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     return (
                       <div key={i} className="border-l-2 border-[#B88736]/50 pl-5">
                         <div className="text-[10px] tracking-[0.22em] text-[#B88736]/80 mb-1">FOLLOW-UP</div>
-                        <p className="font-playfair italic text-xl text-[#11161E]/95"><TypewriterText id={'fu:' + m.stepId} text={m.text} /></p>
+                        <p className="font-serif italic text-xl text-[#11161E]/95"><TypewriterText id={'fu:' + m.stepId} text={m.text} /></p>
                       </div>
                     );
                   }
@@ -808,8 +812,8 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                     else if (prepActive) { tabClass = "iv-card__tab--ready"; tabText = "Get ready"; tabDot = true; }
                     else { tabText = inputMode === "voice" ? "Live" : "Reply"; }
                     return (
-                      <div className={"iv-card__tab " + tabClass}>
-                        {tabDot ? <span className="iv-card__tab-dot" /> : null}
+                      <div className={"iv-card__tab " + tabClass} role="status" aria-live="polite">
+                        {tabDot ? <span className="iv-card__tab-dot" aria-hidden /> : null}
                         <span>{tabText}</span>
                       </div>
                     );
@@ -928,7 +932,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         <span className="w-2 h-2 rounded-full bg-[#B88736]" />
                         <span>RECORD</span>
                       </button>
-                      {recError && <span className="text-[11px] text-[#d47a7a]">{recError}</span>}
+                      {recError && <span role="alert" className="text-[11px] text-[#B23B3B]">{recError}</span>}
                     </div>
                   ) : null}
 
@@ -937,9 +941,9 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       <button
                         type="button"
                         onClick={stopRecording}
-                        className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#d47a7a]"
+                        className="inline-flex items-center gap-2 text-[11px] tracking-[0.22em] text-[#B23B3B]"
                       >
-                        <span className="w-2 h-2 rounded-sm bg-[#d47a7a] animate-pulse" />
+                        <span className="w-2 h-2 rounded-sm bg-[#B23B3B] animate-pulse" />
                         <span>STOP</span>
                       </button>
                     </div>
@@ -972,7 +976,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                       disabled={submitting || finalizing || blockClosed || prepActive || ((roundPhase as Record<string, string>)[roundKey ?? ""] === "locked") || recState === "recording" || recState === "transcribing"}
                     />
                   </div>
-                  {error && <div className="text-[12px] text-[#d47a7a] mt-2">{error}</div>}
+                  {error && <div role="alert" className="text-[12px] text-[#B23B3B] mt-2">{error}</div>}
 
                   <div className="iv-card__actions">
                     <span className="iv-card__action-hint">
@@ -1039,7 +1043,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
 
               {!activeQ && (
                 <div className="text-center text-[#11161E]/55 mt-32">
-                  <p className="font-playfair italic text-3xl mb-4">All questions answered.</p>
+                  <p className="font-serif italic text-3xl mb-4">All questions answered.</p>
                   <a href={`/interview/${interviewId}/summary`} className="text-[#B88736] underline">View your scorecard</a>
                 </div>
               )}
