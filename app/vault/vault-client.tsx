@@ -35,7 +35,7 @@ function LockedCard({ q }: { q: VaultQuestion }) {
 
 function UnlockedCard({ q }: { q: VaultQuestion }) {
   return (
-    <Link href={`/vault/${q.id}`} className="block group border border-line rounded-sm bg-paper p-5 transition-colors hover:border-[#B88736]/50">
+    <Link href={`/vault/${q.id}`} className="lift block group border border-line rounded-sm bg-paper p-5 hover:border-[#B88736]/50">
       <div className="flex items-center justify-between mb-3">
         <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#B88736]">{q.category}</span>
         {q.bestGrade ? (
