@@ -167,7 +167,8 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                     alt={`${lvl.title} interview illustration`}
                     width={1402}
                     height={1122}
-                    loading="eager"
+                    loading={lvl.id === 'intern' ? 'eager' : 'lazy'}
+                    fetchPriority={lvl.id === 'intern' ? 'high' : 'auto'}
                     decoding="async"
                     className="absolute inset-0 w-full h-full object-cover object-top"
                   />
