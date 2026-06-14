@@ -46,3 +46,57 @@ export function FeedbackPanel({ tone, label, items }: { tone: 'pos' | 'neg'; lab
     </div>
   );
 }
+
+/* ---- Rubric axes (the 0-4 scores behind the block grade) ---- */
+
+// Axis keys are canonical; the labels differ by rubric kind (technical vs fit).
+export const RUBRIC_AXIS_LABELS: Record<'technical' | 'fit', Record<string, string>> = {
+  technical: { correctness: 'Correctness', depth: 'Depth', structure: 'Structure', communication: 'Communication' },
+  fit: { correctness: 'Substance', depth: 'Specificity', structure: 'Structure', communication: 'Communication' },
+};
+const AXIS_ORDER = ['correctness', 'depth', 'structure', 'communication'] as const;
+
+export type RubricAxisView = { key: string; label: string; value: number };
+
+// Build the ordered, labelled axes from a stored rubric object. Returns null if
+// any axis is missing/non-numeric (e.g. legacy blocks graded before the rubric).
+export function buildRubricAxes(
+  rubric: Record<string, number> | null | undefined,
+  kind: 'technical' | 'fit',
+): RubricAxisView[] | null {
+  if (!rubric) return null;
+  const labels = RUBRIC_AXIS_LABELS[kind] ?? RUBRIC_AXIS_LABELS.technical;
+  const axes: RubricAxisView[] = [];
+  for (const k of AXIS_ORDER) {
+    const v = rubric[k];
+    if (typeof v !== 'number' || !Number.isFinite(v)) return null;
+    axes.push({ key: k, label: labels[k], value: v });
+  }
+  return axes;
+}
+
+// Compact labelled bars for the four rubric axes. Values are 0..max (default 4);
+// fractional values (aggregate profiles) render fine. Colour cues the level.
+export function RubricBars({ axes, max = 4 }: { axes: RubricAxisView[]; max?: number }) {
+  return (
+    <div className="grid grid-cols-2 gap-x-6 gap-y-2.5">
+      {axes.map((a) => {
+        const v = Math.max(0, Math.min(max, a.value));
+        const pct = (v / max) * 100;
+        const color = v >= 3 ? '#1F6F3D' : v >= 2 ? '#A85A1F' : '#9C2E2E';
+        const shown = Number.isInteger(v) ? String(v) : v.toFixed(1);
+        return (
+          <div key={a.key}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="font-mono text-[9.5px] tracking-[0.16em] uppercase text-ink/55">{a.label}</span>
+              <span className="font-mono text-[10px] text-ink/45">{shown}<span className="text-ink/25">/{max}</span></span>
+            </div>
+            <div className="h-1.5 rounded-full bg-ink/10 overflow-hidden">
+              <div className="h-full rounded-full transition-[width] duration-500" style={{ width: pct + '%', background: color }} />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
