@@ -422,29 +422,40 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
 
   const aggregate = aggregateBlockScore(orderedScores, isCase);
 
-  // 7c.2b. Block grade now comes from the close_block RUBRIC (rubric = source of grade).
-  // The per-answer scores above are kept only for the follow-up routing decision and for
-  // transparency/back-compat in the stored payload. If the model failed to return a valid
-  // rubric, fall back to the legacy per-answer aggregate so a grade is still produced.
+  // 7c.2b. Block grade = blend of the holistic close_block RUBRIC (primary) and a
+  // deterministic per-answer component where the base answer counts more than the
+  // follow-ups (base max 30, each follow-up max 15 -> base ~2x a follow-up). The
+  // per-answer component is normalized over the turns ACTUALLY taken, so the
+  // engine asking fewer follow-ups does not by itself lower the grade.
+  const RUBRIC_WEIGHT = 0.7;
+  const ANSWER_WEIGHT = 0.3;
   const rubricKind = rubricKindForCategory(category);
   const aiRubric = (ai as { rubric?: unknown }).rubric;
-  let rawGrade: string;
-  let rubricPct: number | null = null;
-  if (isValidRubric(aiRubric)) {
-    rubricPct = rubricToPct(aiRubric, rubricKind, level);
-    rawGrade = percentToLetter(rubricPct);
-  } else {
-    console.warn('[turn] missing/invalid rubric on close_block; falling back to per-answer aggregate', { baseStepId, aiRubric });
-    rawGrade = aggregate?.letter || 'B';
-  }
+  const rubricPct: number | null = isValidRubric(aiRubric) ? rubricToPct(aiRubric, rubricKind, level) : null;
+
+  // Weighted per-answer %: sum(scores) / sum(max per answered turn). Base turn
+  // max is 30, each follow-up 15, so the base answer carries the most weight.
+  let scoreSum = 0;
+  let maxSum = 0;
+  orderedScores.forEach((s, i) => {
+    if (typeof s === 'number' && Number.isFinite(s)) { scoreSum += s; maxSum += maxScoreForTurn(i, isCase); }
+  });
+  const perAnswerPct: number | null = maxSum > 0 ? Math.max(0, Math.min(1, scoreSum / maxSum)) : null;
+
+  let blockPct: number | null;
+  if (rubricPct != null && perAnswerPct != null) blockPct = RUBRIC_WEIGHT * rubricPct + ANSWER_WEIGHT * perAnswerPct;
+  else blockPct = rubricPct ?? perAnswerPct;
+
+  const rawGrade: string = blockPct != null ? percentToLetter(blockPct) : (aggregate?.letter || 'B');
+  if (rubricPct == null) console.warn('[turn] missing/invalid rubric on close_block; graded from per-answer only', { baseStepId, aiRubric });
   // Coerce to the DB-accepted whitelist (apply_ai_grade + interview_steps CHECK
   // reject anything else, e.g. 'A+'). percentToLetter already stays in-set; this
   // guard guarantees the grade write can never be rejected on the grade value.
   const grade = normalizeAiGrade(rawGrade);
   if (grade !== rawGrade) console.warn('[turn] normalized out-of-set grade', { baseStepId, rawGrade, grade });
-  console.log('[turn] block grade', { baseStepId, rubricKind, rubric: aiRubric, rubricPct, rawGrade, finalGrade: grade, perAnswer: orderedScores, aggregate });
+  console.log('[turn] block grade', { baseStepId, rubricKind, rubricPct, perAnswerPct, blockPct, finalGrade: grade, perAnswer: orderedScores });
 
-  // 7c.3. Build feedback payload (rubric + per-answer scores + legacy aggregate).
+  // 7c.3. Build feedback payload (rubric + per-answer scores + blended grade).
   const feedbackPayload = JSON.stringify({
     summary: ai.feedback,
     strengths: ai.strengths,
@@ -453,6 +464,9 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     rubric: isValidRubric(aiRubric) ? aiRubric : null,
     rubric_kind: rubricKind,
     rubric_pct: rubricPct,
+    per_answer_pct: perAnswerPct,
+    block_pct: blockPct,
+    grade_weights: { rubric: RUBRIC_WEIGHT, answers: ANSWER_WEIGHT },
     per_answer_scores: orderedScores,
     aggregate_total: aggregate?.total ?? null,
     aggregate_budget: aggregate?.budget ?? null,
