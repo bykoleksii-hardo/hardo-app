@@ -471,12 +471,10 @@ function Alert({ error, info }: { error: string | null; info: string | null }) {
 
 function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
-    <li className="flex gap-5 items-start">
-      <span className="font-serif text-2xl text-[#B88736]/80 leading-none pt-0.5 w-10">{n}</span>
-      <div>
-        <div className="font-serif text-lg mb-1">{title}</div>
-        <div className="text-[#11161E]/60">{children}</div>
-      </div>
+    <li className="relative">
+      <span className="absolute -left-12 top-0.5 font-serif text-2xl text-[#B88736]/80 leading-none">{n}</span>
+      <div className="font-serif text-lg mb-1">{title}</div>
+      <div className="text-[#11161E]/60">{children}</div>
     </li>
   );
 }
