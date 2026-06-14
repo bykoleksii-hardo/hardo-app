@@ -2,24 +2,57 @@
 
 import { useEffect, useState } from 'react';
 
-/* A self-running demo of an interview session for the hero. Cycles through the
-   real phases — question → record → transcribe → follow-up → grading → scorecard
-   — then loops. Reuses the landing voice-card (.vcard) look. Honours
-   prefers-reduced-motion by showing the final scorecard statically. */
+/* A self-running demo of one interview *block* for the hero. Plays a full
+   pass — question → voice answer → transcript → follow-up → voice answer →
+   transcript → grading — then shows the block grade with a short written
+   note, the way a real interviewer closes out a block. Reuses the landing
+   voice-card (.vcard) look. Honours prefers-reduced-motion by showing the
+   final block result statically. */
 
-type Phase = 'ask' | 'record' | 'transcribe' | 'followup' | 'grading' | 'scorecard';
-const ORDER: Phase[] = ['ask', 'record', 'transcribe', 'followup', 'grading', 'scorecard'];
-const DUR: Record<Phase, number> = { ask: 2200, record: 3000, transcribe: 3600, followup: 2600, grading: 1500, scorecard: 4600 };
+const BLOCK = { n: '02', name: 'Valuation', level: 'Analyst' };
 
-const QUESTION = "Walk me through how you'd value a pre-revenue biotech with one Phase II asset.";
-const TRANSCRIPT = "I'd lean on a risk-adjusted NPV — build a peak-sales curve, then weight it by probability of success by phase…";
-const FOLLOWUP = 'Good. What discount rate would you use, and why?';
-
-const ROWS: Array<{ name: string; grade: string; note: string }> = [
-  { name: 'Accounting', grade: 'B+', note: 'Solid mechanics. Missed a working-capital check.' },
-  { name: 'Valuation', grade: 'A−', note: 'Clean DCF. Strong on terminal value.' },
-  { name: 'Behavioral', grade: 'A−', note: 'Answer-first. Held up under 3 follow-ups.' },
+type Turn = { kind: 'Question' | 'Follow-up'; q: string; a: string };
+const TURNS: Turn[] = [
+  {
+    kind: 'Question',
+    q: "Walk me through how you'd value a pre-revenue biotech with one Phase II asset.",
+    a: "I'd lean on a risk-adjusted NPV — build a peak-sales curve, then weight it by probability of success by phase…",
+  },
+  {
+    kind: 'Follow-up',
+    q: 'Good. What discount rate would you use, and why?',
+    a: "Given the binary clinical risk, I'd push to 12–15% — well above a mature pharma, since these cash flows are far from certain.",
+  },
 ];
+
+// Block result, shown like a real interviewer's end-of-block read.
+const RESULT = {
+  grade: 'A−',
+  note: 'Clean risk-adjusted framework, and you reached for probability-weighting without being prompted. Push harder on why 12–15% over a built-up CAPM and this is a clear A.',
+  criteria: [
+    { label: 'Structure', grade: 'A−' },
+    { label: 'Numbers', grade: 'B+' },
+    { label: 'Pushback', grade: 'B+' },
+  ],
+};
+
+type Sub = 'ask' | 'rec' | 'tx';
+type Step =
+  | { stage: 'turn'; turn: number; sub: Sub }
+  | { stage: 'grading' }
+  | { stage: 'result' };
+
+const STEPS: Step[] = [
+  { stage: 'turn', turn: 0, sub: 'ask' },
+  { stage: 'turn', turn: 0, sub: 'rec' },
+  { stage: 'turn', turn: 0, sub: 'tx' },
+  { stage: 'turn', turn: 1, sub: 'ask' },
+  { stage: 'turn', turn: 1, sub: 'rec' },
+  { stage: 'turn', turn: 1, sub: 'tx' },
+  { stage: 'grading' },
+  { stage: 'result' },
+];
+const DUR = [1900, 2000, 2700, 1700, 1900, 2600, 1300, 5200];
 
 function gradeColor(g: string): string {
   const c = (g || '')[0];
@@ -29,38 +62,37 @@ function gradeColor(g: string): string {
   return 'text-ink';
 }
 
-const TAB: Record<Phase, { t: string; cls: string; dot: boolean }> = {
-  ask:        { t: 'Question',     cls: 'iv-card__tab--ready',        dot: false },
-  record:     { t: 'Recording',    cls: 'iv-card__tab--recording',    dot: true },
-  transcribe: { t: 'Transcribing', cls: 'iv-card__tab--transcribing', dot: true },
-  followup:   { t: 'Follow-up',    cls: 'iv-card__tab--ready',        dot: false },
-  grading:    { t: 'Grading',      cls: 'iv-card__tab--thinking',     dot: true },
-  scorecard:  { t: 'Graded',       cls: 'iv-card__tab--review',       dot: false },
-};
-
 const WAVE = [10, 18, 26, 14, 22, 30, 16, 24, 12, 20, 28, 15, 23, 11, 19, 27, 17, 25, 13, 21, 29, 14, 18, 22];
 
+function tab(step: Step): { t: string; cls: string; dot: boolean } {
+  if (step.stage === 'grading') return { t: 'Grading', cls: 'iv-card__tab--thinking', dot: true };
+  if (step.stage === 'result') return { t: 'Block graded', cls: 'iv-card__tab--review', dot: false };
+  if (step.sub === 'rec') return { t: 'Recording', cls: 'iv-card__tab--recording', dot: true };
+  if (step.sub === 'tx') return { t: 'Transcribing', cls: 'iv-card__tab--transcribing', dot: true };
+  return { t: TURNS[step.turn].kind, cls: 'iv-card__tab--ready', dot: false };
+}
+
 export default function InterviewDemo() {
-  const [phase, setPhase] = useState<Phase>('ask');
+  const [idx, setIdx] = useState(0);
   const [elapsed, setElapsed] = useState(0);
+  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
-    const reduced =
+    const isReduced =
       typeof window !== 'undefined' &&
       window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) { setPhase('scorecard'); return; }
+    if (isReduced) { setReduced(true); return; }
 
     let raf = 0;
-    let idx = 0;
+    let i = 0;
     let t0 = performance.now();
     const tick = (now: number) => {
       const e = now - t0;
-      const cur = ORDER[idx];
-      if (e >= DUR[cur]) {
-        idx = (idx + 1) % ORDER.length;
+      if (e >= DUR[i]) {
+        i = (i + 1) % STEPS.length;
         t0 = now;
-        setPhase(ORDER[idx]);
+        setIdx(i);
         setElapsed(0);
       } else {
         setElapsed(e);
@@ -71,124 +103,158 @@ export default function InterviewDemo() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  const isCard = phase === 'scorecard';
-  const qChars = phase === 'ask' ? Math.floor(elapsed / 22) : QUESTION.length;
-  const tChars =
-    phase === 'transcribe' ? Math.floor(elapsed / 26)
-    : phase === 'followup' || phase === 'grading' ? TRANSCRIPT.length
-    : 0;
-  const recSec = phase === 'record' ? Math.floor(elapsed / 1000) : 0;
-  const showMeter = phase === 'record';
-  const showTranscript = phase === 'transcribe' || phase === 'followup' || phase === 'grading';
-  const showFollowup = phase === 'followup' || phase === 'grading';
-  const tab = TAB[phase];
+  const step: Step = reduced ? { stage: 'result' } : STEPS[idx];
+  const tb = tab(step);
+
+  // How many turns are fully done (collapsed above the active area).
+  const doneTurns =
+    step.stage === 'turn' ? step.turn : TURNS.length;
+
+  const turnsDone = reduced ? TURNS.length : doneTurns;
 
   return (
-    <div className="vcard !rotate-0" style={{ minHeight: 452 }}>
+    <div className="vcard !rotate-0" style={{ minHeight: 468 }}>
       <div
-        className={`vcard__tab ${tab.cls}`}
+        className={`vcard__tab ${tb.cls}`}
         role="status"
         aria-live="off"
         style={{ width: 'auto', minWidth: 84, padding: '0 16px' }}
       >
-        {tab.dot ? <span className="iv-card__tab-dot" aria-hidden /> : null}
-        <span>{tab.t}</span>
+        {tb.dot ? <span className="iv-card__tab-dot" aria-hidden /> : null}
+        <span>{tb.t}</span>
       </div>
 
-      {!isCard ? (
-        <div key={phase} className="anim-fade">
-          <div className="vcard__head">
-            <span>Q 04 / 12 {'·'} Analyst</span>
-            <span className={phase === 'record' ? 'vcard__rec' : ''}>{phase === 'record' ? 'Recording' : 'Voice'}</span>
-          </div>
+      <div className="vcard__head">
+        <span>Block {BLOCK.n} {'·'} {BLOCK.name}</span>
+        <span aria-hidden className="flex items-center gap-1.5">
+          {TURNS.map((_, i) => (
+            <span
+              key={i}
+              className={`inline-block w-1.5 h-1.5 rounded-full ${i < turnsDone ? 'bg-gold' : 'bg-ink/20'}`}
+            />
+          ))}
+          <span className="ml-1.5">{BLOCK.level}</span>
+        </span>
+      </div>
 
-          <p className="vcard__question">
-            {qText(qChars)}
-            {phase === 'ask' && qChars < QUESTION.length ? <span className="vcard__caret" aria-hidden /> : null}
-          </p>
-
-          {showMeter && (
-            <div className="vcard__meter">
-              <div className="vcard__mic" aria-hidden>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="9" y="3" width="6" height="12" rx="3" />
-                  <path d="M5 11a7 7 0 0 0 14 0" />
-                  <line x1="12" y1="18" x2="12" y2="22" />
-                </svg>
-              </div>
-              <div className="vcard__wave" aria-hidden>
-                {WAVE.map((h, i) => (
-                  <i key={i} style={{ height: `${h}px`, animationDelay: `${(i % 8) * 0.09}s` }} />
-                ))}
-              </div>
-              <div className="vcard__time">
-                <b>0:{String(recSec).padStart(2, '0')}</b> <span className="cap">/ 2:00 cap</span>
-              </div>
-            </div>
-          )}
-
-          {showTranscript && (
-            <>
-              <div className="vcard__transcript-label">Whisper {'·'} transcript</div>
-              <div className="vcard__transcript">
-                {TRANSCRIPT.slice(0, tChars)}
-                {phase === 'transcribe' && tChars < TRANSCRIPT.length ? <span className="vcard__caret" aria-hidden /> : null}
-              </div>
-            </>
-          )}
-
-          {showFollowup && (
-            <div className="mt-5 border-l-2 border-gold/60 pl-4 anim-fade">
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-gold mb-1">Follow-up</div>
-              <p className="font-serif italic text-[17px] leading-snug text-ink/90">{FOLLOWUP}</p>
-            </div>
-          )}
-
-          {phase === 'grading' && (
-            <div className="mt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
-              Grading the block{'…'}
-            </div>
-          )}
-        </div>
+      {step.stage === 'result' ? (
+        <BlockResult />
       ) : (
-        <div key="scorecard" className="anim-fade">
-          <div className="vcard__head">
-            <span>Scorecard {'·'} Analyst</span>
-            <span>38m {'·'} Voice</span>
-          </div>
-
-          <div className="mt-4 flex items-center justify-between">
-            <div>
-              <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted">Final recommendation</div>
-              <div className="mt-1 font-serif text-[22px] font-medium">Leaning hire</div>
-            </div>
-            <div className="font-serif text-[52px] font-light leading-none text-ink rm-grade-pop">A{'−'}</div>
-          </div>
-
-          <div className="mt-5 grid divide-y divide-line border-t border-line">
-            {ROWS.map((r, i) => (
-              <div
-                key={r.name}
-                className="py-3 grid grid-cols-[104px_40px_1fr] items-start gap-3"
-                style={{ animation: `rise-in 480ms cubic-bezier(0.16,1,0.3,1) ${120 + i * 140}ms both` }}
-              >
-                <div className="font-mono text-[10px] uppercase tracking-widest text-muted pt-1">{r.name}</div>
-                <div className={`font-serif text-[20px] font-medium leading-none ${gradeColor(r.grade)}`}>{r.grade}</div>
-                <div className="text-[12.5px] text-ink/70 leading-snug">{r.note}</div>
+        <div className="mt-4">
+          {/* completed turns, collapsed */}
+          {TURNS.slice(0, doneTurns).map((t, i) => (
+            <div key={i} className="flex items-start gap-2.5 py-2 border-b border-line/70">
+              <span className="mt-0.5 text-gold text-[12px] leading-none" aria-hidden>{'✓'}</span>
+              <div className="min-w-0">
+                <div className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-muted">{t.kind}</div>
+                <div className="text-[13px] text-ink/70 leading-snug truncate">{t.q}</div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
 
-          <div className="mt-4 border-t border-line pt-3 font-mono text-[10.5px] uppercase tracking-widest text-muted flex items-center justify-between">
-            <span>Follow-up depth {'·'} 3.4 / 5</span>
-            <span>Six-axis radar</span>
-          </div>
+          {/* active turn */}
+          {step.stage === 'turn' && <ActiveTurn step={step} elapsed={elapsed} />}
+
+          {/* grading */}
+          {step.stage === 'grading' && (
+            <div className="mt-6 flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+              <span className="iv-card__tab-dot bg-ink/50" aria-hidden />
+              Grading the {BLOCK.name} block{'…'}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-function qText(n: number) {
-  return QUESTION.slice(0, n);
+function ActiveTurn({ step, elapsed }: { step: Extract<Step, { stage: 'turn' }>; elapsed: number }) {
+  const t = TURNS[step.turn];
+  const isFollow = t.kind === 'Follow-up';
+  const qChars = step.sub === 'ask' ? Math.floor(elapsed / 22) : t.q.length;
+  const aChars = step.sub === 'tx' ? Math.floor(elapsed / 24) : 0;
+  const recSec = step.sub === 'rec' ? Math.floor(elapsed / 1000) : 0;
+
+  return (
+    <div key={`${step.turn}-${step.sub}`} className="anim-fade mt-3">
+      {isFollow && (
+        <div className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-gold mb-1.5">Follow-up</div>
+      )}
+      <p className={isFollow ? 'font-serif italic text-[19px] leading-snug text-ink/90' : 'vcard__question !mt-0 !mb-0'}>
+        {t.q.slice(0, qChars)}
+        {step.sub === 'ask' && qChars < t.q.length ? <span className="vcard__caret" aria-hidden /> : null}
+      </p>
+
+      {step.sub === 'rec' && (
+        <div className="vcard__meter mt-5">
+          <div className="vcard__mic" aria-hidden>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="9" y="3" width="6" height="12" rx="3" />
+              <path d="M5 11a7 7 0 0 0 14 0" />
+              <line x1="12" y1="18" x2="12" y2="22" />
+            </svg>
+          </div>
+          <div className="vcard__wave" aria-hidden>
+            {WAVE.map((h, i) => (
+              <i key={i} style={{ height: `${h}px`, animationDelay: `${(i % 8) * 0.09}s` }} />
+            ))}
+          </div>
+          <div className="vcard__time">
+            <b>0:{String(recSec).padStart(2, '0')}</b> <span className="cap">/ {isFollow ? '1:00' : '2:00'} cap</span>
+          </div>
+        </div>
+      )}
+
+      {step.sub === 'tx' && (
+        <>
+          <div className="vcard__transcript-label mt-5">Whisper {'·'} transcript</div>
+          <div className="vcard__transcript">
+            {t.a.slice(0, aChars)}
+            {aChars < t.a.length ? <span className="vcard__caret" aria-hidden /> : null}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function BlockResult() {
+  return (
+    <div className="anim-fade mt-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-widest text-muted">Block complete {'·'} {BLOCK.name}</div>
+          <div className="mt-1 font-serif text-[22px] font-medium">Strong block</div>
+        </div>
+        <div className={`font-serif text-[52px] font-light leading-none rm-grade-pop ${gradeColor(RESULT.grade)}`}>
+          {RESULT.grade}
+        </div>
+      </div>
+
+      <p
+        className="mt-4 border-l-2 border-gold/60 pl-4 font-serif text-[15px] italic leading-relaxed text-ink/85"
+        style={{ animation: 'fade-rise 460ms cubic-bezier(0.16,1,0.3,1) 160ms both' }}
+      >
+        {RESULT.note}
+      </p>
+
+      <div className="mt-5 grid grid-cols-3 divide-x divide-line border-t border-line pt-4">
+        {RESULT.criteria.map((c, i) => (
+          <div
+            key={c.label}
+            className="px-3 first:pl-0"
+            style={{ animation: `rise-in 460ms cubic-bezier(0.16,1,0.3,1) ${240 + i * 120}ms both` }}
+          >
+            <div className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-muted">{c.label}</div>
+            <div className={`mt-1 font-serif text-[22px] font-medium leading-none ${gradeColor(c.grade)}`}>{c.grade}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 border-t border-line pt-3 font-mono text-[10px] uppercase tracking-widest text-muted flex items-center justify-between">
+        <span>Letter grades stay hidden in-session</span>
+        <span>Block 2 / 6</span>
+      </div>
+    </div>
+  );
 }
