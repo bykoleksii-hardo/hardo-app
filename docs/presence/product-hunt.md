@@ -75,3 +75,43 @@ genuine supporter list (beta users, society contacts) warmed.
 LinkedIn Page, society channels) · reply to every comment · monitor signups.
 **Post:** thank supporters · capture new testimonials · convert notify-ons →
 free mock · retro on what actually converted.
+
+---
+
+## Maker profile (faceless founder account)
+
+Fill this **fully before launch day** — an empty maker profile reads as a throwaway
+account and PH can shadow-flag it. Stay faceless: logo avatar, no real name, no
+invented credentials.
+
+- **Avatar:** the `H` logo, 400×400 (not a face).
+- **Name:** `HARDO Founder` — reads as a real maker, stays anonymous, and keeps the
+  maker distinct from the product (also "Hardo") in comment threads.
+- **Username:** `founder_hardo_app`
+- **Headline** (pick one):
+  - `Building Hardo — AI mock interviews for breaking into investment banking`
+  - `Founder of Hardo. Get the reps before the IB interview.`
+  - `Building the IB mock-interview platform that interviews you back`
+- **About** (canonical):
+  > I'm building **Hardo** — an AI-powered mock interview platform for students
+  > breaking into investment banking.
+  >
+  > It comes from one gap: people know the formulas but freeze the moment "walk me
+  > through a DCF" is said out loud, under pressure. Reading guides doesn't fix that —
+  > reps do. So Hardo runs realistic technical and behavioral interviews and tells you
+  > exactly what to fix, not "good job."
+  >
+  > The goal: be the place every candidate does their reps before the real thing.
+  > Building in public, shipping fast, listening hard. Keeping a low profile as a
+  > founder for now — the product does the talking. (No promises of offers, just
+  > better preparation.)
+- **About** (short variant):
+  > Building **Hardo** — AI-powered IB mock interviews with instant, specific feedback.
+  > Born from watching sharp people freeze on "walk me through a DCF." Reading doesn't
+  > fix that; reps do. Building in public, low-profile for now — the product does the talking.
+- **Additional links:** Website (site URL) · LinkedIn Company Page
+  (`linkedin.com/company/hardo-app`) · Hardo's Coming-Soon / product page once live.
+  **No personal profiles.**
+
+**Guardrail:** anonymous ≠ fabricated. No credentials you can't back (no "ex-Goldman
+analyst") — speak to the mission, not an invented résumé.
