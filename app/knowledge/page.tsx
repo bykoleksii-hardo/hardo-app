@@ -45,7 +45,7 @@ export default async function KnowledgeIndex({ searchParams }: { searchParams: P
           <div className="max-w-page mx-auto px-6 pt-20 pb-16">
             <div className="kicker mb-3">Knowledge Hub</div>
             <h1 className="font-serif text-[52px] md:text-[68px] font-light leading-[1.04] tracking-[-0.022em] max-w-3xl">
-              Notes from the desk.
+              Investment banking interview notes from the desk.
             </h1>
             <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">
               Tactical breakdowns of the questions that decide an offer. Platform updates, industry context, and the rubric behind every grade.
