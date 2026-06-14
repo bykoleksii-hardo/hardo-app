@@ -28,19 +28,19 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'HARDO \u2014 AI mock interviews for IB',
+  title: 'HARDO \u2014 AI Mock Interviews for Investment Banking',
   description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
   applicationName: 'HARDO',
   openGraph: {
     type: 'website',
-    title: 'HARDO \u2014 AI mock interviews for IB',
+    title: 'HARDO \u2014 AI Mock Interviews for Investment Banking',
     description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
     images: ['/og.png'],
     siteName: 'HARDO',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HARDO \u2014 AI mock interviews for IB',
+    title: 'HARDO \u2014 AI Mock Interviews for Investment Banking',
     description: 'AI mock interview simulation for investment banking. Accounting, valuation, M&A, behavioral — all graded with a real scorecard.',
   },
   alternates: { canonical: '/' },
