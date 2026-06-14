@@ -676,9 +676,12 @@ export function aggregateBlockScore(
 
 /**
  * Convert a 0..1 percentage of points earned into a letter grade for display.
+ * NOTE: the database whitelist (apply_ai_grade + interview_steps_ai_grade_check)
+ * accepts only ['A','A-','B+','B','B-','C+','C','C-','D','F'] — there is NO 'A+'.
+ * So the top bucket collapses into 'A'; this function must only ever emit a
+ * letter from that whitelist.
  * Schedule:
- *   90-100%  -> A+
- *   80-89%   -> A
+ *   80-100%  -> A
  *   70-79%   -> A-
  *   60-69%   -> B+
  *   50-59%   -> B
@@ -690,7 +693,6 @@ export function aggregateBlockScore(
 export function percentToLetter(pct: number): LetterGrade {
   const p = Math.max(0, Math.min(1, pct));
   const hundred = Math.round(p * 100);
-  if (hundred >= 90) return 'A+';
   if (hundred >= 80) return 'A';
   if (hundred >= 70) return 'A-';
   if (hundred >= 60) return 'B+';
@@ -699,6 +701,25 @@ export function percentToLetter(pct: number): LetterGrade {
   if (hundred >= 30) return 'C';
   if (hundred >= 20) return 'D';
   return 'F';
+}
+
+// Grades the database accepts (apply_ai_grade body + interview_steps CHECK).
+// Anything else is rejected with {ok:false,'invalid grade'}, so we coerce to
+// this set before persisting. 'A+' (a legal LetterGrade in app code) maps to 'A'.
+export const ALLOWED_AI_GRADES = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F'] as const;
+
+/**
+ * Coerce any computed/derived grade into a DB-accepted grade. Trims, upcases,
+ * maps 'A+' -> 'A', and falls back to a safe mid grade for anything unrecognized
+ * so a single odd value can never hard-fail the grade write.
+ */
+export function normalizeAiGrade(g: string | null | undefined): (typeof ALLOWED_AI_GRADES)[number] {
+  const raw = (g ?? '').trim().toUpperCase();
+  if (raw === 'A+') return 'A';
+  if ((ALLOWED_AI_GRADES as readonly string[]).includes(raw)) {
+    return raw as (typeof ALLOWED_AI_GRADES)[number];
+  }
+  return 'B';
 }
 
 // ============================================================

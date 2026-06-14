@@ -12,6 +12,7 @@ import {
   rubricToPct,
   isValidRubric,
   percentToLetter,
+  normalizeAiGrade,
   type TurnAIResult,
   type TurnContext,
 } from '@/lib/interview-prompts';
@@ -427,16 +428,21 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   // rubric, fall back to the legacy per-answer aggregate so a grade is still produced.
   const rubricKind = rubricKindForCategory(category);
   const aiRubric = (ai as { rubric?: unknown }).rubric;
-  let grade: string;
+  let rawGrade: string;
   let rubricPct: number | null = null;
   if (isValidRubric(aiRubric)) {
     rubricPct = rubricToPct(aiRubric, rubricKind, level);
-    grade = percentToLetter(rubricPct);
+    rawGrade = percentToLetter(rubricPct);
   } else {
     console.warn('[turn] missing/invalid rubric on close_block; falling back to per-answer aggregate', { baseStepId, aiRubric });
-    grade = aggregate?.letter || 'B';
+    rawGrade = aggregate?.letter || 'B';
   }
-  console.log('[turn] block grade', { baseStepId, rubricKind, rubric: aiRubric, rubricPct, finalGrade: grade, perAnswer: orderedScores, aggregate });
+  // Coerce to the DB-accepted whitelist (apply_ai_grade + interview_steps CHECK
+  // reject anything else, e.g. 'A+'). percentToLetter already stays in-set; this
+  // guard guarantees the grade write can never be rejected on the grade value.
+  const grade = normalizeAiGrade(rawGrade);
+  if (grade !== rawGrade) console.warn('[turn] normalized out-of-set grade', { baseStepId, rawGrade, grade });
+  console.log('[turn] block grade', { baseStepId, rubricKind, rubric: aiRubric, rubricPct, rawGrade, finalGrade: grade, perAnswer: orderedScores, aggregate });
 
   // 7c.3. Build feedback payload (rubric + per-answer scores + legacy aggregate).
   const feedbackPayload = JSON.stringify({
