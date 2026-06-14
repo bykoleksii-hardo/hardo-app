@@ -13,6 +13,9 @@ import FAQ from './(landing)/_components/FAQ';
 import Scorecard from './(landing)/_components/Scorecard';
 import TheRoom from './(landing)/_components/TheRoom';
 import Parallax from './_components/Parallax';
+import JsonLd from './_components/JsonLd';
+import { baseFaq, pricingFaq } from './(landing)/_components/faq-data';
+import { organizationLd, websiteLd, faqLd } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'HARDO \u2014 AI mock interviews for IB',
@@ -46,6 +49,7 @@ export default async function Page() {
         <BottomCTA plan={viewer.plan} />
       </main>
       <LandingFooter signedIn={signedIn} isPaid={isPaid} />
+      <JsonLd data={[organizationLd(), websiteLd(), faqLd([...baseFaq, ...pricingFaq])]} />
     </>
   );
 }

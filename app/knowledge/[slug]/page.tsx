@@ -1,16 +1,28 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getArticleBySlug } from '@/lib/knowledge/queries';
+import { getArticleBySlug, listRelatedArticles, listPublishedSlugs } from '@/lib/knowledge/queries';
 import { renderMarkdown, extractHeadings } from '@/lib/knowledge/markdown';
-import LandingHeader from '@/app/(landing)/_components/Header';
 import LandingFooter from '@/app/(landing)/_components/Footer';
 import ArticleProgress from '@/app/_components/ArticleProgress';
 import ArticleToc from '@/app/_components/ArticleToc';
-import { getViewerPlan } from '@/lib/quota/server';
-import { getUserRole } from '@/lib/auth/roles';
+import JsonLd from '@/app/_components/JsonLd';
+import HeaderAuth from '@/app/_components/HeaderAuth';
+import { articleLd, breadcrumbLd, DEFAULT_OG } from '@/lib/seo';
 
-export const dynamic = 'force-dynamic';
+// ISR: the article body is identical for everyone, so it is prerendered and
+// served from the Cloudflare KV cache (fast TTFB/LCP). Per-user header chrome is
+// hydrated client-side via <HeaderAuth>. Revalidate hourly.
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  try {
+    const slugs = await listPublishedSlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    return [];
+  }
+}
 
 type Params = { slug: string };
 
@@ -23,7 +35,7 @@ export async function generateMetadata(
   const title = article.title + ' \u2014 HARDO';
   const description = article.description ?? undefined;
   const url = `/knowledge/${article.slug}`;
-  const images = article.cover_url ? [article.cover_url] : undefined;
+  const images = [article.cover_url || DEFAULT_OG];
   return {
     title,
     description,
@@ -34,13 +46,15 @@ export async function generateMetadata(
       description,
       url,
       ...(article.published_at ? { publishedTime: article.published_at } : {}),
-      ...(images ? { images } : {}),
+      ...(article.updated_at ? { modifiedTime: article.updated_at } : {}),
+      section: article.category,
+      images,
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      ...(images ? { images } : {}),
+      images,
     },
   };
 }
@@ -61,29 +75,20 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
   const article = await getArticleBySlug(slug);
   if (!article || article.status !== 'published') notFound();
 
-  const viewer = await getViewerPlan();
-  const signedIn = viewer.plan !== 'anon';
-  const role = signedIn ? await getUserRole() : 'user';
-  const isAdmin = role === 'admin' || role === 'editor';
-  const isPaid = viewer.plan === 'paid';
   const html = renderMarkdown(article.body_md);
   const tag = article.tags?.[0];
   const toc = extractHeadings(article.body_md);
   const hasToc = toc.length >= 3;
-
-  const ld = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: article.title,
-    description: article.description,
-    datePublished: article.published_at,
-    articleSection: article.category,
-    author: { '@type': 'Organization', name: 'HARDO' },
-  };
+  const wordCount = (article.body_md || '').split(/\s+/).filter(Boolean).length;
+  const related = await listRelatedArticles({
+    excludeSlug: article.slug,
+    category: article.category,
+    limit: 3,
+  });
 
   return (
     <>
-      <LandingHeader signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding />
+      <HeaderAuth onLanding />
       <ArticleProgress />
       <main>
         <div className={hasToc ? 'mx-auto max-w-6xl px-6 pt-16 pb-20 lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-14' : 'mx-auto max-w-3xl px-6 pt-16 pb-20'}>
@@ -137,18 +142,52 @@ export default async function ArticlePage({ params }: { params: Promise<Params> 
               Reading is reps. Now take the rep.
             </p>
             <Link
-              href={viewer.plan === 'anon' ? '/login' : '/interview/setup'}
+              href="/interview/setup"
               className="hero-pulse mt-5 inline-flex items-center gap-2 bg-ink text-paper text-[15px] font-medium px-9 py-4 rounded-full hover:bg-navy transition-colors"
             >
               Drill this in a mock <span aria-hidden>{'\u2192'}</span>
             </Link>
           </div>
+
+          {related.length > 0 && (
+            <section className="mt-16 border-t border-line pt-10">
+              <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted">Keep reading</div>
+              <ul className="mt-6 grid gap-x-8 gap-y-8 sm:grid-cols-2">
+                {related.map((r) => (
+                  <li key={r.id} className="border-t border-line pt-4">
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-gold-2">{r.category}</span>
+                    <Link href={`/knowledge/${r.slug}`} className="group block mt-2">
+                      <div className="font-serif text-[19px] font-medium leading-snug group-hover:text-gold transition-colors">{r.title}</div>
+                      {r.description && (
+                        <p className="mt-2 text-[13.5px] text-ink-2 leading-relaxed line-clamp-3">{r.description}</p>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           </article>
         </div>
 
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+        <JsonLd
+          data={[
+            articleLd({
+              slug: article.slug,
+              title: article.title,
+              description: article.description,
+              cover_url: article.cover_url,
+              category: article.category,
+              published_at: article.published_at,
+              updated_at: article.updated_at,
+              wordCount,
+            }),
+            breadcrumbLd([
+              { name: 'Home', url: '/' },
+              { name: 'Knowledge Hub', url: '/knowledge' },
+              { name: article.title, url: `/knowledge/${article.slug}` },
+            ]),
+          ]}
         />
       </main>
       <LandingFooter />
