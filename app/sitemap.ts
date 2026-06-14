@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { listPublishedArticles } from '@/lib/knowledge/queries';
+import { COMPARISONS } from '@/lib/compare';
 import { SITE_URL } from '@/lib/seo';
 
 export const revalidate = 3600;
@@ -26,9 +27,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/`, lastModified: latest, changeFrequency: 'weekly', priority: 1 },
     { url: `${SITE_URL}/ai-investment-banking-mock-interview`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${SITE_URL}/knowledge`, lastModified: latest, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${SITE_URL}/best-ai-investment-banking-mock-interview-tools`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${SITE_URL}/legal/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE_URL}/legal/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ];
+
+  const compareUrls: MetadataRoute.Sitemap = COMPARISONS.map((c) => ({
+    url: `${SITE_URL}/compare/${c.slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
 
   const articleUrls: MetadataRoute.Sitemap = articles.map((a) => ({
     url: `${SITE_URL}/knowledge/${a.slug}`,
@@ -37,5 +46,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticUrls, ...articleUrls];
+  return [...staticUrls, ...compareUrls, ...articleUrls];
 }

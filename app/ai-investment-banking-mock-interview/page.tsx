@@ -4,6 +4,7 @@ import LandingFooter from '@/app/(landing)/_components/Footer';
 import HeaderAuth from '@/app/_components/HeaderAuth';
 import JsonLd from '@/app/_components/JsonLd';
 import { listPublishedArticles } from '@/lib/knowledge/queries';
+import { COMPARISONS } from '@/lib/compare';
 import { SITE_URL, SITE_NAME, abs, breadcrumbLd, faqLd, type FaqItem } from '@/lib/seo';
 
 const PATH = '/ai-investment-banking-mock-interview';
@@ -166,8 +167,28 @@ export default async function Page() {
           </div>
         </section>
 
-        {/* FAQ */}
+        {/* How HARDO compares */}
         <section className="border-b border-line">
+          <div className="max-w-3xl mx-auto px-6 py-16">
+            <h2 className="font-serif text-[30px] md:text-[36px] font-light tracking-[-0.01em]">How HARDO compares</h2>
+            <p className="mt-5 text-[16.5px] text-ink-2 leading-relaxed">
+              Weighing the options? See how HARDO stacks up against other AI investment banking interview tools.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {COMPARISONS.map((c) => (
+                <Link key={c.slug} href={`/compare/${c.slug}`} className="inline-block text-[13px] font-mono uppercase tracking-widest border border-line hover:border-ink px-4 py-2 rounded-full transition-colors">
+                  {c.h1}
+                </Link>
+              ))}
+              <Link href="/best-ai-investment-banking-mock-interview-tools" className="inline-block text-[13px] font-mono uppercase tracking-widest border border-line hover:border-ink px-4 py-2 rounded-full transition-colors">
+                Best AI IB mock interview tools
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="border-b border-line bg-cream/40">
           <div className="max-w-3xl mx-auto px-6 py-16">
             <div className="kicker mb-3">FAQ</div>
             <h2 className="font-serif text-[30px] md:text-[36px] font-light tracking-[-0.01em]">AI mock interview — common questions</h2>
