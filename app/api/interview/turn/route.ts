@@ -8,6 +8,11 @@ import {
   aggregateBlockScore,
   maxScoreForTurn,
   ADVANCE_THRESHOLD,
+  rubricKindForCategory,
+  rubricToPct,
+  isValidRubric,
+  percentToLetter,
+  normalizeAiGrade,
   type TurnAIResult,
   type TurnContext,
 } from '@/lib/interview-prompts';
@@ -186,7 +191,8 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
         { role: 'system', content: TURN_SYSTEM_PROMPT },
         { role: 'user', content: buildTurnUserPrompt({
           level, category, subtopic, difficulty,
-          isCase, followUpsSoFar, maxFollowUps,
+          isCase, rubricKind: rubricKindForCategory(category),
+          followUpsSoFar, maxFollowUps,
           maxScoreForThisTurn: maxScoreForTurn(followUpsSoFar, isCase),
           question: baseQuestion,
           transcript,
@@ -415,16 +421,38 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   }
 
   const aggregate = aggregateBlockScore(orderedScores, isCase);
-  // We only persist letters in apply_ai_grade (legacy contract); letters are computed by aggregateBlockScore.
-  const grade = aggregate?.letter || 'B';
-  console.log('[turn] block score aggregate', { baseStepId, perAnswer: orderedScores, isCase, aggregate, finalGrade: grade });
 
-  // 7c.3. Build feedback payload (now includes per-answer scores + total + budget + pct).
+  // 7c.2b. Block grade now comes from the close_block RUBRIC (rubric = source of grade).
+  // The per-answer scores above are kept only for the follow-up routing decision and for
+  // transparency/back-compat in the stored payload. If the model failed to return a valid
+  // rubric, fall back to the legacy per-answer aggregate so a grade is still produced.
+  const rubricKind = rubricKindForCategory(category);
+  const aiRubric = (ai as { rubric?: unknown }).rubric;
+  let rawGrade: string;
+  let rubricPct: number | null = null;
+  if (isValidRubric(aiRubric)) {
+    rubricPct = rubricToPct(aiRubric, rubricKind, level);
+    rawGrade = percentToLetter(rubricPct);
+  } else {
+    console.warn('[turn] missing/invalid rubric on close_block; falling back to per-answer aggregate', { baseStepId, aiRubric });
+    rawGrade = aggregate?.letter || 'B';
+  }
+  // Coerce to the DB-accepted whitelist (apply_ai_grade + interview_steps CHECK
+  // reject anything else, e.g. 'A+'). percentToLetter already stays in-set; this
+  // guard guarantees the grade write can never be rejected on the grade value.
+  const grade = normalizeAiGrade(rawGrade);
+  if (grade !== rawGrade) console.warn('[turn] normalized out-of-set grade', { baseStepId, rawGrade, grade });
+  console.log('[turn] block grade', { baseStepId, rubricKind, rubric: aiRubric, rubricPct, rawGrade, finalGrade: grade, perAnswer: orderedScores, aggregate });
+
+  // 7c.3. Build feedback payload (rubric + per-answer scores + legacy aggregate).
   const feedbackPayload = JSON.stringify({
     summary: ai.feedback,
     strengths: ai.strengths,
     weaknesses: ai.weaknesses,
     detail: ai.feedback_detail ?? null,
+    rubric: isValidRubric(aiRubric) ? aiRubric : null,
+    rubric_kind: rubricKind,
+    rubric_pct: rubricPct,
     per_answer_scores: orderedScores,
     aggregate_total: aggregate?.total ?? null,
     aggregate_budget: aggregate?.budget ?? null,
