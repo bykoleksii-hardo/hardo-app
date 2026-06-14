@@ -24,8 +24,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticUrls: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, lastModified: latest, changeFrequency: 'weekly', priority: 1 },
+    { url: `${SITE_URL}/ai-investment-banking-mock-interview`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${SITE_URL}/knowledge`, lastModified: latest, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${SITE_URL}/upgrade`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${SITE_URL}/legal/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE_URL}/legal/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ];

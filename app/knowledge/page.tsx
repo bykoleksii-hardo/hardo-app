@@ -6,8 +6,8 @@ import JsonLd from '@/app/_components/JsonLd';
 import HeaderAuth from '@/app/_components/HeaderAuth';
 import { breadcrumbLd, collectionLd } from '@/lib/seo';
 
-const PAGE_TITLE = 'Knowledge Hub \u2014 HARDO';
-const PAGE_DESC = 'Tactical breakdowns of the questions that decide an offer. Platform updates, IB industry context, and the rubric behind every grade.';
+const PAGE_TITLE = 'Investment Banking Interview Guides \u2014 HARDO Knowledge Hub';
+const PAGE_DESC = 'Investment banking interview guides \u2014 DCF, LBO, comps, accretion and behavioral. The tactical breakdowns and the rubric behind every question that decides an offer.';
 
 // All category-filtered views (?category=\u2026) canonicalize to the clean /knowledge
 // URL so the filtered slices don't compete as duplicate/thin pages.
