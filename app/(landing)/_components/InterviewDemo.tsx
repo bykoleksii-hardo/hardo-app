@@ -118,7 +118,7 @@ export default function InterviewDemo() {
         className={`vcard__tab ${tb.cls}`}
         role="status"
         aria-live="off"
-        style={{ width: 'auto', minWidth: 84, padding: '0 16px' }}
+        style={{ width: 'auto', minWidth: 84, padding: '0 16px', gap: 8 }}
       >
         {tb.dot ? <span className="iv-card__tab-dot" aria-hidden /> : null}
         <span>{tb.t}</span>
