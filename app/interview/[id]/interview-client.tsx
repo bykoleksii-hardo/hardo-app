@@ -952,7 +952,7 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                   <div className="iv-card__transcript-label">
                     {inputMode === "voice"
                       ? (recState === "recording"
-                          ? "Whisper \u00b7 transcribing live"
+                          ? "Whisper \u00b7 recording"
                           : recState === "transcribing"
                             ? "Whisper \u00b7 processing audio"
                             : reviewActive

@@ -69,7 +69,7 @@ export default async function PrivacyPage() {
 
             <h2 id="sec-4">4. AI providers</h2>
             <p>
-              HARDO uses OpenAI for question generation and grading and Groq for Whisper transcription. Your interview text and audio are sent to these providers under their data-processing terms; they do not train on it under their API terms of service.
+              HARDO uses OpenAI for question generation and grading, and Groq (with Deepgram as a fallback) for voice transcription. Your interview text and audio are sent to these providers under their data-processing terms; they do not train on it under their API terms of service.
             </p>
 
             <h2 id="sec-5">5. Storage and security</h2>

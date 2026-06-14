@@ -14,6 +14,16 @@ export const GET = withLogging('GET /api/interview/state', async (req: Request, 
   const id = url.searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'bad request' }, { status: 400 });
 
+  // Defence-in-depth: confirm the interview belongs to the caller before
+  // returning any steps/answers (don't rely on RLS alone).
+  const { data: own } = await supabase
+    .from('interviews')
+    .select('id')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (!own) return NextResponse.json({ error: 'not found' }, { status: 404 });
+
   const { data: stepsRaw } = await supabase
     .from('interview_steps')
     .select('id, order_index, is_follow_up, parent_step_id, question_id, custom_question, delivered_question, user_answer, answered_at, created_at, time_limit_seconds, was_overtime, ai_status, ai_grade, ai_feedback, questions(id, question, category, subtopic, difficulty)')

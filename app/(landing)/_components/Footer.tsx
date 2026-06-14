@@ -54,7 +54,7 @@ export default function LandingFooter({ signedIn = false, isPaid = false }: Prop
       <div className="border-t border-line">
         <div className="max-w-page mx-auto px-6 py-5 text-[12px] text-muted flex items-center justify-between">
           <span>{'\u00a9'} {new Date().getFullYear()} HARDO. All rights reserved.</span>
-          <span className="hidden md:inline">Built with Next.js, Cloudflare Workers, Supabase, OpenAI {'\u00b7'} Whisper.</span>
+          <span className="hidden md:inline">Built with Next.js, Cloudflare Workers, Supabase, OpenAI {'\u00b7'} Groq Whisper.</span>
           <span>Built for candidates, not hiring funnels.</span>
         </div>
       </div>

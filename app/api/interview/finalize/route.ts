@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { chatJSON, OpenAIError } from '@/lib/openai';
 import { withLogging, logger } from '@/lib/observability';
+import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 import {
   FINALIZE_SYSTEM_PROMPT,
   FINALIZE_SCHEMA,
@@ -16,6 +17,10 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
+  // Finalize triggers an LLM call — cap it per user (it was previously unbounded).
+  const rl = await rateLimitTake(rateLimitSubject({ userId: user.id }), { bucket: 'interview.finalize', capacity: 12, windowSeconds: 60 });
+  if (!rl.allowed) return rateLimitedResponse(rl);
+
   const body = (await req.json().catch(() => null)) as { interviewId?: string } | null;
   if (!body?.interviewId) return NextResponse.json({ error: 'bad request' }, { status: 400 });
 
@@ -23,6 +28,7 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     .from('interviews')
     .select('id, candidate_level, status, total_questions')
     .eq('id', body.interviewId)
+    .eq('user_id', user.id)
     .maybeSingle();
   if (!interview) return NextResponse.json({ error: 'interview not found' }, { status: 404 });
 
@@ -51,6 +57,10 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
   };
   const steps = (stepsRaw ?? []) as unknown as S[];
   const baseSteps = steps.filter(s => !s.is_follow_up);
+  // Don't burn an LLM call finalizing an empty / not-yet-started interview.
+  if (baseSteps.length === 0) {
+    return NextResponse.json({ error: 'nothing to finalize' }, { status: 400 });
+  }
 
   const lines: string[] = [
     `Candidate level: ${interview.candidate_level}`,
@@ -89,10 +99,10 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
   } catch (e) {
     if (e instanceof OpenAIError) {
       logger.error('[finalize] openai error', undefined, { status: e.status, code: e.code, type: e.type, message: e.message, raw: e.rawBody });
-      return NextResponse.json({ error: e.message, code: e.code, friendly: e.friendly }, { status: 502 });
+      return NextResponse.json({ friendly: e.friendly }, { status: 502 });
     }
     logger.error('[finalize] openai error (unknown)', e);
-    return NextResponse.json({ error: (e as Error).message, friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
+    return NextResponse.json({ friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
   const score = Math.max(0, Math.min(100, Math.round(ai.overall_score)));
@@ -117,7 +127,7 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     .maybeSingle();
   if (insErr) {
     logger.error('[finalize] insert summary error', insErr);
-    return NextResponse.json({ error: insErr.message }, { status: 500 });
+    return NextResponse.json({ error: 'Could not save your scorecard. Please try again.' }, { status: 500 });
   }
 
   await supabase
