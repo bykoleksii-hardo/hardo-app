@@ -32,17 +32,13 @@ const TURNS: Turn[] = [
   },
 ];
 
-/* Block result — the shape the real summary renders: a grade, a read, what
-   went well (+), what to fix (−), and the follow-up depth held. */
+/* Block result — kept visual and scannable: a grade, a one-line verdict,
+   one win + one fix, and the follow-up depth held. */
 const RESULT = {
   grade: 'A−',
-  summary:
-    'Strong block. You framed a pre-revenue asset the right way — risk-adjusted, not a vanilla DCF — and held the thread through both follow-ups.',
-  strengths: [
-    'Led with risk-adjusted NPV, weighted by phase.',
-    'Sanity-checked with stage-adjusted deal comps unprompted.',
-  ],
-  fixes: ['Anchor the 12–15% to a built-up rate, not a gut number.'],
+  verdict: 'Strong framework — held through both follow-ups.',
+  win: 'Risk-adjusted NPV, weighted by phase.',
+  fix: 'Build the 12–15% from the ground up.',
   progress: 'Q 02 / 12',
 };
 
@@ -136,7 +132,7 @@ export default function InterviewDemo() {
   const doneTurns = step.stage === 'turn' ? step.turn : TURNS.length;
 
   return (
-    <div className="vcard !rotate-0" style={{ minHeight: 512 }}>
+    <div className="vcard !rotate-0" style={{ minHeight: 392 }}>
       <div
         className={`vcard__tab ${tb.cls}`}
         role="status"
@@ -251,61 +247,44 @@ function BlockResult({ reduced }: { reduced: boolean }) {
   const at = (ms: number): React.CSSProperties => (reduced ? {} : enter(620, ms));
 
   return (
-    <div className="mt-4">
-      <div className="flex items-end justify-between gap-4 border-b border-line pb-3" style={at(40)}>
+    <div className="mt-5">
+      {/* hero: the grade carries the result, with a one-line verdict */}
+      <div className="flex items-center gap-4 border-b border-line pb-5" style={at(40)}>
+        <div className={`shrink-0 border ${gradeTone(RESULT.grade)} w-[68px] h-[68px] flex items-center justify-center ${reduced ? '' : 'rm-grade-pop'}`}>
+          <span className="font-serif text-[38px] leading-none">{RESULT.grade}</span>
+        </div>
         <div className="min-w-0">
-          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Block complete</div>
-          <div className="mt-1 font-serif text-[20px] leading-none">{BLOCK.name}</div>
-        </div>
-        <div className={`shrink-0 border ${gradeTone(RESULT.grade)} px-3 py-1.5 text-center min-w-[56px] ${reduced ? '' : 'rm-grade-pop'}`}>
-          <div className="font-serif text-2xl leading-none">{RESULT.grade}</div>
-          <div className="text-[8.5px] tracking-[0.22em] mt-1 opacity-75">BLOCK</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Block complete {'·'} {BLOCK.name}</div>
+          <div className="mt-1.5 font-serif text-[18px] leading-snug text-ink">{RESULT.verdict}</div>
         </div>
       </div>
 
-      <div className="mt-3.5" style={at(200)}>
-        <div className="font-mono text-[10px] tracking-[0.22em] text-gold mb-1.5">{'—'} FEEDBACK</div>
-        <p className="text-[13.5px] leading-[1.55] text-ink/85">{RESULT.summary}</p>
+      {/* one win, one fix — short, tagged, scannable */}
+      <div className="mt-5 space-y-3" style={at(220)}>
+        <div className="flex items-center gap-3">
+          <span className="shrink-0 w-11 text-center font-mono text-[9px] uppercase tracking-[0.16em] text-[#1F6F3D] border border-[#1F6F3D]/30 bg-[#1F6F3D]/8 py-1 rounded-sm">Win</span>
+          <span className="text-[13.5px] text-ink/85">{RESULT.win}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="shrink-0 w-11 text-center font-mono text-[9px] uppercase tracking-[0.16em] text-[#9C2E2E] border border-[#9C2E2E]/30 bg-[#9C2E2E]/8 py-1 rounded-sm">Fix</span>
+          <span className="text-[13.5px] text-ink/85">{RESULT.fix}</span>
+        </div>
       </div>
 
-      <div className="mt-3.5" style={at(380)}>
-        <div className="font-mono text-[9.5px] tracking-[0.22em] text-[#1F6F3D] mb-1.5">{'—'} WHAT WENT WELL</div>
-        <ul className="space-y-1 text-[13px] leading-[1.45] text-ink/85">
-          {RESULT.strengths.map((s, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="text-[#1F6F3D] shrink-0 leading-[1.45]">+</span>
-              <span>{s}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="mt-3.5" style={at(540)}>
-        <div className="font-mono text-[9.5px] tracking-[0.22em] text-[#9C2E2E] mb-1.5">{'—'} WHAT TO FIX</div>
-        <ul className="space-y-1 text-[13px] leading-[1.45] text-ink/85">
-          {RESULT.fixes.map((f, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="text-[#9C2E2E] shrink-0 leading-[1.45]">{'−'}</span>
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* follow-up depth — a real measured axis, not invented sub-grades */}
-      <div className="mt-4 flex items-center justify-between border-t border-line pt-3" style={at(700)}>
+      {/* follow-up depth — a real measured axis, shown as a chart */}
+      <div className="mt-5 flex items-center justify-between border-t border-line pt-3.5" style={at(380)}>
         <div className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-muted">Follow-up depth</div>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1" aria-hidden>
+          <span className="flex items-center gap-1.5" aria-hidden>
             {Array.from({ length: MAX_FOLLOWUPS }).map((_, i) => (
-              <span key={i} className="inline-block w-2 h-2 rounded-full" style={{ background: 'var(--gold)' }} />
+              <span key={i} className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: 'var(--gold)' }} />
             ))}
           </span>
           <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink/65">held to {MAX_FOLLOWUPS} / {MAX_FOLLOWUPS}</span>
         </div>
       </div>
 
-      <div className="mt-3 border-t border-line pt-2.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-muted" style={at(820)}>
+      <div className="mt-3.5 border-t border-line pt-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-muted" style={at(500)}>
         <span>Graded to the director bar</span>
         <span>{RESULT.progress}</span>
       </div>
