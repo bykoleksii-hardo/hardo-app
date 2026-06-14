@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import FeedbackButtons from './FeedbackButtons';
+import { FeedbackPanel } from './feedbackUi';
 
 type StepRow = {
   id: string;
@@ -291,38 +292,22 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                     {fb && fb.summary && (
                       <div className="mt-5">
                         <div className="text-[11px] tracking-[0.22em] text-gold mb-2">— FEEDBACK</div>
-                        <p className="text-ink/85 text-[14.5px] leading-[1.65]">{fb.summary}</p>
+                        <p className="font-serif text-[15.5px] leading-[1.6] text-ink">{fb.summary}</p>
                       </div>
                     )}
-                    {fb && fb.strengths.length > 0 && (
-                      <div className="mt-5">
-                        <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-2">— WHAT WENT WELL</div>
-                        <ul className="space-y-1.5 text-[13.5px] text-ink/85 leading-[1.55]">
-                          {fb.strengths.map((x, i) => (
-                            <li key={i} className="flex gap-2.5">
-                              <span className="text-[#1F6F3D] shrink-0 leading-[1.55]">+</span>
-                              <span>{x}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {fb && fb.weaknesses.length > 0 && (
-                      <div className="mt-5">
-                        <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-2">— WHAT TO FIX</div>
-                        <ul className="space-y-1.5 text-[13.5px] text-ink/85 leading-[1.55]">
-                          {fb.weaknesses.map((x, i) => (
-                            <li key={i} className="flex gap-2.5">
-                              <span className="text-[#9C2E2E] shrink-0 leading-[1.55]">−</span>
-                              <span>{x}</span>
-                            </li>
-                          ))}
-                        </ul>
+                    {fb && (fb.strengths.length > 0 || fb.weaknesses.length > 0) && (
+                      <div className="mt-4 grid md:grid-cols-2 gap-3">
+                        {fb.strengths.length > 0 && (
+                          <FeedbackPanel tone="pos" label="What went well" items={fb.strengths} />
+                        )}
+                        {fb.weaknesses.length > 0 && (
+                          <FeedbackPanel tone="neg" label="What to fix" items={fb.weaknesses} />
+                        )}
                       </div>
                     )}
                     {fb && fb.detail && fb.detail.how_to_improve && (
-                      <div className="mt-5 border border-gold/30 bg-gold/[0.05] rounded-sm px-4 py-3">
-                        <div className="text-[10px] tracking-[0.22em] text-gold mb-1.5">— PRACTICE</div>
+                      <div className="mt-3 border border-gold/30 bg-gold/[0.05] rounded-md px-4 py-3">
+                        <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-gold mb-1.5">Practice</div>
                         <p className="text-ink/85 text-[13.5px] leading-[1.6]">{fb.detail.how_to_improve}</p>
                       </div>
                     )}
