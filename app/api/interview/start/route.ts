@@ -60,6 +60,29 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
 
     const { data, error } = await supabase.rpc('start_interview', { p_level: level });
     if (error) {
+      // start_interview now enforces the quota atomically inside the DB
+      // (race-safe + direct-RPC-proof). Map its in-DB rejections to the same 403
+      // shapes the pre-check above uses, so a lost race or a direct RPC call still
+      // returns a clean client error instead of a generic 500.
+      const msg = error.message ?? '';
+      if (msg.includes('free_limit_reached')) {
+        return NextResponse.json(
+          {
+            error: 'You have used your free interview. Upgrade to continue.',
+            reason: 'free_limit_reached',
+            plan: q.plan,
+            interviews_used: q.interviews_used,
+            free_limit: q.free_limit,
+          },
+          { status: 403 }
+        );
+      }
+      if (msg.includes('level_locked')) {
+        return NextResponse.json(
+          { error: 'This level is available on the paid plan only.', reason: 'level_locked', plan: q.plan },
+          { status: 403 }
+        );
+      }
       logger.error('start_interview RPC error', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
