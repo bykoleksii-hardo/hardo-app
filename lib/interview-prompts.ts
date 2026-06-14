@@ -8,6 +8,7 @@ export type TurnContext = {
   subtopic: string | null;
   difficulty: number | null;
   isCase: boolean;
+  rubricKind: RubricKind;
   followUpsSoFar: number;
   maxFollowUps: number;
   maxScoreForThisTurn: number;
@@ -146,13 +147,12 @@ WHAT YOU MAY DO:
           - pct >= 30%  -> kind=follow_up UNLESS follow-ups remaining == 0, in which case
                           kind=close_block (the block hit its natural depth limit).
        3) NEVER emit close_block on a >= 30% answer while follow-ups remain. This applies
-          to mid (30-79%) AND strong (>=80%) answers equally. The block has a fixed point
-          budget that the candidate is entitled to earn through to the last sub-turn. Closing
-          a normal block at base or FU#1 (or a case at step <6) leaves remaining sub-turns at
-          0 points and unfairly caps the score. The server will OVERRIDE any premature close
-          to follow_up - if you emit close_block at pct >= 30% with budget remaining, the
-          server will force a follow-up anyway, but without your concrete follow_up_question
-          attached. So always supply one.
+          to mid (30-79%) AND strong (>=80%) answers equally. The block must run to its full
+          depth so you have real evidence to score the rubric's depth/ceiling axis - closing
+          early on a passable answer leaves the candidate's ceiling untested. The server will
+          OVERRIDE any premature close to follow_up - if you emit close_block at pct >= 30%
+          with budget remaining, the server will force a follow-up anyway, but without your
+          concrete follow_up_question attached. So always supply one.
        4) On follow_up: the question MUST be concrete and tied to the candidate's last answer.
 
 Tone: calm, professional, concise. No emojis. No flattery. No coaching during the block - coaching belongs in close_block.feedback. The PERSONA in the user message refines this tone per level.
@@ -169,8 +169,10 @@ This block has a fixed point budget that you MUST use.
 
 THE SERVER WILL TELL YOU THE MAX SCORE FOR THIS TURN in the user message ("MAX_SCORE_FOR_THIS_TURN: N"). Use that N as the ceiling.
 
-PER-ANSWER SCORING (the most important rule):
+PER-ANSWER SCORING (drives follow-up routing):
 You must set "current_answer_score" on EVERY turn where the candidate gave an answer (message_type=answer). This is the integer score for the SINGLE most recent message, NOT the block. Range: 0 to MAX_SCORE_FOR_THIS_TURN (inclusive). Use the full range - do not cluster near the top or middle.
+
+IMPORTANT: current_answer_score now drives ONLY the follow-up decision (advance vs close) described below. It does NOT set the block grade. The block grade is computed separately from the BLOCK RUBRIC you fill at close_block (see "BLOCK RUBRIC"). Score each honestly and independently.
 
 USE THE FULL RANGE. If the answer is roughly 70% of max, score it 70% of MAX_SCORE_FOR_THIS_TURN (e.g. ~21/30, ~10-11/15, ~7/10). Granularity matters.
 
@@ -213,7 +215,7 @@ Compute pct = current_answer_score / MAX_SCORE_FOR_THIS_TURN.
   - 30% <= pct < 80% -> emit "follow_up" UNLESS no follow-ups remain (then "close_block"). Your follow_up_question must give the candidate a chance to REBUILD or CLARIFY: same difficulty as the base, a different angle, or an opening that lets them recover the missed points. Be concrete, reference what they actually said. DO NOT make it harder. DO NOT use generic prompts like "go one level deeper".
   - pct >= 80%  -> emit "follow_up" UNLESS no follow-ups remain (then "close_block"). Your follow_up_question must DEEPEN: a harder edge case, a scenario, a number, a sensitivity, a conviction test. Concrete and tied to what they said. NEVER generic.
 
-CRITICAL: Do NOT close a block early because the candidate "already proved mastery" or you "have enough signal". The block has a fixed point budget (60 pts total: 30+15+15 for normal, 6x10 for case). Every follow-up the candidate does not get a chance to answer is 0 points lost from their score. Only TWO valid reasons exist to emit close_block: (a) pct < 30% on the latest answer, or (b) follow-ups remaining == 0. Any other close_block emission is a bug and the server will override it to follow_up.
+CRITICAL: Do NOT close a block early because the candidate "already proved mastery" or you "have enough signal". The block must run to full depth so the rubric's depth/ceiling axis is judged on real evidence, not assumed. Only TWO valid reasons exist to emit close_block: (a) pct < 30% on the latest answer, or (b) follow-ups remaining == 0. Any other close_block emission is a bug and the server will override it to follow_up.
 
 When you emit "close_block" because no follow-ups remain (limit reached), say so naturally in the feedback - the candidate did everything they could in the block.
 
@@ -230,6 +232,23 @@ On these canonical prompts, every interview must feel unique. To enforce that:
   - Pick ONE angle of attack per follow-up, NEVER the most obvious one twice in a row across blocks. For DCF the angles include: terminal value method choice, WACC calibration, FCF normalization, mid-year convention impact, sensitivity to growth rate, cross-check against trading comps. For LBO: returns drivers split (multiple expansion vs deleveraging vs EBITDA growth), capital structure choice, what makes a good LBO candidate, paper-LBO mental math. For "value a company": which method you'd weight most given target profile, when DCF fails, treatment of synergies, control vs minority premium. For 3-statements: depreciation flow, working capital impact on FCF, non-cash adjustments, stock-based comp.
   - For behavioral anchors (resume, why IB, complex deal, disagreement), the follow-up MUST hook into something CONCRETE the candidate just said (a deal name, a specific role detail, a quoted phrase). Generic "tell me more" is forbidden on anchors.
   - Vary phrasing of your own follow-ups - do not reuse stock interviewer phrases verbatim. Sound like a different banker each time, within the level persona.
+
+BLOCK RUBRIC (close_block only - THIS sets the block grade):
+When you close the block you MUST score four axes 0-4 in "rubric". These axes - not the per-answer points - determine the candidate's letter grade for the block (the server applies level-specific weights, so just score each axis honestly for what the WHOLE block demonstrated). The user message gives RUBRIC_KIND; interpret the axes accordingly and echo it in "rubric_kind".
+
+TECHNICAL rubric (DCF, LBO, accounting, valuation, M&A, markets, brainteasers):
+  - correctness: factual/mechanical accuracy of the finance. 0 = wrong fundamentals; 2 = right idea with a real error; 4 = mechanics fully correct.
+  - depth: edge cases, numbers, second-order effects. 0 = none/refused; 2 = textbook mechanics, no edge cases; 4 = quantified, handles edge cases or sensitivities.
+  - structure: framework-first organization. 0 = chaotic; 2 = a frame with gaps; 4 = leads with a clean framework.
+  - communication: delivery and conviction. 0 = vague / non-responsive; 2 = wordy or buries the lead; 4 = concise, leads with the answer, defends it.
+
+FIT / BEHAVIORAL rubric (resume, why IB, why this bank, deal, conflict, motivation):
+  - correctness -> SUBSTANCE: relevance and credibility of the content. 0 = off-question / empty; 2 = generic but on-topic; 4 = directly answers with a credible, concrete story.
+  - depth -> SPECIFICITY: named deals, metrics, roles, real detail. 0 = all generic; 2 = some detail; 4 = concrete names / numbers / your-own-role throughout.
+  - structure -> STAR / narrative arc. 0 = rambling; 2 = loose arc; 4 = clean situation-task-action-result or tight progression.
+  - communication: delivery, energy, conviction. Same scale as technical.
+
+Score honestly and use the FULL range - do not cluster at 3-4. A weak block should show 0-1s on the axes it failed; a strong block earns 4s. The letter the candidate sees comes straight from these numbers, so they must match your written feedback. On any non-close turn, set every rubric axis to 0 (it is ignored).
 
 FEEDBACK RUBRIC (close_block only):
 You must produce ONE concrete coaching action in 'feedback_detail.how_to_improve' and a 1-2 sentence rolled-up 'feedback' summary, plus a CALIBRATED set of strengths/weaknesses bullets. Do not pad bullets to look balanced. A great answer can ship with zero weaknesses; a poor answer can ship with zero strengths.
@@ -276,6 +295,7 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     `MAX_SCORE_FOR_THIS_TURN: ${ctx.maxScoreForThisTurn} (the candidate's latest answer must be scored 0..${ctx.maxScoreForThisTurn} inclusive)`,
     `Difficulty: ${ctx.difficulty ?? 'n/a'}`,
     `Is case-study block: ${ctx.isCase ? 'yes' : 'no'}`,
+    `RUBRIC_KIND: ${ctx.rubricKind} (when you close this block, score the four rubric axes using the ${ctx.rubricKind.toUpperCase()} interpretation from BLOCK RUBRIC, and echo this value in rubric_kind)`,
     `Follow-ups asked so far: ${ctx.followUpsSoFar} / max ${ctx.maxFollowUps}`,
     `Follow-ups remaining: ${Math.max(0, ctx.maxFollowUps - ctx.followUpsSoFar)}`,
     `When grading, use the FULL scale (A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F) and prefer +/- variants over bare letters when the answer is between tiers.`,
@@ -299,7 +319,7 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
 export const TURN_SCHEMA: Record<string, unknown> = {
   type: 'object',
   additionalProperties: false,
-  required: ['kind', 'message_type', 'reasoning', 'reply', 'follow_up_question', 'feedback', 'feedback_detail', 'strengths', 'weaknesses', 'current_answer_score', 'current_answer_feedback_detail'],
+  required: ['kind', 'message_type', 'reasoning', 'reply', 'follow_up_question', 'feedback', 'feedback_detail', 'strengths', 'weaknesses', 'current_answer_score', 'current_answer_feedback_detail', 'rubric_kind', 'rubric'],
   properties: {
     kind: {
       type: 'string',
@@ -361,6 +381,23 @@ export const TURN_SCHEMA: Record<string, unknown> = {
         how_to_improve: { type: 'string', description: '1-2 sentences. The single most leveraged next coaching action tied to the latest answer. Concrete and drillable.' },
       },
     },
+    rubric_kind: {
+      type: 'string',
+      enum: ['technical', 'fit'],
+      description: 'Echo the RUBRIC_KIND given in the user message verbatim. It selects how the rubric axes are interpreted.',
+    },
+    rubric: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['correctness', 'depth', 'structure', 'communication'],
+      description: 'Used ONLY when kind=close_block - THIS sets the block grade. Integer 0-4 per axis, interpreted per RUBRIC_KIND (see BLOCK RUBRIC in the system prompt). On non-close turns set every axis to 0 (ignored).',
+      properties: {
+        correctness: { type: 'integer', minimum: 0, maximum: 4, description: 'Technical: factual/mechanical accuracy of the finance. Fit: SUBSTANCE - relevance & credibility of the content. 0-4.' },
+        depth: { type: 'integer', minimum: 0, maximum: 4, description: 'Technical: edge cases, numbers, second-order effects. Fit: SPECIFICITY - named deals, metrics, your-role detail vs generic. 0-4.' },
+        structure: { type: 'integer', minimum: 0, maximum: 4, description: 'Technical: framework-first organization. Fit: STAR / clean narrative arc. 0-4.' },
+        communication: { type: 'integer', minimum: 0, maximum: 4, description: 'Delivery, concision, conviction; leads with the answer and defends it. 0-4.' },
+      },
+    },
   },
 };
 
@@ -383,6 +420,8 @@ export type TurnAIResult = {
   current_answer_feedback_detail: {
     how_to_improve: string;
   };
+  rubric_kind: RubricKind;
+  rubric: RubricScores;
 };
 
 // ----------------- finalize prompts -----------------
@@ -660,6 +699,58 @@ export function percentToLetter(pct: number): LetterGrade {
   if (hundred >= 30) return 'C';
   if (hundred >= 20) return 'D';
   return 'F';
+}
+
+// ============================================================
+// BLOCK RUBRIC - the source of the block grade.
+// The candidate's per-answer points (current_answer_score) drive only the
+// follow-up routing decision. The block letter is derived here, from four
+// axes the model scores 0-4 at close_block, weighted by level + rubric kind.
+// ============================================================
+
+export type RubricKind = 'technical' | 'fit';
+export const RUBRIC_AXES = ['correctness', 'depth', 'structure', 'communication'] as const;
+export type RubricAxis = (typeof RUBRIC_AXES)[number];
+export type RubricScores = Record<RubricAxis, number>;
+
+// Weights sum to 1 within each (kind, level). Intern de-weights depth;
+// associate up-weights communication (delivery / conviction under pushback).
+const RUBRIC_WEIGHTS: Record<RubricKind, Record<Level, RubricScores>> = {
+  technical: {
+    intern:    { correctness: 0.40, depth: 0.15, structure: 0.25, communication: 0.20 },
+    analyst:   { correctness: 0.40, depth: 0.30, structure: 0.15, communication: 0.15 },
+    associate: { correctness: 0.35, depth: 0.30, structure: 0.10, communication: 0.25 },
+  },
+  fit: {
+    intern:    { correctness: 0.35, depth: 0.20, structure: 0.25, communication: 0.20 },
+    analyst:   { correctness: 0.35, depth: 0.30, structure: 0.15, communication: 0.20 },
+    associate: { correctness: 0.30, depth: 0.30, structure: 0.15, communication: 0.25 },
+  },
+};
+
+// Behavioral / fit categories use the fit rubric (substance / specificity /
+// STAR / delivery); everything else uses the technical rubric.
+export function rubricKindForCategory(category: string | null | undefined): RubricKind {
+  const c = (category ?? '').toLowerCase();
+  if (c.includes('behav') || c.includes('fit') || c.includes('motiv')) return 'fit';
+  return 'technical';
+}
+
+export function isValidRubric(r: unknown): r is RubricScores {
+  if (!r || typeof r !== 'object') return false;
+  return RUBRIC_AXES.every((a) => typeof (r as Record<string, unknown>)[a] === 'number' && Number.isFinite((r as Record<string, number>)[a]));
+}
+
+/**
+ * Convert a 0-4-per-axis rubric into a 0..1 percentage using the level/kind
+ * weight table. Axis scores are clamped to [0, 4].
+ */
+export function rubricToPct(r: RubricScores, kind: RubricKind, level: Level): number {
+  const w = RUBRIC_WEIGHTS[kind][level];
+  const clamp = (n: number) => Math.max(0, Math.min(4, Number(n) || 0));
+  let pct = 0;
+  for (const a of RUBRIC_AXES) pct += (clamp(r[a]) / 4) * w[a];
+  return Math.max(0, Math.min(1, pct));
 }
 
 // ============================================================

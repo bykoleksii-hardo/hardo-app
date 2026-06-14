@@ -6,6 +6,7 @@ import {
   TURN_SCHEMA,
   buildTurnUserPrompt,
   maxScoreForTurn,
+  rubricKindForCategory,
   type TurnAIResult,
   type TurnContext,
 } from '@/lib/interview-prompts';
@@ -77,6 +78,7 @@ export const POST = withLogging('POST /api/admin/question-test', async (request:
             subtopic,
             difficulty,
             isCase,
+            rubricKind: rubricKindForCategory(category),
             followUpsSoFar,
             maxFollowUps,
             maxScoreForThisTurn: maxScoreForTurn(followUpsSoFar, isCase),
