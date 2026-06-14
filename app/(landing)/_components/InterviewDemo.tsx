@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from 'react';
 
-/* A self-running demo of one interview *block* for the hero. Plays a full
-   pass — question → voice answer → transcript → follow-up → voice answer →
-   transcript → grading — then shows the block result the way the real
-   summary does: a letter grade with a short read, what went well, and what
-   to fix. Reuses the landing voice-card (.vcard) look and mirrors the
-   product's per-block feedback shape. Honours prefers-reduced-motion by
-   showing the block result statically. */
+/* A self-running demo of one interview *block* for the hero. Plays a full,
+   unhurried pass at the real product's depth — one question plus two
+   follow-ups (the normal max), each asked → answered by voice → transcribed
+   → graded — then settles on the block result the way the real summary
+   renders it: a grade, a short read, what went well / what to fix, and the
+   follow-up depth you held. Reuses the landing voice-card (.vcard) look.
+   Honours prefers-reduced-motion by showing the result statically. */
 
 const BLOCK = { n: '02', name: 'Valuation', level: 'Analyst' };
+const MAX_FOLLOWUPS = 2; // matches the product's NORMAL_MAX_FOLLOWUPS
 
 type Turn = { kind: 'Question' | 'Follow-up'; q: string; a: string };
 const TURNS: Turn[] = [
@@ -21,23 +22,28 @@ const TURNS: Turn[] = [
   },
   {
     kind: 'Follow-up',
-    q: 'Good. What discount rate would you use, and why?',
-    a: "Given the binary clinical risk, I'd push the rate to 12–15% — well above a mature pharma.",
+    q: 'What discount rate would you put on those cash flows, and why?',
+    a: "Given the binary clinical risk, 12–15% — well above a mature pharma.",
+  },
+  {
+    kind: 'Follow-up',
+    q: 'And how would you sanity-check that number?',
+    a: 'Cross-check against recent comparable deals — EV per pipeline asset, adjusted for stage.',
   },
 ];
 
-/* Block result — same shape the real summary renders: grade + a read,
-   what went well (+), what to fix (−). */
+/* Block result — the shape the real summary renders: a grade, a read, what
+   went well (+), what to fix (−), and the follow-up depth held. */
 const RESULT = {
   grade: 'A−',
-  meta: '2 questions · 1 follow-up · held to depth 1',
   summary:
-    'Strong block. You framed a pre-revenue asset the right way — risk-adjusted, not a vanilla DCF — and reached for probability-weighting without being prompted.',
+    'Strong block. You framed a pre-revenue asset the right way — risk-adjusted, not a vanilla DCF — and held the thread through both follow-ups.',
   strengths: [
-    'Led with risk-adjusted NPV, weighted by phase — the right lens for one clinical asset.',
-    'Pushed the discount rate to 12–15% for the binary clinical risk.',
+    'Led with risk-adjusted NPV, weighted by phase.',
+    'Sanity-checked with stage-adjusted deal comps unprompted.',
   ],
-  fixes: ['Anchor that 12–15% to a built-up rate, not a gut number.'],
+  fixes: ['Anchor the 12–15% to a built-up rate, not a gut number.'],
+  progress: 'Q 02 / 12',
 };
 
 type Sub = 'ask' | 'rec' | 'tx';
@@ -53,10 +59,20 @@ const STEPS: Step[] = [
   { stage: 'turn', turn: 1, sub: 'ask' },
   { stage: 'turn', turn: 1, sub: 'rec' },
   { stage: 'turn', turn: 1, sub: 'tx' },
+  { stage: 'turn', turn: 2, sub: 'ask' },
+  { stage: 'turn', turn: 2, sub: 'rec' },
+  { stage: 'turn', turn: 2, sub: 'tx' },
   { stage: 'grading' },
   { stage: 'result' },
 ];
-const DUR = [2100, 2000, 3000, 1700, 1900, 2800, 1600, 5600];
+// Unhurried pacing — each part gets time to read before it moves on.
+const DUR = [2300, 2200, 3200, 1900, 2000, 2900, 1900, 2000, 2900, 1900, 7000];
+
+// Smooth, gentle enter used across the demo.
+const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
+function enter(ms = 620, delay = 0): React.CSSProperties {
+  return { animation: `fade-rise ${ms}ms ${EASE} ${delay}ms both` };
+}
 
 // Grade-chip tone, matching the real per-question scorecard chip.
 function gradeTone(g: string): string {
@@ -69,6 +85,10 @@ function gradeTone(g: string): string {
 }
 
 const WAVE = [10, 18, 26, 14, 22, 30, 16, 24, 12, 20, 28, 15, 23, 11, 19, 27, 17, 25, 13, 21, 29, 14, 18, 22];
+
+function turnLabel(i: number): string {
+  return i === 0 ? 'Question' : `Follow-up ${i}`;
+}
 
 function tab(step: Step): { t: string; cls: string; dot: boolean } {
   if (step.stage === 'grading') return { t: 'Grading', cls: 'iv-card__tab--thinking', dot: true };
@@ -112,11 +132,11 @@ export default function InterviewDemo() {
   const step: Step = reduced ? { stage: 'result' } : STEPS[idx];
   const tb = tab(step);
 
-  // Turns that are fully done (collapsed above the active area).
+  // Turns fully done (collapsed above the active area).
   const doneTurns = step.stage === 'turn' ? step.turn : TURNS.length;
 
   return (
-    <div className="vcard !rotate-0" style={{ minHeight: 472 }}>
+    <div className="vcard !rotate-0" style={{ minHeight: 512 }}>
       <div
         className={`vcard__tab ${tb.cls}`}
         role="status"
@@ -133,7 +153,7 @@ export default function InterviewDemo() {
           {TURNS.map((_, i) => (
             <span
               key={i}
-              className="inline-block w-1.5 h-1.5 rounded-full transition-colors duration-500"
+              className="inline-block w-1.5 h-1.5 rounded-full transition-colors duration-700"
               style={{ background: i < doneTurns ? 'var(--gold)' : 'rgba(14,30,54,0.18)' }}
             />
           ))}
@@ -147,11 +167,11 @@ export default function InterviewDemo() {
         <div className="mt-4">
           {/* completed turns, collapsed */}
           {TURNS.slice(0, doneTurns).map((t, i) => (
-            <div key={i} className="anim-fade flex items-start gap-2.5 py-2 border-b border-line/70">
+            <div key={i} className="flex items-start gap-2.5 py-1.5 border-b border-line/70" style={enter(520)}>
               <span className="mt-0.5 text-gold text-[12px] leading-none" aria-hidden>{'✓'}</span>
               <div className="min-w-0">
-                <div className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-muted">{t.kind}</div>
-                <div className="text-[13px] text-ink/70 leading-snug truncate">{t.q}</div>
+                <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted">{turnLabel(i)}</div>
+                <div className="text-[12.5px] text-ink/70 leading-snug truncate">{t.q}</div>
               </div>
             </div>
           ))}
@@ -161,7 +181,7 @@ export default function InterviewDemo() {
 
           {/* grading */}
           {step.stage === 'grading' && (
-            <div className="anim-fade mt-6 flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+            <div className="mt-5 flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.18em] text-muted" style={enter()}>
               <span className="iv-card__tab-dot" style={{ background: 'rgba(14,30,54,0.5)' }} aria-hidden />
               Grading the {BLOCK.name} block{'…'}
             </div>
@@ -175,16 +195,18 @@ export default function InterviewDemo() {
 function ActiveTurn({ step, elapsed }: { step: Extract<Step, { stage: 'turn' }>; elapsed: number }) {
   const t = TURNS[step.turn];
   const isFollow = t.kind === 'Follow-up';
-  const qChars = step.sub === 'ask' ? Math.floor(elapsed / 24) : t.q.length;
-  const aChars = step.sub === 'tx' ? Math.floor(elapsed / 24) : 0;
+  const qChars = step.sub === 'ask' ? Math.floor(elapsed / 26) : t.q.length;
+  const aChars = step.sub === 'tx' ? Math.floor(elapsed / 28) : 0;
   const recSec = step.sub === 'rec' ? Math.floor(elapsed / 1000) : 0;
 
-  // Keyed on the turn only — the question stays mounted across sub-phases, so
-  // only the meter / transcript fades in. Smoother than remounting each phase.
+  // Keyed on the turn only — it stays mounted across ask/record/transcribe,
+  // so only the meter or transcript fades in. Smoother than remounting.
   return (
-    <div key={step.turn} className="anim-fade mt-3">
+    <div key={step.turn} className="mt-3" style={enter()}>
       {isFollow && (
-        <div className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-gold mb-1.5">Follow-up</div>
+        <div className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-gold mb-1.5">
+          Follow-up {step.turn} {'·'} of {MAX_FOLLOWUPS}
+        </div>
       )}
       <p className={isFollow ? 'font-serif italic text-[19px] leading-snug text-ink/90' : 'vcard__question !mt-0 !mb-0'}>
         {t.q.slice(0, qChars)}
@@ -192,7 +214,7 @@ function ActiveTurn({ step, elapsed }: { step: Extract<Step, { stage: 'turn' }>;
       </p>
 
       {step.sub === 'rec' && (
-        <div className="vcard__meter mt-5 anim-fade">
+        <div className="vcard__meter mt-5" style={enter()}>
           <div className="vcard__mic" aria-hidden>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="9" y="3" width="6" height="12" rx="3" />
@@ -212,7 +234,7 @@ function ActiveTurn({ step, elapsed }: { step: Extract<Step, { stage: 'turn' }>;
       )}
 
       {step.sub === 'tx' && (
-        <div className="anim-fade">
+        <div style={enter()}>
           <div className="vcard__transcript-label mt-5">Whisper {'·'} transcript</div>
           <div className="vcard__transcript">
             {t.a.slice(0, aChars)}
@@ -226,49 +248,66 @@ function ActiveTurn({ step, elapsed }: { step: Extract<Step, { stage: 'turn' }>;
 
 function BlockResult({ reduced }: { reduced: boolean }) {
   // Stagger the sections in unless reduced-motion is requested.
-  const at = (ms: number): React.CSSProperties =>
-    reduced ? {} : { animation: `fade-rise 460ms cubic-bezier(0.16,1,0.3,1) ${ms}ms both` };
+  const at = (ms: number): React.CSSProperties => (reduced ? {} : enter(620, ms));
 
   return (
     <div className="mt-4">
       <div className="flex items-end justify-between gap-4 border-b border-line pb-3" style={at(40)}>
         <div className="min-w-0">
-          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Block score {'·'} {BLOCK.name}</div>
-          <div className="mt-1 font-mono text-[9.5px] uppercase tracking-[0.14em] text-ink/40">{RESULT.meta}</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">Block complete</div>
+          <div className="mt-1 font-serif text-[20px] leading-none">{BLOCK.name}</div>
         </div>
         <div className={`shrink-0 border ${gradeTone(RESULT.grade)} px-3 py-1.5 text-center min-w-[56px] ${reduced ? '' : 'rm-grade-pop'}`}>
           <div className="font-serif text-2xl leading-none">{RESULT.grade}</div>
-          <div className="text-[8.5px] tracking-[0.22em] mt-1 opacity-75">GRADE</div>
+          <div className="text-[8.5px] tracking-[0.22em] mt-1 opacity-75">BLOCK</div>
         </div>
       </div>
 
-      <div className="mt-4" style={at(160)}>
+      <div className="mt-3.5" style={at(200)}>
         <div className="font-mono text-[10px] tracking-[0.22em] text-gold mb-1.5">{'—'} FEEDBACK</div>
-        <p className="text-[14px] leading-[1.6] text-ink/85">{RESULT.summary}</p>
+        <p className="text-[13.5px] leading-[1.55] text-ink/85">{RESULT.summary}</p>
       </div>
 
-      <div className="mt-4" style={at(300)}>
+      <div className="mt-3.5" style={at(380)}>
         <div className="font-mono text-[9.5px] tracking-[0.22em] text-[#1F6F3D] mb-1.5">{'—'} WHAT WENT WELL</div>
-        <ul className="space-y-1 text-[13px] leading-[1.5] text-ink/85">
+        <ul className="space-y-1 text-[13px] leading-[1.45] text-ink/85">
           {RESULT.strengths.map((s, i) => (
             <li key={i} className="flex gap-2">
-              <span className="text-[#1F6F3D] shrink-0 leading-[1.5]">+</span>
+              <span className="text-[#1F6F3D] shrink-0 leading-[1.45]">+</span>
               <span>{s}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="mt-4" style={at(440)}>
+      <div className="mt-3.5" style={at(540)}>
         <div className="font-mono text-[9.5px] tracking-[0.22em] text-[#9C2E2E] mb-1.5">{'—'} WHAT TO FIX</div>
-        <ul className="space-y-1 text-[13px] leading-[1.5] text-ink/85">
+        <ul className="space-y-1 text-[13px] leading-[1.45] text-ink/85">
           {RESULT.fixes.map((f, i) => (
             <li key={i} className="flex gap-2">
-              <span className="text-[#9C2E2E] shrink-0 leading-[1.5]">{'−'}</span>
+              <span className="text-[#9C2E2E] shrink-0 leading-[1.45]">{'−'}</span>
               <span>{f}</span>
             </li>
           ))}
         </ul>
+      </div>
+
+      {/* follow-up depth — a real measured axis, not invented sub-grades */}
+      <div className="mt-4 flex items-center justify-between border-t border-line pt-3" style={at(700)}>
+        <div className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-muted">Follow-up depth</div>
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1" aria-hidden>
+            {Array.from({ length: MAX_FOLLOWUPS }).map((_, i) => (
+              <span key={i} className="inline-block w-2 h-2 rounded-full" style={{ background: 'var(--gold)' }} />
+            ))}
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink/65">held to {MAX_FOLLOWUPS} / {MAX_FOLLOWUPS}</span>
+        </div>
+      </div>
+
+      <div className="mt-3 border-t border-line pt-2.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-muted" style={at(820)}>
+        <span>Graded to the director bar</span>
+        <span>{RESULT.progress}</span>
       </div>
     </div>
   );
