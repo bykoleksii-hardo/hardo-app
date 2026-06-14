@@ -21,6 +21,7 @@ export default function LandingFooter({ signedIn = false, isPaid = false }: Prop
         <div>
           <div className="kicker mb-3">Product</div>
           <ul className="space-y-2 text-ink-2">
+            <li><Link href="/ai-investment-banking-mock-interview" className="hover:text-ink">AI Mock Interview</Link></li>
             <li><a href="/#how" className="hover:text-ink">How it works</a></li>
             <li><a href="/#voice" className="hover:text-ink">Voice mode</a></li>
             {!isPaid && (
