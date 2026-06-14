@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import FeedbackButtons from './FeedbackButtons';
-import { FeedbackPanel } from './feedbackUi';
+import { FeedbackPanel, RubricBars, buildRubricAxes } from './feedbackUi';
 
 type StepRow = {
   id: string;
@@ -29,11 +29,15 @@ type FeedbackDetail = {
   model_answer_pointer?: string;
 };
 
+type RubricScores = { correctness: number; depth: number; structure: number; communication: number };
+
 type ParsedFeedback = {
   summary?: string;
   strengths?: string[];
   weaknesses?: string[];
   detail?: FeedbackDetail | null;
+  rubric?: RubricScores | null;
+  rubric_kind?: 'technical' | 'fit';
 };
 
 function formatPace(step: { created_at: string | null; answered_at: string | null; time_limit_seconds: number | null; was_overtime: boolean | null; }): { text: string; over: boolean } | null {
@@ -52,19 +56,22 @@ function formatPace(step: { created_at: string | null; answered_at: string | nul
   return { text: fmt(elapsed), over };
 }
 
-function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[]; detail: FeedbackDetail | null } | null {
+function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[]; detail: FeedbackDetail | null; rubric: RubricScores | null; rubricKind: 'technical' | 'fit' } | null {
   if (!raw) return null;
   try {
     const j = JSON.parse(raw) as ParsedFeedback;
     const d = (j && typeof j === 'object' && j.detail && typeof j.detail === 'object') ? j.detail as FeedbackDetail : null;
+    const r = (j && typeof j === 'object' && j.rubric && typeof j.rubric === 'object') ? j.rubric as RubricScores : null;
     return {
       summary: typeof j.summary === 'string' ? j.summary : '',
       strengths: Array.isArray(j.strengths) ? j.strengths : [],
       weaknesses: Array.isArray(j.weaknesses) ? j.weaknesses : [],
       detail: d,
+      rubric: r,
+      rubricKind: j.rubric_kind === 'fit' ? 'fit' : 'technical',
     };
   } catch {
-    return { summary: raw, strengths: [], weaknesses: [], detail: null };
+    return { summary: raw, strengths: [], weaknesses: [], detail: null, rubric: null, rubricKind: 'technical' };
   }
 }
 
@@ -295,6 +302,15 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                         <p className="font-serif text-[15.5px] leading-[1.6] text-ink">{fb.summary}</p>
                       </div>
                     )}
+                    {(() => {
+                      const axes = fb ? buildRubricAxes(fb.rubric as unknown as Record<string, number> | null, fb.rubricKind) : null;
+                      return axes ? (
+                        <div className="mt-4 rounded-md border border-ink/10 bg-paper/50 px-4 py-3.5">
+                          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink/45 mb-3">Score breakdown</div>
+                          <RubricBars axes={axes} />
+                        </div>
+                      ) : null;
+                    })()}
                     {fb && (fb.strengths.length > 0 || fb.weaknesses.length > 0) && (
                       <div className="mt-4 grid md:grid-cols-2 gap-3">
                         {fb.strengths.length > 0 && (

@@ -157,6 +157,28 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
   const isCompleted = interview.status === 'completed' && !!summary;
   const answeredCount = mainSteps.filter(s => s.user_answer).length;
+
+  // Aggregate the per-block rubric axes (0-4) into an interview-wide skill
+  // profile. Blocks graded before the rubric existed simply don't contribute.
+  const rubricProfile = (() => {
+    const keys = ['correctness', 'depth', 'structure', 'communication'] as const;
+    const labels: Record<string, string> = { correctness: 'Correctness', depth: 'Depth', structure: 'Structure', communication: 'Communication' };
+    const sums: Record<string, number> = { correctness: 0, depth: 0, structure: 0, communication: 0 };
+    let n = 0;
+    for (const s of mainSteps) {
+      if (!s.ai_feedback) continue;
+      try {
+        const j = JSON.parse(s.ai_feedback) as { rubric?: Record<string, number> };
+        const r = j.rubric;
+        if (r && keys.every(k => typeof r[k] === 'number' && Number.isFinite(r[k]))) {
+          for (const k of keys) sums[k] += r[k];
+          n++;
+        }
+      } catch { /* legacy / non-JSON feedback */ }
+    }
+    if (n === 0) return null;
+    return keys.map(k => ({ key: k, label: labels[k], value: sums[k] / n }));
+  })();
   const hireMeta = summary ? HIRE_LABEL[summary.hire_recommendation] : null;
   const hireToneClass = hireMeta?.tone === 'pos' ? 'text-[#1F6F3D]'
     : hireMeta?.tone === 'neutral_pos' ? 'text-[#3F7A4A]'
@@ -241,6 +263,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
               prepPlan={final.next_steps_plan}
               strengths={summary.overall_strengths}
               weaknesses={summary.overall_weaknesses}
+              rubricProfile={rubricProfile}
             />
           );
         })()}

@@ -4,7 +4,7 @@
    of prose: tinted panels with icons, bulleted strengths/weaknesses, and
    numbered prep steps. */
 
-import { Check, Arrow, FeedbackPanel } from './feedbackUi';
+import { Check, Arrow, FeedbackPanel, RubricBars, type RubricAxisView } from './feedbackUi';
 
 type Props = {
   summary: string;
@@ -13,6 +13,7 @@ type Props = {
   prepPlan: string[];
   strengths: string;
   weaknesses: string;
+  rubricProfile?: RubricAxisView[] | null;
 };
 
 // Split a prose blob into scannable items. Prefer real line breaks / bullet
@@ -40,7 +41,7 @@ function Highlight({ tone, label, text }: { tone: 'pos' | 'neg'; label: string; 
   );
 }
 
-export default function OverallFeedback({ summary, strongestMoment, weakestBlock, prepPlan, strengths, weaknesses }: Props) {
+export default function OverallFeedback({ summary, strongestMoment, weakestBlock, prepPlan, strengths, weaknesses, rubricProfile }: Props) {
   const strengthItems = toBullets(strengths);
   const weaknessItems = toBullets(weaknesses);
 
@@ -50,6 +51,13 @@ export default function OverallFeedback({ summary, strongestMoment, weakestBlock
 
       {summary && (
         <p className="font-serif text-[17px] sm:text-[19px] leading-[1.55] text-ink mb-6 whitespace-pre-wrap">{summary}</p>
+      )}
+
+      {rubricProfile && rubricProfile.length > 0 && (
+        <div className="rounded-md border border-ink/10 bg-paper/50 px-5 py-4 mb-3">
+          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink/45 mb-3">Skill profile <span className="text-ink/30 normal-case tracking-normal">· averaged across blocks</span></div>
+          <RubricBars axes={rubricProfile} />
+        </div>
       )}
 
       {(strongestMoment || weakestBlock) && (

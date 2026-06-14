@@ -62,6 +62,10 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     return NextResponse.json({ error: 'nothing to finalize' }, { status: 400 });
   }
 
+  const RUBRIC_AXES = ['correctness', 'depth', 'structure', 'communication'] as const;
+  const axisSums: Record<string, number> = { correctness: 0, depth: 0, structure: 0, communication: 0 };
+  let axisN = 0;
+
   const lines: string[] = [
     `Candidate level: ${interview.candidate_level}`,
     `Total base questions: ${baseSteps.length}`,
@@ -74,12 +78,35 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     lines.push(`\nBlock ${b.order_index} [${cat}] grade=${b.ai_grade ?? '-'}`);
     lines.push(`Q: ${q}`);
     if (b.user_answer) lines.push(`A: ${b.user_answer.slice(0, 600)}`);
-    if (b.ai_feedback) lines.push(`Feedback: ${b.ai_feedback.slice(0, 400)}`);
+    // Surface the rubric axes (0-4) for this block and fold them into the aggregate.
+    if (b.ai_feedback) {
+      try {
+        const fb = JSON.parse(b.ai_feedback) as { rubric?: Record<string, number> };
+        const r = fb.rubric;
+        if (r && RUBRIC_AXES.every(k => typeof r[k] === 'number' && Number.isFinite(r[k]))) {
+          lines.push(`Rubric (0-4): correctness ${r.correctness}, depth ${r.depth}, structure ${r.structure}, communication ${r.communication}`);
+          for (const k of RUBRIC_AXES) axisSums[k] += r[k];
+          axisN++;
+        }
+      } catch { /* legacy / non-JSON feedback */ }
+      lines.push(`Feedback: ${b.ai_feedback.slice(0, 400)}`);
+    }
     const followUps = steps.filter(s => s.parent_step_id === b.id && s.is_follow_up);
     for (const f of followUps) {
       lines.push(`  - FU: ${(f.custom_question ?? '').slice(0, 200)}`);
       if (f.user_answer) lines.push(`    A: ${f.user_answer.slice(0, 400)}`);
     }
+  }
+
+  // Interview-wide skill profile (averaged axes) so the verdict + next steps can
+  // target the candidate's weakest dimension by name.
+  if (axisN > 0) {
+    const avg = (k: string) => (axisSums[k] / axisN).toFixed(1);
+    const weakest = [...RUBRIC_AXES].sort((a, b) => axisSums[a] - axisSums[b])[0];
+    lines.push(
+      ``,
+      `SKILL PROFILE (avg of ${axisN} block rubrics, 0-4): correctness ${avg('correctness')}, depth ${avg('depth')}, structure ${avg('structure')}, communication ${avg('communication')}. Weakest axis: ${weakest}.`,
+    );
   }
 
   let ai: FinalizeAIResult;
