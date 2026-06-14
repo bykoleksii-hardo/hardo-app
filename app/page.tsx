@@ -10,7 +10,7 @@ import VoiceMode from './(landing)/_components/VoiceMode';
 import Pricing from './(landing)/_components/Pricing';
 import KnowledgeTeaser from './(landing)/_components/KnowledgeTeaser';
 import FAQ from './(landing)/_components/FAQ';
-import Scorecard from './(landing)/_components/Scorecard';
+import InterviewDemo from './(landing)/_components/InterviewDemo';
 import TheRoom from './(landing)/_components/TheRoom';
 import Parallax from './_components/Parallax';
 import JsonLd from './_components/JsonLd';
@@ -86,7 +86,7 @@ function AnonHero() {
             <span>{'\u00b7'} Letter grade per answer</span>
           </div>
         </div>
-        <Scorecard />
+        <InterviewDemo />
       </div>
       <div className="md:hidden fixed inset-x-0 bottom-0 z-50 border-t border-line bg-paper/95 backdrop-blur px-4 py-3 flex items-center justify-between gap-3">
         <span className="text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">No card required</span>
@@ -133,7 +133,7 @@ function FreeHero({ remaining }: { remaining: number }) {
             <span>{'\u00b7'} Letter grade per answer</span>
           </div>
         </div>
-        <Scorecard />
+        <InterviewDemo />
       </div>
     </section>
   );
@@ -173,7 +173,7 @@ function PaidHero() {
             <span>{'\u00b7'} Delivery score</span>
           </div>
         </div>
-        <Scorecard />
+        <InterviewDemo />
       </div>
     </section>
   );

@@ -1016,6 +1016,18 @@ body.font-sans {
 .d5 { animation-delay: 600ms; }
 .d6 { animation-delay: 780ms; }
 
+/* --- Demo phase transitions (hero InterviewDemo) --- */
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-fade { animation: fade-rise 460ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes grade-pop {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.rm-grade-pop { animation: grade-pop 620ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both; }
+
 /* Gold underline that draws itself under a heading word */
 .gold-underline { position: relative; display: inline-block; }
 .gold-underline::after {
