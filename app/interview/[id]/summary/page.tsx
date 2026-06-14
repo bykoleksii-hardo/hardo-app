@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Brand from '@/app/_components/Brand';
 import ShareLinkButton from './share-button';
 import SummaryQuestions from './SummaryQuestions';
+import OverallFeedback from './OverallFeedback';
 import NextStepsCard from './NextStepsCard';
 import CountUp from '@/app/_components/CountUp';
 import { getSupabaseServer } from '@/lib/supabase/server';
@@ -230,57 +231,19 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
 
-        {isCompleted && summary && (
-          <div className="border border-gold/30 bg-cream/30 p-6 mb-12">
-            <div className="text-[11px] tracking-[0.22em] text-gold mb-3">— OVERALL FEEDBACK</div>
-            {(() => {
-              const final = parseFinalFeedback(summary.final_feedback);
-              return (
-                <>
-                  {final.summary && (
-                    <p className="text-ink/85 text-[14px] leading-[1.7] whitespace-pre-wrap mb-5">{final.summary}</p>
-                  )}
-                  {(final.weakest_block_label || final.strongest_moment) && (
-                    <div className="grid sm:grid-cols-2 gap-4 mb-5">
-                      {final.strongest_moment && (
-                        <div className="border border-[#1F6F3D]/30 bg-[#1F6F3D]/[0.04] rounded-md px-4 py-3">
-                          <div className="text-[10px] tracking-[0.22em] text-[#1F6F3D] mb-1">STRONGEST MOMENT</div>
-                          <p className="text-ink/85 text-[13px] leading-[1.55]">{final.strongest_moment}</p>
-                        </div>
-                      )}
-                      {final.weakest_block_label && (
-                        <div className="border border-[#9C2E2E]/30 bg-[#9C2E2E]/[0.04] rounded-md px-4 py-3">
-                          <div className="text-[10px] tracking-[0.22em] text-[#9C2E2E] mb-1">WEAKEST BLOCK</div>
-                          <p className="text-ink/85 text-[13px] leading-[1.55]">{final.weakest_block_label}</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {final.next_steps_plan.length > 0 && (
-                    <div className="border border-gold/30 bg-gold/[0.05] rounded-md px-5 py-4 mb-5">
-                      <div className="text-[10px] tracking-[0.22em] text-gold mb-2">YOUR PREP PLAN</div>
-                      <ol className="list-decimal list-inside text-ink/85 text-[14px] leading-[1.7] space-y-1">
-                        {final.next_steps_plan.map((step, i) => (
-                          <li key={i}>{step}</li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </>
-              );
-            })()}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <div className="text-[11px] tracking-[0.22em] text-[#1F6F3D] mb-2">— STRENGTHS</div>
-                <p className="text-ink/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_strengths}</p>
-              </div>
-              <div>
-                <div className="text-[11px] tracking-[0.22em] text-[#9C2E2E] mb-2">— WEAKNESSES</div>
-                <p className="text-ink/80 text-[14px] leading-[1.7] whitespace-pre-wrap">{summary.overall_weaknesses}</p>
-              </div>
-            </div>
-          </div>
-        )}
+        {isCompleted && summary && (() => {
+          const final = parseFinalFeedback(summary.final_feedback);
+          return (
+            <OverallFeedback
+              summary={final.summary}
+              strongestMoment={final.strongest_moment}
+              weakestBlock={final.weakest_block_label}
+              prepPlan={final.next_steps_plan}
+              strengths={summary.overall_strengths}
+              weaknesses={summary.overall_weaknesses}
+            />
+          );
+        })()}
 
         <SummaryQuestions steps={steps} isCompleted={isCompleted} initialFeedback={initialFeedback} />
 
