@@ -62,7 +62,7 @@ function AnonHero() {
         <div>
           <div className="eyebrow anim-rise anim-dash d1 mb-5">AI mock interviews {'\u00b7'} Investment banking</div>
           <h1 className="anim-rise d2 font-serif text-[56px] md:text-[78px] font-light leading-[1.02] tracking-[-0.022em] max-w-[16ch]">
-            Practice against the bar.{' '}
+            Practice investment banking mock interviews against the bar.{' '}
             <span className="italic-gold gold-underline">Not a chatbot</span>
             <span className="text-gold">.</span>
           </h1>
