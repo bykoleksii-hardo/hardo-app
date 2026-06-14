@@ -427,9 +427,9 @@ export default function LoginClient() {
           </p>
 
           <ol className="anim-rise d5 space-y-6 text-sm">
-            <Step n="01" title="Pick a vertical">M&amp;A, LBO, restructuring, valuation — or random.</Step>
-            <Step n="02" title="Run the drill">Typed answers, technicals, fit. The interviewer presses back.</Step>
-            <Step n="03" title="Read the scorecard">Specific feedback on math, structure, and what an MD would actually say.</Step>
+            <Step n="01" title="Pick your room">Intern, Analyst, or Associate — each graded against its own bar.</Step>
+            <Step n="02" title="Run the drill">Twelve questions by voice or text. The interviewer presses back with unscripted follow-ups.</Step>
+            <Step n="03" title="Read the scorecard">A letter grade per answer, follow-up depth, and what an MD would actually say.</Step>
           </ol>
         </div>
       </div>
@@ -454,7 +454,7 @@ function SubmitButton({ loading, children }: { loading: boolean; children: React
     <button
       type="submit"
       disabled={loading}
-      className="w-full bg-[#B88736] text-[#FBF7EE] font-medium py-3.5 px-6 hover:bg-[#B88736] transition disabled:opacity-50 disabled:cursor-not-allowed tracking-wide"
+      className="w-full bg-[#B88736] text-[#FBF7EE] font-medium py-3.5 px-6 hover:bg-[#9C6F1E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed tracking-wide"
     >
       {loading ? 'Working...' : children}
     </button>
