@@ -1,21 +1,8 @@
 import Reveal from '@/app/_components/Reveal';
-type Item = { q: string; a: string };
-
-const baseItems: Item[] = [
-  { q: 'How long is one interview?', a: '12 questions. Plan for roughly 30\u201345 minutes if you type, 20\u201330 if you answer by voice. You can pause between questions.' },
-  { q: 'Does my answer get cut off?', a: 'No. The model lets you finish your sentence in voice mode and never interrupts mid-word. Each answer has a soft time cap — about a minute by voice, two by text — with a visible timer.' },
-  { q: 'How are follow-ups decided?', a: 'Up to 2 follow-ups on standard questions, up to 5 on the case. The model only digs further if your last answer left an opening, exactly the way a real interviewer would.' },
-  { q: 'When do I see my grade?', a: 'Letter grades stay hidden during the interview. The full scorecard \u2014 letter grade per answer, follow-up depth, written verdict \u2014 unlocks at the end and is saved to your profile.' },
-  { q: 'What levels are there?', a: 'Three rooms: Intern, Analyst, and Associate. Each pulls from its own question pool and grades against the bar for that level.' },
-];
-
-const pricingItems: Item[] = [
-  { q: 'How much does HARDO cost?', a: '$14.99 per month, billed monthly, cancel anytime. One full interview is free, no card required.' },
-  { q: 'Do I need a card to try it?', a: 'No card on the free interview. You only enter payment when you choose to subscribe.' },
-];
+import { baseFaq, pricingFaq } from './faq-data';
 
 export default function FAQ({ showPricing = true }: { showPricing?: boolean }) {
-  const items = showPricing ? [...baseItems, ...pricingItems] : baseItems;
+  const items = showPricing ? [...baseFaq, ...pricingFaq] : baseFaq;
   return (
     <section id="faq" className="border-t border-line">
       <Reveal>
