@@ -56,6 +56,20 @@ export default function TypewriterText({ id, text, onDone }: Props) {
     let i = 0;
     setShown(0);
 
+    // Safety: guarantee the animation resolves even if the per-char interval is
+    // throttled (e.g. background tab) so onDone always eventually fires.
+    const finish = () => {
+      if (cancelled) return;
+      if (timerRef.current !== null) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setShown(text.length);
+      seenIds.add(id);
+      onDone?.();
+    };
+    const safety = window.setTimeout(finish, text.length * CHAR_INTERVAL_MS + 2000);
+
     timerRef.current = window.setInterval(() => {
       if (cancelled) return;
       i += 1;
@@ -65,6 +79,7 @@ export default function TypewriterText({ id, text, onDone }: Props) {
           clearInterval(timerRef.current);
           timerRef.current = null;
         }
+        window.clearTimeout(safety);
         seenIds.add(id);
         onDone?.();
       }
@@ -72,6 +87,7 @@ export default function TypewriterText({ id, text, onDone }: Props) {
 
     return () => {
       cancelled = true;
+      window.clearTimeout(safety);
       if (timerRef.current !== null) {
         clearInterval(timerRef.current);
         timerRef.current = null;

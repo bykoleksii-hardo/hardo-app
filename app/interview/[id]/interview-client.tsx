@@ -406,6 +406,23 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     }
   }, [roundKey, qTyped]);
 
+  // Safety net: the prep "GET READY" countdown is gated on the question's
+  // typewriter calling onDone (which sets qTyped[roundKey]). If that never
+  // fires — e.g. the question bubble remounts mid-animation, or the active
+  // step briefly flips during a refresh — the prep timer freezes at 00:10 and
+  // the interview is stuck with no recovery (even across reloads). Force the
+  // gate open after a bounded delay so progression can never be permanently
+  // blocked by the question display. Normal onDone fires well before this and
+  // makes the timeout a no-op.
+  useEffect(() => {
+    if (!roundKey) return;
+    if (qTyped[roundKey]) return;
+    const t = setTimeout(() => {
+      setQTyped((p) => (p[roundKey] ? p : { ...p, [roundKey]: true }));
+    }, 12000);
+    return () => clearTimeout(t);
+  }, [roundKey, qTyped]);
+
   const prepActive = useMemo(() => {
     if (!roundKey) return false;
     if (prepDoneAt[roundKey]) return false;
