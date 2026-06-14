@@ -18,8 +18,8 @@ import { baseFaq, pricingFaq } from './(landing)/_components/faq-data';
 import { organizationLd, websiteLd, faqLd } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'HARDO \u2014 AI mock interviews for IB',
-  description: 'Practice against the bar. Twelve questions per session, voice or text, a real scorecard at the end.',
+  title: 'AI Mock Interviews for Investment Banking \u2014 HARDO',
+  description: 'Practice investment banking mock interviews against the bar \u2014 twelve questions per session, voice or text, graded with a real scorecard at the end.',
 };
 
 export const dynamic = 'force-dynamic';
