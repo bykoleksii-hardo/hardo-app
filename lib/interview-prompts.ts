@@ -2,6 +2,15 @@
 
 export type Level = 'intern' | 'analyst' | 'associate';
 
+// Low temperature on grading for run-to-run consistency (the same answer should
+// get the same grade). The turn call also writes the follow-up question, which
+// benefits from some variety, so we use a small non-zero value rather than 0 —
+// anchor diversity is driven by the prompt + prior topics, not temperature.
+// Exported so the eval harness grades at the exact same setting as production.
+export const GRADING_TEMPERATURE = 0.2;
+// Finalize is pure synthesis of already-graded blocks -> deterministic.
+export const FINALIZE_TEMPERATURE = 0;
+
 export type TurnContext = {
   level: Level;
   category: string;
