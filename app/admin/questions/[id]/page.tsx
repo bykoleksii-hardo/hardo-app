@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { getUserRole } from '@/lib/auth/roles';
-import { getQuestionById } from '@/lib/admin/questions';
+import { getQuestionById, getQuestionAnswerKey } from '@/lib/admin/questions';
 import QuestionLab from './QuestionLab';
 
 export const dynamic = 'force-dynamic';
@@ -20,6 +20,7 @@ export default async function QuestionDetailPage(
   if (!Number.isFinite(numericId)) notFound();
   const q = await getQuestionById(numericId);
   if (!q) notFound();
+  const answerKey = await getQuestionAnswerKey(numericId);
 
   return (
     <div className="max-w-page mx-auto px-6 py-10">
@@ -31,7 +32,7 @@ export default async function QuestionDetailPage(
           <span aria-hidden>{'\u2190'}</span> Back to all questions
         </Link>
       </div>
-      <QuestionLab question={q} />
+      <QuestionLab question={q} answerKey={answerKey} />
     </div>
   );
 }

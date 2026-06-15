@@ -52,12 +52,3 @@ export async function getQuestionAnswerKey(id: number): Promise<QuestionAnswerKe
   const kp = Array.isArray(raw.key_points) ? raw.key_points.filter((s): s is string => typeof s === 'string') : null;
   return { key_points: kp && kp.length ? kp : null, model_answer: typeof raw.model_answer === 'string' ? raw.model_answer : null };
 }
-
-export async function updateQuestionAnswerKey(id: number, key: QuestionAnswerKey): Promise<boolean> {
-  const supabase = await getSupabaseServer();
-  const { error } = await supabase
-    .from('questions')
-    .update({ key_points: key.key_points, model_answer: key.model_answer })
-    .eq('id', id);
-  return !error;
-}
