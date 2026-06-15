@@ -312,7 +312,7 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     `RUBRIC_KIND: ${ctx.rubricKind} (when you close this block, score the four rubric axes using the ${ctx.rubricKind.toUpperCase()} interpretation from BLOCK RUBRIC, and echo this value in rubric_kind)`,
     `Follow-ups asked so far: ${ctx.followUpsSoFar} / max ${ctx.maxFollowUps}`,
     `Follow-ups remaining: ${Math.max(0, ctx.maxFollowUps - ctx.followUpsSoFar)}`,
-    `When grading, use the FULL scale (A+, A, A-, B+, B, B-, C+, C, C-, D+, D, D-, F) and prefer +/- variants over bare letters when the answer is between tiers.`,
+    `When you close the block, score the rubric axes 0-4 honestly across the full range (the server derives the letter from them); do not cluster at the top.`,
     ``,
     ctx.questionNumber && ctx.questionNumber > 1 ? `INTERVIEW STAGE:` : ``,
     ctx.questionNumber && ctx.questionNumber > 1 ? `This is question ${ctx.questionNumber} in the session. Questions already asked: ${ctx.priorTopics && ctx.priorTopics.length ? ctx.priorTopics.join(', ') : 'n/a'}.` : ``,
@@ -694,30 +694,24 @@ export function aggregateBlockScore(
 
 /**
  * Convert a 0..1 percentage of points earned into a letter grade for display.
- * NOTE: the database whitelist (apply_ai_grade + interview_steps_ai_grade_check)
- * accepts only ['A','A-','B+','B','B-','C+','C','C-','D','F'] — there is NO 'A+'.
- * So the top bucket collapses into 'A'; this function must only ever emit a
- * letter from that whitelist.
+ * We use WHOLE letters only (A/B/C/D/F) — the underlying signal (a coarse 0-4
+ * rubric + LLM judgement) doesn't support +/- precision and borderline answers
+ * flip between runs; the rubric axis bars + the 0-100 score carry the nuance.
+ * All of A/B/C/D/F are in the DB grade whitelist, so no migration is needed.
  * Schedule:
  *   80-100%  -> A
- *   70-79%   -> A-
- *   60-69%   -> B+
- *   50-59%   -> B
- *   40-49%   -> C+
- *   30-39%   -> C
- *   20-29%   -> D
- *   <20%     -> F
+ *   60-79%   -> B
+ *   45-59%   -> C
+ *   30-44%   -> D
+ *   <30%     -> F
  */
 export function percentToLetter(pct: number): LetterGrade {
   const p = Math.max(0, Math.min(1, pct));
   const hundred = Math.round(p * 100);
   if (hundred >= 80) return 'A';
-  if (hundred >= 70) return 'A-';
-  if (hundred >= 60) return 'B+';
-  if (hundred >= 50) return 'B';
-  if (hundred >= 40) return 'C+';
-  if (hundred >= 30) return 'C';
-  if (hundred >= 20) return 'D';
+  if (hundred >= 60) return 'B';
+  if (hundred >= 45) return 'C';
+  if (hundred >= 30) return 'D';
   return 'F';
 }
 
