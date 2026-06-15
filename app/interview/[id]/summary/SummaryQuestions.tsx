@@ -19,8 +19,10 @@ type StepRow = {
   answered_at: string | null;
   time_limit_seconds: number | null;
   was_overtime: boolean | null;
-  questions: { question: string; category: string; subtopic: string | null } | null;
+  questions: { id?: number; question: string; category: string; subtopic: string | null } | null;
 };
+
+type AnswerKey = { key_points: string[] | null; model_answer: string | null };
 
 type FeedbackDetail = {
   what_worked?: string;
@@ -115,11 +117,13 @@ type Props = {
   steps: StepRow[];
   isCompleted: boolean;
   initialFeedback?: Record<string, -1 | 1>;
+  // Per-question answer keys keyed by question id. Only populated post-completion.
+  answerKeys?: Record<number, AnswerKey>;
 };
 
 const ALL = '__ALL__';
 
-export default function SummaryQuestions({ steps, isCompleted, initialFeedback }: Props) {
+export default function SummaryQuestions({ steps, isCompleted, initialFeedback, answerKeys }: Props) {
   const [cat, setCat] = useState<string>(ALL);
   const [grade, setGrade] = useState<string>(ALL);
   const [openIds, setOpenIds] = useState<Set<string>>(new Set());
@@ -375,6 +379,34 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                         ))}
                       </div>
                     )}
+                    {isCompleted && (() => {
+                      const ak = s.questions?.id != null ? answerKeys?.[s.questions.id] : undefined;
+                      if (!ak || (!ak.key_points?.length && !ak.model_answer)) return null;
+                      return (
+                        <div className="mt-5 border border-gold/30 bg-gold/[0.04] rounded-md px-4 py-4">
+                          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-gold mb-3">Answer key</div>
+                          {ak.key_points && ak.key_points.length > 0 && (
+                            <div className={ak.model_answer ? 'mb-4' : ''}>
+                              <div className="text-[11px] tracking-[0.22em] text-ink/55 mb-2">— WHAT A STRONG ANSWER COVERS</div>
+                              <ul className="space-y-1.5">
+                                {ak.key_points.map((k, i) => (
+                                  <li key={i} className="flex gap-2 text-[13.5px] leading-[1.55] text-ink/85">
+                                    <span className="text-gold/70 shrink-0" aria-hidden="true">•</span>
+                                    <span>{k}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {ak.model_answer && (
+                            <div>
+                              <div className="text-[11px] tracking-[0.22em] text-ink/55 mb-2">— MODEL ANSWER</div>
+                              <p className="font-serif text-[14.5px] leading-[1.7] text-ink/85 whitespace-pre-wrap">{ak.model_answer}</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                     {isCompleted && (
                       <div className="mt-5 pt-4 border-t border-ink/10 flex items-center justify-end">
                         <FeedbackButtons stepId={s.id} initialRating={initialFeedback?.[s.id] ?? 0} />
