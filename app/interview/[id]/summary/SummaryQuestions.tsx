@@ -31,6 +31,16 @@ type FeedbackDetail = {
 
 type RubricScores = { correctness: number; depth: number; structure: number; communication: number };
 
+type DeliveryMetrics = {
+  wpm: number;
+  pace: 'slow' | 'measured' | 'brisk' | 'rushed';
+  filler_count: number;
+  filler_per_min: number;
+  long_pauses: number;
+  longest_pause_sec: number;
+  hedge_count: number;
+};
+
 type ParsedFeedback = {
   summary?: string;
   strengths?: string[];
@@ -38,6 +48,7 @@ type ParsedFeedback = {
   detail?: FeedbackDetail | null;
   rubric?: RubricScores | null;
   rubric_kind?: 'technical' | 'fit';
+  delivery?: DeliveryMetrics | null;
 };
 
 function formatPace(step: { created_at: string | null; answered_at: string | null; time_limit_seconds: number | null; was_overtime: boolean | null; }): { text: string; over: boolean } | null {
@@ -56,12 +67,13 @@ function formatPace(step: { created_at: string | null; answered_at: string | nul
   return { text: fmt(elapsed), over };
 }
 
-function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[]; detail: FeedbackDetail | null; rubric: RubricScores | null; rubricKind: 'technical' | 'fit' } | null {
+function parseFeedback(raw: string | null): { summary: string; strengths: string[]; weaknesses: string[]; detail: FeedbackDetail | null; rubric: RubricScores | null; rubricKind: 'technical' | 'fit'; delivery: DeliveryMetrics | null } | null {
   if (!raw) return null;
   try {
     const j = JSON.parse(raw) as ParsedFeedback;
     const d = (j && typeof j === 'object' && j.detail && typeof j.detail === 'object') ? j.detail as FeedbackDetail : null;
     const r = (j && typeof j === 'object' && j.rubric && typeof j.rubric === 'object') ? j.rubric as RubricScores : null;
+    const dv = (j && typeof j === 'object' && j.delivery && typeof j.delivery === 'object') ? j.delivery as DeliveryMetrics : null;
     return {
       summary: typeof j.summary === 'string' ? j.summary : '',
       strengths: Array.isArray(j.strengths) ? j.strengths : [],
@@ -69,10 +81,34 @@ function parseFeedback(raw: string | null): { summary: string; strengths: string
       detail: d,
       rubric: r,
       rubricKind: j.rubric_kind === 'fit' ? 'fit' : 'technical',
+      delivery: dv,
     };
   } catch {
-    return { summary: raw, strengths: [], weaknesses: [], detail: null, rubric: null, rubricKind: 'technical' };
+    return { summary: raw, strengths: [], weaknesses: [], detail: null, rubric: null, rubricKind: 'technical', delivery: null };
   }
+}
+
+function DeliveryPanel({ d }: { d: DeliveryMetrics }) {
+  const paceTone = (d.pace === 'measured' || d.pace === 'brisk') ? '#1F6F3D' : '#A85A1F';
+  const fillerTone = d.filler_per_min <= 3 ? '#1F6F3D' : d.filler_per_min <= 6 ? '#A85A1F' : '#9C2E2E';
+  const Stat = ({ label, value, sub, tone }: { label: string; value: string; sub?: string; tone?: string }) => (
+    <div>
+      <div className="font-mono text-[9.5px] tracking-[0.16em] uppercase text-ink/45 mb-1">{label}</div>
+      <div className="font-serif text-[18px] leading-none" style={tone ? { color: tone } : undefined}>{value}</div>
+      {sub ? <div className="text-[11px] text-ink/45 mt-1">{sub}</div> : null}
+    </div>
+  );
+  return (
+    <div className="mt-3 rounded-md border border-ink/10 bg-paper/50 px-4 py-3.5">
+      <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-ink/45 mb-3">Delivery <span className="text-ink/30 normal-case tracking-normal">· voice</span></div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Stat label="Pace" value={String(d.wpm)} sub={`wpm · ${d.pace}`} tone={paceTone} />
+        <Stat label="Fillers" value={String(d.filler_count)} sub={`${d.filler_per_min}/min`} tone={fillerTone} />
+        <Stat label="Long pauses" value={String(d.long_pauses)} sub={d.longest_pause_sec ? `max ${d.longest_pause_sec}s` : 'none'} />
+        <Stat label="Hedging" value={String(d.hedge_count)} sub="phrases" />
+      </div>
+    </div>
+  );
 }
 
 type Props = {
@@ -311,6 +347,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback }
                         </div>
                       ) : null;
                     })()}
+                    {fb && fb.delivery && <DeliveryPanel d={fb.delivery} />}
                     {fb && (fb.strengths.length > 0 || fb.weaknesses.length > 0) && (
                       <div className="mt-4 grid md:grid-cols-2 gap-3">
                         {fb.strengths.length > 0 && (

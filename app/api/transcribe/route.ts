@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { transcribeAudioWithFallback, STTError } from '@/lib/stt';
+import { computeDelivery } from '@/lib/delivery';
 import { withLogging } from '@/lib/observability';
 import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 
@@ -101,11 +102,15 @@ export const POST = withLogging('POST /api/transcribe', async (req: NextRequest,
     if (resetPeriod) upsertPayload.audio_period_start = now.toISOString();
     await supabase.from('user_entitlements').upsert(upsertPayload, { onConflict: 'user_id' });
 
+    // Delivery metrics for this take (deterministic, from word timestamps + duration).
+    const delivery = computeDelivery(result.words, result.durationSec, result.text);
+
     return NextResponse.json({
       text: result.text,
       words: result.words,
       durationSec: result.durationSec,
       language: result.language,
+      delivery,
       usage: { audio_seconds_used: newUsed, monthly_cap_seconds: MONTHLY_AUDIO_CAP_SEC },
     });
   } catch (e) {

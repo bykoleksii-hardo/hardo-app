@@ -17,6 +17,7 @@ import {
   type TurnContext,
 } from '@/lib/interview-prompts';
 import { getTimeLimitSeconds } from '@/lib/timer-config';
+import { sanitizeDelivery, aggregateDelivery, formatDeliveryForPrompt, type DeliveryMetrics } from '@/lib/delivery';
 import { withLogging } from '@/lib/observability';
 import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 import { tooLong, LIMITS } from '@/lib/validation';
@@ -72,10 +73,12 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   const rl = await rateLimitTake(rateLimitSubject({ userId: user.id }), { bucket: 'interview.turn', capacity: 60, windowSeconds: 60 });
   if (!rl.allowed) return rateLimitedResponse(rl);
 
-  const body = (await req.json().catch(() => null)) as { stepId?: string; message?: string } | null;
+  const body = (await req.json().catch(() => null)) as { stepId?: string; message?: string; delivery?: unknown } | null;
   if (!body?.stepId || typeof body.message !== 'string') {
     return NextResponse.json({ error: 'bad request' }, { status: 400 });
   }
+  // Voice delivery metrics for the answer just submitted (best-effort, sanitized).
+  const currentDelivery: DeliveryMetrics | null = sanitizeDelivery(body.delivery);
   const message = body.message.trim();
   if (message.length < 1) {
     return NextResponse.json({ error: 'message empty' }, { status: 400 });
@@ -180,6 +183,24 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     .map((s) => (s.questions as { category?: string } | null)?.category)
     .filter((c: string | undefined): c is string => !!c);
 
+  // 4c. Aggregate this block's voice delivery so far (prior persisted answers +
+  // the current one) to ground the Communication rubric axis. Best-effort and
+  // tolerant of the delivery_metrics column not existing yet.
+  let deliverySummary: string | undefined;
+  try {
+    const priorIds = [baseStepId, ...children.map(c => c.id)].filter(id => id !== currentStepId);
+    let prior: DeliveryMetrics[] = [];
+    if (priorIds.length > 0) {
+      const { data: dRows, error: dErr } = await supabase
+        .from('interview_steps').select('id, delivery_metrics').in('id', priorIds);
+      if (!dErr && Array.isArray(dRows)) {
+        prior = dRows.map(r => sanitizeDelivery((r as { delivery_metrics?: unknown }).delivery_metrics)).filter((d): d is DeliveryMetrics => !!d);
+      }
+    }
+    const blockDelivery = aggregateDelivery([...prior, currentDelivery]);
+    if (blockDelivery) deliverySummary = formatDeliveryForPrompt(blockDelivery);
+  } catch { /* delivery is optional grounding */ }
+
   // 5. Call OpenAI with structured output.
   let ai: TurnAIResult;
   try {
@@ -197,6 +218,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
           question: baseQuestion,
           transcript,
           candidateMessage: message,
+          deliverySummary,
           questionNumber,
           priorTopics,
         }) },
@@ -307,6 +329,16 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
         was_overtime: overtime,
       })
       .eq('id', currentStepId);
+    // Persist voice delivery for this answer separately (best-effort): if the
+    // delivery_metrics column doesn't exist yet this fails harmlessly and the
+    // critical answer write above is unaffected.
+    if (currentDelivery) {
+      const { error: dErr } = await supabase
+        .from('interview_steps')
+        .update({ delivery_metrics: currentDelivery })
+        .eq('id', currentStepId);
+      if (dErr) console.warn('[turn] delivery_metrics persist skipped', dErr.message);
+    }
   }
 
   // 7. Branch on AI decision.
@@ -422,6 +454,18 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
 
   const aggregate = aggregateBlockScore(orderedScores, isCase);
 
+  // 7c.2a. Aggregate the block's voice delivery for the scorecard (best-effort).
+  let blockDelivery: DeliveryMetrics | null = null;
+  try {
+    const ids = (blockSteps || []).map((r: any) => r.id).filter((id: string) => id !== currentStepId);
+    let prior: DeliveryMetrics[] = [];
+    if (ids.length > 0) {
+      const { data: dRows } = await supabase.from('interview_steps').select('id, delivery_metrics').in('id', ids);
+      if (Array.isArray(dRows)) prior = dRows.map(r => sanitizeDelivery((r as { delivery_metrics?: unknown }).delivery_metrics)).filter((d): d is DeliveryMetrics => !!d);
+    }
+    blockDelivery = aggregateDelivery([...prior, currentDelivery]);
+  } catch { /* delivery optional */ }
+
   // 7c.2b. Block grade = blend of the holistic close_block RUBRIC (primary) and a
   // deterministic per-answer component where the base answer counts more than the
   // follow-ups (base max 30, each follow-up max 15 -> base ~2x a follow-up). The
@@ -471,6 +515,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     aggregate_total: aggregate?.total ?? null,
     aggregate_budget: aggregate?.budget ?? null,
     aggregate_pct: aggregate?.pct ?? null,
+    delivery: blockDelivery,
     is_case: isCase,
   });
 

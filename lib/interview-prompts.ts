@@ -16,6 +16,8 @@ export type TurnContext = {
   // Ordered transcript inside the current block (question + everything after).
   transcript: { role: 'candidate' | 'ai'; kind: 'answer' | 'clarification' | 'follow_up' | 'clarification_response'; text: string }[];
   candidateMessage: string;
+  // Voice-delivery summary for this block (pace/fillers/pauses), if available.
+  deliverySummary?: string;
   // Interview-level context for opener variation
   questionNumber?: number;   // 1 = first, 2 = second, etc.
   priorTopics?: string[];    // categories already asked (e.g. ["Accounting","Valuation"])
@@ -309,6 +311,10 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     ``,
     `TRANSCRIPT SO FAR (oldest first, may be empty):`,
     transcriptLines || '(none yet)',
+    ``,
+    ctx.deliverySummary ? `` : ``,
+    ctx.deliverySummary ? `DELIVERY (voice, this block so far): ${ctx.deliverySummary}` : ``,
+    ctx.deliverySummary ? `Use this to inform the COMMUNICATION rubric axis (pace, filler words, pauses, hedging) instead of guessing delivery from the text. Do NOT let it change the correctness/depth axes.` : ``,
     ``,
     `LATEST CANDIDATE MESSAGE:`,
     ctx.candidateMessage,
