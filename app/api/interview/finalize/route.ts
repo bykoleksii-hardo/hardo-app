@@ -6,6 +6,7 @@ import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate
 import {
   FINALIZE_SYSTEM_PROMPT,
   FINALIZE_SCHEMA,
+  FINALIZE_TEMPERATURE,
   type FinalizeAIResult,
 } from '@/lib/interview-prompts';
 
@@ -115,6 +116,7 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     const out = await chatJSON<FinalizeAIResult>({
       schemaName: 'hardo_finalize',
       schema: FINALIZE_SCHEMA,
+      temperature: FINALIZE_TEMPERATURE,
       maxTokens: 1100,
       messages: [
         { role: 'system', content: FINALIZE_SYSTEM_PROMPT },
