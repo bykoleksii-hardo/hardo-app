@@ -211,6 +211,9 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
   const audioChunksRef = useRef<BlobPart[]>([]);
   const recStartRef = useRef<number>(0);
   const recTickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Delivery metrics from the latest transcription take, keyed by round, sent
+  // with the answer so the server can ground the Communication axis + show them.
+  const pendingDeliveryRef = useRef<Record<string, unknown>>({});
   // Persistent mic stream so we don't re-prompt every round.
   const persistentStreamRef = useRef<MediaStream | null>(null);
   // Round phases: 'answering' (timer running), 'review' (timer frozen, 10s edit), 'locked' (read-only, Send only).
@@ -349,6 +352,10 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
         const data = await r.json();
         const newPiece = String(data.text || '').trim();
         setDraft(prev => prev ? (prev.replace(/\s+$/, '') + ' ' + newPiece) : newPiece);
+        // Keep this take's delivery metrics for the active round (last take wins).
+        if (roundKey && data.delivery) {
+          pendingDeliveryRef.current[roundKey] = data.delivery;
+        }
         // Reset 10s review window so user has the full 10s starting NOW (when text actually appears).
         if (roundKey) {
           setReviewStartedAt(prev => ({ ...prev, [roundKey]: Date.now() }));
@@ -594,11 +601,12 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
     setSubmitting(true);
     const text = draft.trim() || '(No answer provided.)';
     setDraft('');
+    const delivery = (roundKey && pendingDeliveryRef.current[roundKey]) || null;
     try {
       const r = await fetch('/api/interview/turn', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stepId: activeBase.id, message: text }),
+        body: JSON.stringify({ stepId: activeBase.id, message: text, delivery }),
       });
       if (!r.ok) {
         const shape: ApiErrorShape = await parseApiError(r);
