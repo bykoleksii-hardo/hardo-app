@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AdminQuestion, Region } from '@/lib/admin/questions';
+import type { AdminQuestion, Region, QuestionAnswerKey } from '@/lib/admin/questions';
 
 type Level = 'intern' | 'analyst' | 'associate';
 type Kind = 'clarification_response' | 'follow_up' | 'close_block';
@@ -36,7 +36,7 @@ type Turn = {
 
 const LEVELS: Level[] = ['intern', 'analyst', 'associate'];
 
-export default function QuestionLab({ question }: { question: AdminQuestion }) {
+export default function QuestionLab({ question, answerKey }: { question: AdminQuestion; answerKey: QuestionAnswerKey | null }) {
   const [level, setLevel] = useState<Level>('analyst');
   const [region, setRegion] = useState<Region>(question.region);
   const [savingRegion, setSavingRegion] = useState(false);
@@ -146,6 +146,9 @@ export default function QuestionLab({ question }: { question: AdminQuestion }) {
           {question.subtopic && <><span>·</span><span>{question.subtopic}</span></>}
           {question.difficulty !== null && <><span>·</span><span>Difficulty {question.difficulty}</span></>}
         </div>
+
+        {/* Answer key (grounds grading + shown on the scorecard) */}
+        <AnswerKeyEditor questionId={question.id} initial={answerKey} />
 
         {/* Level selector */}
         <div className="mb-6">
@@ -280,6 +283,93 @@ export default function QuestionLab({ question }: { question: AdminQuestion }) {
         ))}
       </aside>
     </div>
+  );
+}
+
+function AnswerKeyEditor({ questionId, initial }: { questionId: number; initial: QuestionAnswerKey | null }) {
+  const [keyPointsText, setKeyPointsText] = useState((initial?.key_points ?? []).join('\n'));
+  const [modelAnswer, setModelAnswer] = useState(initial?.model_answer ?? '');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+
+  const hadDraft = (initial?.key_points?.length ?? 0) > 0 || !!initial?.model_answer;
+
+  async function save() {
+    setSaving(true);
+    setError(null);
+    setSavedAt(null);
+    const key_points = keyPointsText
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    try {
+      const res = await fetch(`/api/admin/questions/${questionId}/answer-key`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ key_points, model_answer: modelAnswer }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setError(j.error || `HTTP ${res.status}`);
+      } else {
+        setSavedAt(Date.now());
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'network_error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <details className="mb-8 border border-line rounded bg-cream/20">
+      <summary className="cursor-pointer select-none px-5 py-3 font-mono text-[10.5px] uppercase tracking-widest text-muted hover:text-ink flex items-center justify-between">
+        <span>Answer key {hadDraft ? '· drafted' : '· empty'}</span>
+        <span aria-hidden className="text-[12px]">{'▾'}</span>
+      </summary>
+      <div className="px-5 pb-5 space-y-4">
+        <p className="text-[12px] text-muted leading-relaxed">
+          Used to ground the grader&apos;s correctness and shown to candidates after the interview. Curate the AI draft here.
+        </p>
+        <div>
+          <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted mb-2">
+            Key points — what a strong answer covers (one per line)
+          </div>
+          <textarea
+            value={keyPointsText}
+            onChange={(e) => setKeyPointsText(e.target.value)}
+            rows={6}
+            placeholder={'Unlever comp betas, take the median, relever at target capital structure\nUse the after-tax cost of debt...'}
+            className="w-full text-[13.5px] leading-relaxed bg-transparent border border-line focus:border-ink outline-none px-4 py-3 rounded resize-y font-mono"
+            disabled={saving}
+          />
+        </div>
+        <div>
+          <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted mb-2">Model answer</div>
+          <textarea
+            value={modelAnswer}
+            onChange={(e) => setModelAnswer(e.target.value)}
+            rows={8}
+            placeholder="An exemplary answer as a strong candidate would give it..."
+            className="w-full text-[14px] leading-relaxed bg-transparent border border-line focus:border-ink outline-none px-4 py-3 rounded resize-y"
+            disabled={saving}
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={save}
+            disabled={saving}
+            className="inline-flex items-center gap-2 bg-ink text-paper text-[13px] px-5 py-2 rounded-full hover:bg-navy disabled:opacity-40 disabled:cursor-not-allowed transition"
+          >
+            {saving ? 'Saving...' : 'Save answer key'}
+          </button>
+          {savedAt && <span className="text-[12px] font-mono text-[#3d7a3d]">Saved</span>}
+          {error && <span className="text-[12px] font-mono text-[#c2410c]">Save failed: {error}</span>}
+        </div>
+      </div>
+    </details>
   );
 }
 
