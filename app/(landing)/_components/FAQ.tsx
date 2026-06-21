@@ -8,7 +8,7 @@ export default function FAQ({ showPricing = true }: { showPricing?: boolean }) {
       <Reveal>
       <div className="max-w-page mx-auto px-6 py-20">
         <div className="kicker mb-3">FAQ</div>
-        <h2 className="font-serif text-[44px] md:text-[52px] font-light leading-[1.05] tracking-[-0.02em]">
+        <h2 className="font-serif text-[28px] md:text-[34px] font-light leading-[1.1] tracking-[-0.015em]">
           Common questions.
         </h2>
         <p className="mt-5 text-ink-2 max-w-2xl leading-relaxed">

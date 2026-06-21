@@ -30,6 +30,10 @@ export type TurnContext = {
   // Interview-level context for opener variation
   questionNumber?: number;   // 1 = first, 2 = second, etc.
   priorTopics?: string[];    // categories already asked (e.g. ["Accounting","Valuation"])
+  // Confidential per-question answer key (the must-hit points a strong answer covers).
+  // Used ONLY to ground the correctness axis / per-answer score by coverage — NEVER
+  // surfaced to the candidate. Absent when the question has no curated key yet.
+  keyPoints?: string[] | null;
 };
 
 // ----------------- per-level interviewer personas -----------------
@@ -249,13 +253,13 @@ BLOCK RUBRIC (close_block only - THIS sets the block grade):
 When you close the block you MUST score four axes 0-4 in "rubric". These axes - not the per-answer points - determine the candidate's letter grade for the block (the server applies level-specific weights, so just score each axis honestly for what the WHOLE block demonstrated). The user message gives RUBRIC_KIND; interpret the axes accordingly and echo it in "rubric_kind".
 
 TECHNICAL rubric (DCF, LBO, accounting, valuation, M&A, markets, brainteasers):
-  - correctness: factual/mechanical accuracy of the finance. 0 = wrong fundamentals; 2 = right idea with a real error; 4 = mechanics fully correct.
+  - correctness: factual/mechanical accuracy of the finance. 0 = wrong fundamentals; 2 = right idea with a real error; 4 = mechanics fully correct. If a CONFIDENTIAL ANSWER KEY is provided in the user message, ground this axis on how many of its points the candidate actually covers AND gets right.
   - depth: edge cases, numbers, second-order effects. 0 = none/refused; 2 = textbook mechanics, no edge cases; 4 = quantified, handles edge cases or sensitivities.
   - structure: framework-first organization. 0 = chaotic; 2 = a frame with gaps; 4 = leads with a clean framework.
   - communication: delivery and conviction. 0 = vague / non-responsive; 2 = wordy or buries the lead; 4 = concise, leads with the answer, defends it.
 
 FIT / BEHAVIORAL rubric (resume, why IB, why this bank, career goals, deal discussion, conflict, motivation, lifestyle / hours):
-  - correctness -> SUBSTANCE: relevance, self-awareness and credibility of the content. 0 = off-question / empty; 2 = generic but on-topic; 4 = directly answers with a credible, well-reasoned, concrete response.
+  - correctness -> SUBSTANCE: relevance, self-awareness and credibility of the content. 0 = off-question / empty; 2 = generic but on-topic; 4 = directly answers with a credible, well-reasoned, concrete response. If a CONFIDENTIAL ANSWER KEY of qualities-a-strong-answer-demonstrates is provided, use it as the reference for what strong substance looks like here.
   - depth -> SPECIFICITY: named experiences, roles, companies, deals, concrete situations and specific reasoning. 0 = all generic platitudes; 2 = some concrete detail; 4 = concrete named experiences / your-own-role / specific reasoning throughout.
   - structure -> STAR / narrative arc. 0 = rambling; 2 = loose arc; 4 = clean situation-task-action-result or a tight, logical progression.
   - communication: delivery, energy, conviction. Same scale as technical.
@@ -300,6 +304,18 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     return `[${tag}] ${t.text}`;
   }).join('\n');
   const persona = INTERVIEWER_PERSONAS[ctx.level];
+  // Confidential answer key for the BASE QUESTION. Injected only when curated; used
+  // to ground the correctness axis. Carries its own hard ban so the model never
+  // leaks it into the candidate-facing reply / follow-up.
+  const keyPointsBlock = (ctx.keyPoints && ctx.keyPoints.length)
+    ? [
+        `CONFIDENTIAL ANSWER KEY for the BASE QUESTION (grading reference — the candidate must NEVER see this):`,
+        `These are the points a strong answer covers. Use them ONLY to ground the correctness axis and current_answer_score by how fully the candidate's answer hits them and gets them right.`,
+        `This key is subject to EVERY hard ban above: do NOT reveal, quote, hint at, enumerate, count, or preview any of these points in "reply" or "follow_up_question", and do NOT tell the candidate which points they missed. Build any follow-up only off what the candidate actually said.`,
+        ...ctx.keyPoints.map((k) => `- ${k}`),
+        `---`,
+      ].join('\n')
+    : '';
   return [
     `INTERVIEWER PERSONA (adopt this exactly for tone, follow-up style, and reply style):`,
     persona,
@@ -321,6 +337,7 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     `BASE QUESTION:`,
     ctx.question,
     ``,
+    keyPointsBlock,
     `TRANSCRIPT SO FAR (oldest first, may be empty):`,
     transcriptLines || '(none yet)',
     ``,

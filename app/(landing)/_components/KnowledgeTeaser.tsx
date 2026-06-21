@@ -33,26 +33,46 @@ export default async function KnowledgeTeaser() {
           </div>
         ) : (
           <>
-            <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+            <div className="mt-14 flex flex-col gap-6">
               {articles.map((a) => (
                 <Link
                   key={a.id}
                   href={`/knowledge/${a.slug}`}
-                  className="kn-card group block border-t border-line pt-5"
+                  className="kn-card group grid grid-cols-1 sm:grid-cols-[260px_1fr] items-center gap-5 sm:gap-7 rounded-lg border border-line bg-paper p-4 sm:p-5"
                 >
-                  <div className="font-mono text-[10.5px] uppercase tracking-widest text-gold-2">
-                    {a.category}
+                  <div className="relative overflow-hidden rounded-md bg-cream aspect-[16/10]">
+                    {a.cover_url ? (
+                      <img
+                        src={a.cover_url}
+                        alt=""
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 grid place-items-center font-mono text-[10px] uppercase tracking-widest text-muted">
+                        HARDO
+                      </div>
+                    )}
                   </div>
-                  <h3 className="mt-3 font-serif text-[22px] leading-snug font-medium group-hover:text-gold transition-colors">
-                    {a.title}
-                  </h3>
-                  {a.description && (
-                    <p className="mt-3 text-[14px] text-ink-2 leading-relaxed line-clamp-3">
-                      {a.description}
-                    </p>
-                  )}
-                  <div className="mt-4 font-mono text-[10.5px] uppercase tracking-widest text-muted">
-                    {fmtDate(a.published_at)}
+                  <div className="min-w-0">
+                    <div className="font-mono text-[10.5px] uppercase tracking-widest text-gold-2">
+                      {a.category}
+                    </div>
+                    <h3 className="mt-2.5 font-serif text-[22px] md:text-[26px] leading-snug font-light group-hover:text-gold transition-colors">
+                      {a.title}
+                    </h3>
+                    {a.description && (
+                      <p className="mt-2.5 text-[14.5px] text-ink-2 leading-relaxed line-clamp-2">
+                        {a.description}
+                      </p>
+                    )}
+                    <div className="mt-4 flex items-center gap-3 font-mono text-[10.5px] uppercase tracking-widest text-muted">
+                      <span>{fmtDate(a.published_at)}</span>
+                      <span className="h-px w-6 bg-line" aria-hidden />
+                      <span className="inline-flex items-center gap-1 text-gold opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                        Read <span aria-hidden>{'→'}</span>
+                      </span>
+                    </div>
                   </div>
                 </Link>
               ))}

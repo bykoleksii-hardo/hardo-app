@@ -745,6 +745,68 @@ body.font-sans {
 }
 
 
+/* What we measure — answer-key showcase (model answer + what a strong answer covers) */
+.ww-answerkey {
+  margin-top: 28px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 34px 36px;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 44px;
+  align-items: center;
+}
+.ww-ak-headline {
+  margin-top: 12px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.08;
+  letter-spacing: -0.014em;
+  color: var(--ink);
+}
+.ww-ak-headline em { font-style: italic; color: var(--gold); }
+.ww-ak-desc {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  max-width: 42ch;
+}
+.ww-ak-card { border-left: 2px solid var(--gold); padding-left: 24px; }
+.ww-ak-label {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+.ww-ak-covers { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.ww-ak-covers li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.ww-ak-check { color: var(--gold); flex-shrink: 0; font-size: 13px; line-height: 1.5; }
+.ww-ak-model { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+.ww-ak-model p {
+  margin-top: 8px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+@media (max-width: 900px) {
+  .ww-answerkey { grid-template-columns: 1fr; gap: 26px; padding: 26px 24px; }
+}
+
+
 /* ===================================
    Interview answer card (Voice/Text mode redesign — Phase 7)
    Local prefix iv-* to avoid collisions with landing .vcard.
@@ -1538,8 +1600,8 @@ body.font-sans {
 .is-in .wave i { animation: wave-bar 1.25s ease-in-out infinite; }
 
 /* Knowledge teaser cards lift slightly on hover */
-.kn-card { transition: transform 320ms cubic-bezier(0.16,1,0.3,1); }
-.kn-card:hover { transform: translateY(-3px); }
+.kn-card { transition: transform 320ms cubic-bezier(0.16,1,0.3,1), border-color 320ms ease, box-shadow 320ms ease; }
+.kn-card:hover { transform: translateY(-3px); border-color: var(--gold-line); box-shadow: 0 26px 50px -34px rgba(14,30,54,0.26); }
 
 /* Faint gold "orb" used as a parallax depth layer behind big sections */
 .bg-orb {

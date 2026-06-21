@@ -37,7 +37,7 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
     tagline: 'First superday season. Build muscle on the basics before the real heat.',
     pitch: "Foundations of accounting, valuation, and a soft fit-check. No deal walk-throughs — we keep follow-ups gentle and let you build muscle before the real heat.",
     tags: ['3 statements', 'Comps & DCF basics', 'Why banking', 'Soft fit'],
-    sample: { q: 'Walk me through how $10 of depreciation flows through the three statements. Take your time — I want to hear the logic, not just the numbers.', phase: 'Accounting', grade: 'B-' },
+    sample: { q: 'Walk me through how $10 of depreciation flows through the three statements. Take your time — I want to hear the logic, not just the numbers.', phase: 'Accounting', grade: 'B' },
     tone: 'foundations',
   },
   {
@@ -55,7 +55,7 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
     tagline: 'You sit between the MD and the model. The room expects judgment.',
     pitch: "Sector reads, capital structure trade-offs, and how you'd shape a process. Follow-ups dig: why this advisor, why now, what you'd push back on.",
     tags: ['Capital structure', 'Process strategy', 'Sector view', 'Negotiation read'],
-    sample: { q: "A sponsor asks you whether to take their $300M EBITDA portco public at 10x or sell to a strategic at 11.5x. They want one number, then your reasoning. Go.", phase: 'Case', grade: 'B+' },
+    sample: { q: "A sponsor asks you whether to take their $300M EBITDA portco public at 10x or sell to a strategic at 11.5x. They want one number, then your reasoning. Go.", phase: 'Case', grade: 'B' },
     tone: 'judgment',
   },
 ];

@@ -12,7 +12,9 @@ import KnowledgeTeaser from './(landing)/_components/KnowledgeTeaser';
 import FAQ from './(landing)/_components/FAQ';
 import InterviewDemo from './(landing)/_components/InterviewDemo';
 import TheRoom from './(landing)/_components/TheRoom';
+import Scorecard from './(landing)/_components/Scorecard';
 import Parallax from './_components/Parallax';
+import Reveal from './_components/Reveal';
 import JsonLd from './_components/JsonLd';
 import { baseFaq, pricingFaq } from './(landing)/_components/faq-data';
 import { organizationLd, websiteLd, faqLd } from '@/lib/seo';
@@ -42,6 +44,7 @@ export default async function Page() {
         <HowItWorks />
         <VoiceMode />
         <TheRoom />
+        <ScorecardSection />
         <WhatWeMeasure />
         {viewer.plan !== 'paid' && <Pricing />}
         <KnowledgeTeaser />
@@ -67,7 +70,7 @@ function AnonHero() {
             <span className="text-gold">.</span>
           </h1>
           <p className="anim-rise d3 mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
-            Twelve questions per session. Technicals, behavioral, a case. Voice or text. A real scorecard at the end {'\u2014'} graded the way a real banker reviews a candidate.
+            Twelve questions per session. Technicals, behavioral, a case. Voice or text. A real scorecard at the end {'\u2014'} graded the way a real banker reviews a candidate, then the model answer you were measured against.
           </p>
           <div className="anim-rise d4 mt-9 flex flex-wrap items-center gap-4">
             <Link
@@ -84,6 +87,7 @@ function AnonHero() {
             <span>{'\u00b7'} 12 questions / session</span>
             <span>{'\u00b7'} 1 room</span>
             <span>{'\u00b7'} Letter grade per answer</span>
+            <span>{'\u00b7'} Model answer per Q</span>
           </div>
         </div>
         <InterviewDemo />
@@ -126,7 +130,7 @@ function FreeHero({ remaining }: { remaining: number }) {
               Your profile
             </Link>
           </div>
-          <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Voice or text. Same scorecard either way.</p>
+          <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Voice or text. Same scorecard, same model answers.</p>
           <div className="anim-rise d6 mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>{left}/1 free room left</span>
             <span>{'\u00b7'} 12 questions / session</span>
@@ -152,7 +156,7 @@ function PaidHero() {
             <span className="text-gold">.</span>
           </h1>
           <p className="anim-rise d3 mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
-            Unlimited rooms. Full scorecard history. Pace, filler, jargon hygiene scored on delivery. Run one before the real one.
+            Unlimited rooms. Full scorecard history. The model answer on every question. Pace, filler, jargon hygiene scored on delivery. Run one before the real one.
           </p>
           <div className="anim-rise d4 mt-9 flex flex-wrap items-center gap-4">
             <Link
@@ -183,7 +187,7 @@ function BottomCTA({ plan }: { plan: 'anon' | 'free' | 'paid' }) {
   const headline = plan === 'paid' ? 'Next session?' : 'Stop guessing if you\u2019re ready.';
   const sub = plan === 'paid'
     ? 'Pick a room and start when you have 30 minutes.'
-    : 'Take the free Intern interview. The scorecard will tell you exactly where the bar is.';
+    : 'Take the free Intern interview. The scorecard shows you exactly where the bar is — and what a strong answer looks like.';
   const ctaHref = plan === 'paid' ? '/interview/setup' : plan === 'free' ? '/interview/setup' : '/login';
   const ctaText = plan === 'paid' ? 'Start interview' : plan === 'free' ? 'Start free interview' : 'Try one free interview';
 
@@ -197,6 +201,31 @@ function BottomCTA({ plan }: { plan: 'anon' | 'free' | 'paid' }) {
         <Link href={ctaHref} className="mt-8 inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
           {ctaText} <span aria-hidden>{'\u2192'}</span>
         </Link>
+      </div>
+    </section>
+  );
+}
+
+function ScorecardSection() {
+  return (
+    <section className="border-t border-line bg-cream/40">
+      <div className="max-w-page mx-auto px-6 py-24 md:py-28 grid gap-12 md:gap-16 md:grid-cols-[0.85fr_1.15fr] md:items-center">
+        <div>
+          <Reveal>
+            <div className="eyebrow"><span className="dash" aria-hidden /> An actual scorecard</div>
+          </Reveal>
+          <Reveal delay={80}>
+            <h2 className="font-serif text-[36px] md:text-[52px] font-light leading-[1.04] tracking-[-0.016em] mt-3 max-w-[14ch]">
+              What lands when the room closes<span className="text-gold">.</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={140}>
+            <p className="mt-5 text-[16px] text-ink-2 leading-relaxed max-w-md">
+              Per-category grades, follow-up depth, a hire call \u2014 and, on every question, the model answer behind the grade.
+            </p>
+          </Reveal>
+        </div>
+        <Scorecard />
       </div>
     </section>
   );

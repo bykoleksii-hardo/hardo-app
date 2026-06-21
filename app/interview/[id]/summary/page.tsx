@@ -24,8 +24,10 @@ type StepRow = {
   answered_at: string | null;
   time_limit_seconds: number | null;
   was_overtime: boolean | null;
-  questions: { question: string; category: string; subtopic: string | null } | null;
+  questions: { id: number; question: string; category: string; subtopic: string | null } | null;
 };
+
+type AnswerKey = { key_points: string[] | null; model_answer: string | null };
 
 type SummaryRow = {
   overall_score: number;
@@ -122,7 +124,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
   const { data: stepsRaw } = await supabase
     .from('interview_steps')
-    .select('id, order_index, is_follow_up, parent_step_id, custom_question, user_answer, ai_grade, ai_score, ai_feedback, ai_status, created_at, answered_at, time_limit_seconds, was_overtime, questions(question, category, subtopic)')
+    .select('id, order_index, is_follow_up, parent_step_id, custom_question, user_answer, ai_grade, ai_score, ai_feedback, ai_status, created_at, answered_at, time_limit_seconds, was_overtime, questions(id, question, category, subtopic)')
     .eq('interview_id', id)
     .order('order_index', { ascending: true });
 
@@ -157,6 +159,31 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
 
   const isCompleted = interview.status === 'completed' && !!summary;
   const answeredCount = mainSteps.filter(s => s.user_answer).length;
+
+  // Per-question answer keys (model answer + what a strong answer covers), revealed
+  // on the scorecard ONLY once the interview is completed so they never leak mid-run.
+  // Best-effort: a missing column (un-migrated env) simply yields no keys.
+  const answerKeys: Record<number, AnswerKey> = {};
+  if (isCompleted) {
+    const baseQuestionIds = Array.from(new Set(
+      mainSteps.map((s) => s.questions?.id).filter((x): x is number => typeof x === 'number'),
+    ));
+    if (baseQuestionIds.length > 0) {
+      try {
+        const { data: keyRows, error: keyErr } = await supabase
+          .from('questions').select('id, key_points, model_answer').in('id', baseQuestionIds);
+        if (!keyErr && Array.isArray(keyRows)) {
+          for (const r of keyRows as { id: number; key_points?: unknown; model_answer?: unknown }[]) {
+            const kp = Array.isArray(r.key_points)
+              ? r.key_points.filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+              : [];
+            const ma = typeof r.model_answer === 'string' && r.model_answer.trim() ? r.model_answer : null;
+            if (kp.length || ma) answerKeys[r.id] = { key_points: kp.length ? kp : null, model_answer: ma };
+          }
+        }
+      } catch { /* answer keys are optional scorecard enrichment */ }
+    }
+  }
 
   // Aggregate the per-block rubric axes (0-4) into an interview-wide skill
   // profile. Blocks graded before the rubric existed simply don't contribute.
@@ -268,7 +295,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           );
         })()}
 
-        <SummaryQuestions steps={steps} isCompleted={isCompleted} initialFeedback={initialFeedback} />
+        <SummaryQuestions steps={steps} isCompleted={isCompleted} initialFeedback={initialFeedback} answerKeys={answerKeys} />
 
         <NextStepsCard
           level={interview.candidate_level as 'intern' | 'analyst' | 'associate'}

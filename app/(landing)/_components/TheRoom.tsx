@@ -70,7 +70,7 @@ const FEATURES: Feature[] = [
           <polygon points="32,8 52.8,20 52.8,44 32,56 11.2,44 11.2,20" stroke="rgba(184,135,54,0.4)" strokeWidth="1" fill="rgba(184,135,54,0.05)" />
           <polygon points="32,12 44.1,25 47.6,41 32,54 21.6,38 18.1,24" stroke="#B88736" strokeWidth="1.5" fill="rgba(184,135,54,0.16)" />
         </svg>
-        <span className="rm-grade">A{'−'}</span>
+        <span className="rm-grade">A</span>
       </div>
     ),
   },

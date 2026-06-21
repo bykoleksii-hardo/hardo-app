@@ -121,6 +121,25 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   const isCase = category.toLowerCase() === 'case study' || step.interviews?.kind === 'deep_dive';
   const maxFollowUps = isCase ? CASE_MAX_FOLLOWUPS : NORMAL_MAX_FOLLOWUPS;
 
+  // Confidential answer key (key_points) for the base question — grounds the
+  // correctness axis. Best-effort and kept OUT of the critical select above so a
+  // missing column (un-migrated env) can never break grading; absent -> grade as before.
+  let keyPoints: string[] | null = null;
+  const baseQuestionId = step.questions?.id ?? null;
+  if (baseQuestionId != null) {
+    try {
+      const { data: kpRow, error: kpErr } = await supabase
+        .from('questions').select('key_points').eq('id', baseQuestionId).maybeSingle();
+      if (!kpErr && kpRow) {
+        const raw = (kpRow as { key_points?: unknown }).key_points;
+        if (Array.isArray(raw)) {
+          const cleaned = raw.filter((s): s is string => typeof s === 'string' && s.trim().length > 0);
+          keyPoints = cleaned.length ? cleaned : null;
+        }
+      }
+    } catch { /* answer key is optional grading grounding */ }
+  }
+
   // 2. Find every child follow-up step under this base, ordered.
   const { data: childRows } = await supabase
     .from('interview_steps')
@@ -223,6 +242,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
           deliverySummary,
           questionNumber,
           priorTopics,
+          keyPoints,
         }) },
       ],
     });

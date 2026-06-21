@@ -3,12 +3,24 @@
 import { useEffect, useRef, useState } from 'react';
 
 const phases = [
-  { name: 'Accounting', grade: 'B+', note: 'Solid LIFO/FIFO mechanics. Missed working-capital sanity check.' },
-  { name: 'Valuation', grade: 'A−', note: 'Clean DCF setup. Good push on terminal-value assumptions.' },
-  { name: 'Corporate Finance', grade: 'B+', note: 'WACC build was tight. Beta unlevering was rushed.' },
+  { name: 'Accounting', grade: 'B', note: 'Solid LIFO/FIFO mechanics. Missed working-capital sanity check.' },
+  { name: 'Valuation', grade: 'A', note: 'Clean DCF setup. Good push on terminal-value assumptions.' },
+  { name: 'Corporate Finance', grade: 'B', note: 'WACC build was tight. Beta unlevering was rushed.' },
   { name: 'M&A / Case', grade: 'B', note: 'Reasonable deal logic. Synergy quantification thin.' },
-  { name: 'Behavioral', grade: 'A−', note: 'Answer-first framing. Held up under 3 follow-ups.' },
+  { name: 'Behavioral', grade: 'A', note: 'Answer-first framing. Held up under 3 follow-ups.' },
 ];
+
+// The post-grade reveal shown inline under a category: what a strong answer had
+// to cover + a model answer. Mirrors the product summary's reveal.
+const VALUATION_KEY = {
+  covers: [
+    'Two methods: Gordon growth and an exit multiple on terminal EBITDA.',
+    'Back out the implied exit multiple and sanity-check it against comps.',
+    'Terminal value is 60–80% of EV — pressure-test g and WACC.',
+  ],
+  model:
+    'Compute terminal value both ways — Gordon growth, FCF×(1+g)/(WACC−g), and an exit multiple on terminal EBITDA — then back the implied multiple out of the Gordon TV and check it against trading comps. The two should converge.',
+};
 
 function gradeColor(g: string): string {
   const c = (g || '').trim().toUpperCase();
@@ -97,29 +109,58 @@ export default function Scorecard() {
             className="font-serif text-[56px] font-light leading-none text-ink transition-all duration-700 ease-out"
             style={{ opacity: shown ? 1 : 0, transform: shown ? 'none' : 'scale(0.7)' }}
           >
-            A{'−'}
+            A
           </div>
         </div>
 
         <div className="mt-6 grid divide-y divide-line border-t border-line">
           {phases.map((p, i) => (
-            <div
-              key={p.name}
-              className="py-4 grid grid-cols-[110px_44px_1fr] items-start gap-4 transition-all duration-500 ease-out"
-              style={{
-                opacity: shown ? 1 : 0,
-                transform: shown ? 'none' : 'translateY(10px)',
-                transitionDelay: `${260 + i * 120}ms`,
-              }}
-            >
-              <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted pt-1">{p.name}</div>
+            <div key={p.name} className="py-4">
               <div
-                className={`font-serif text-[22px] font-medium leading-none ${gradeColor(p.grade)} transition-transform duration-500 ease-out`}
-                style={{ transform: shown ? 'none' : 'scale(1.25)', transitionDelay: `${320 + i * 120}ms` }}
+                className="grid grid-cols-[110px_44px_1fr] items-start gap-4 transition-all duration-500 ease-out"
+                style={{
+                  opacity: shown ? 1 : 0,
+                  transform: shown ? 'none' : 'translateY(10px)',
+                  transitionDelay: `${260 + i * 120}ms`,
+                }}
               >
-                {p.grade}
+                <div className="font-mono text-[10.5px] uppercase tracking-widest text-muted pt-1">{p.name}</div>
+                <div
+                  className={`font-serif text-[22px] font-medium leading-none ${gradeColor(p.grade)} transition-transform duration-500 ease-out`}
+                  style={{ transform: shown ? 'none' : 'scale(1.25)', transitionDelay: `${320 + i * 120}ms` }}
+                >
+                  {p.grade}
+                </div>
+                <div className="text-[13px] text-[#11161E]/75 leading-snug">{p.note}</div>
               </div>
-              <div className="text-[13px] text-[#11161E]/75 leading-snug">{p.note}</div>
+
+              {/* post-grade reveal: what a strong answer covers + the model answer */}
+              {p.name === 'Valuation' && (
+                <div
+                  className="mt-3.5 ml-0 sm:ml-[126px] transition-all duration-500 ease-out"
+                  style={{
+                    opacity: shown ? 1 : 0,
+                    transform: shown ? 'none' : 'translateY(8px)',
+                    transitionDelay: shown ? '560ms' : '0ms',
+                  }}
+                >
+                  <div className="pl-5" style={{ borderLeft: '2px solid var(--gold)' }}>
+                    <div className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-gold">What a strong answer covers</div>
+                    <ul className="mt-2.5 space-y-2">
+                      {VALUATION_KEY.covers.map((c, j) => (
+                        <li key={j} className="flex items-start gap-2.5 text-[12.5px] leading-snug text-ink/85">
+                          <span className="mt-0.5 shrink-0 text-gold text-[11px] leading-none" aria-hidden>{'✓'}</span>
+                          <span>{c}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-3.5">
+                      <div className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-muted">Model answer</div>
+                      <p className="mt-1.5 font-serif italic text-[13px] leading-snug text-ink/80">{VALUATION_KEY.model}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
