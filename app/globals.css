@@ -1600,8 +1600,8 @@ body.font-sans {
 .is-in .wave i { animation: wave-bar 1.25s ease-in-out infinite; }
 
 /* Knowledge teaser cards lift slightly on hover */
-.kn-card { transition: transform 320ms cubic-bezier(0.16,1,0.3,1); }
-.kn-card:hover { transform: translateY(-3px); }
+.kn-card { transition: transform 320ms cubic-bezier(0.16,1,0.3,1), border-color 320ms ease, box-shadow 320ms ease; }
+.kn-card:hover { transform: translateY(-3px); border-color: var(--gold-line); box-shadow: 0 26px 50px -34px rgba(14,30,54,0.26); }
 
 /* Faint gold "orb" used as a parallax depth layer behind big sections */
 .bg-orb {
