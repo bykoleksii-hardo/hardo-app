@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 const phases = [
-  { name: 'Accounting', grade: 'B+', note: 'Solid LIFO/FIFO mechanics. Missed working-capital sanity check.' },
-  { name: 'Valuation', grade: 'A−', note: 'Clean DCF setup. Good push on terminal-value assumptions.' },
-  { name: 'Corporate Finance', grade: 'B+', note: 'WACC build was tight. Beta unlevering was rushed.' },
+  { name: 'Accounting', grade: 'B', note: 'Solid LIFO/FIFO mechanics. Missed working-capital sanity check.' },
+  { name: 'Valuation', grade: 'A', note: 'Clean DCF setup. Good push on terminal-value assumptions.' },
+  { name: 'Corporate Finance', grade: 'B', note: 'WACC build was tight. Beta unlevering was rushed.' },
   { name: 'M&A / Case', grade: 'B', note: 'Reasonable deal logic. Synergy quantification thin.' },
-  { name: 'Behavioral', grade: 'A−', note: 'Answer-first framing. Held up under 3 follow-ups.' },
+  { name: 'Behavioral', grade: 'A', note: 'Answer-first framing. Held up under 3 follow-ups.' },
 ];
 
 function gradeColor(g: string): string {
@@ -97,7 +97,7 @@ export default function Scorecard() {
             className="font-serif text-[56px] font-light leading-none text-ink transition-all duration-700 ease-out"
             style={{ opacity: shown ? 1 : 0, transform: shown ? 'none' : 'scale(0.7)' }}
           >
-            A{'−'}
+            A
           </div>
         </div>
 

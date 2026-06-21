@@ -55,7 +55,7 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
     tagline: 'You sit between the MD and the model. The room expects judgment.',
     pitch: "Sector reads, capital structure trade-offs, and how you'd shape a process. Follow-ups dig: why this advisor, why now, what you'd push back on.",
     tags: ['Capital structure', 'Process strategy', 'Sector view', 'Negotiation read'],
-    sample: { q: "A sponsor asks you whether to take their $300M EBITDA portco public at 10x or sell to a strategic at 11.5x. They want one number, then your reasoning. Go.", phase: 'Case', grade: 'B+' },
+    sample: { q: "A sponsor asks you whether to take their $300M EBITDA portco public at 10x or sell to a strategic at 11.5x. They want one number, then your reasoning. Go.", phase: 'Case', grade: 'B' },
     tone: 'judgment',
   },
 ];

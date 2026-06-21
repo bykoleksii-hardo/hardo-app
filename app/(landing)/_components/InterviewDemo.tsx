@@ -35,7 +35,7 @@ const TURNS: Turn[] = [
 /* Block result — kept visual and scannable: a grade, a one-line verdict,
    one win + one fix, and the follow-up depth held. */
 const RESULT = {
-  grade: 'A−',
+  grade: 'A',
   verdict: 'Strong framework — held through both follow-ups.',
   win: 'Risk-adjusted NPV, weighted by phase.',
   fix: 'Build the 12–15% from the ground up.',

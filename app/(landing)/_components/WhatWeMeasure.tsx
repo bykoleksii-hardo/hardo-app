@@ -43,11 +43,9 @@ export default function WhatWeMeasure() {
                 Accounting, valuation, M&amp;A, PE/LBO, behavioral &mdash; combined into one letter you can quote in a follow-up email.
               </p>
               <div className="ww-vis ww-vis-grade">
-                <div className="ww-bigA">A&minus;</div>
+                <div className="ww-bigA">A</div>
                 <ol className="ww-scale" aria-label="Grade scale">
-                  <li>A+</li>
-                  <li className="ww-now">A&minus;</li>
-                  <li>B+</li>
+                  <li className="ww-now">A</li>
                   <li>B</li>
                   <li>C</li>
                   <li>D</li>
