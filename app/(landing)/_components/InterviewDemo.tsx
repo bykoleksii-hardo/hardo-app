@@ -42,11 +42,25 @@ const RESULT = {
   progress: 'Q 02 / 12',
 };
 
+/* Answer key — revealed after the block is graded: what a strong answer had to
+   cover, plus a model answer written to the bar. Mirrors the product summary's
+   "What a strong answer covers" + "Model answer" reveal. */
+const ANSWER_KEY = {
+  covers: [
+    'Risk-adjusted NPV — peak sales weighted by phase probability.',
+    'Discount rate set to the binary clinical risk, not a mature-pharma rate.',
+    'Cross-checked against comparable deal value per pipeline asset.',
+  ],
+  model:
+    'Build an rNPV: project peak sales, probability-weight by phase, discount at 12–15% for clinical risk, then sanity-check against recent comparable transactions.',
+};
+
 type Sub = 'ask' | 'rec' | 'tx';
 type Step =
   | { stage: 'turn'; turn: number; sub: Sub }
   | { stage: 'grading' }
-  | { stage: 'result' };
+  | { stage: 'result' }
+  | { stage: 'answer' };
 
 const STEPS: Step[] = [
   { stage: 'turn', turn: 0, sub: 'ask' },
@@ -60,9 +74,10 @@ const STEPS: Step[] = [
   { stage: 'turn', turn: 2, sub: 'tx' },
   { stage: 'grading' },
   { stage: 'result' },
+  { stage: 'answer' },
 ];
 // Unhurried pacing — each part gets time to read before it moves on.
-const DUR = [2300, 2200, 3200, 1900, 2000, 2900, 1900, 2000, 2900, 1900, 7000];
+const DUR = [2300, 2200, 3200, 1900, 2000, 2900, 1900, 2000, 2900, 1900, 7000, 6000];
 
 // Smooth, gentle enter used across the demo.
 const EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';
@@ -89,6 +104,7 @@ function turnLabel(i: number): string {
 function tab(step: Step): { t: string; cls: string; dot: boolean } {
   if (step.stage === 'grading') return { t: 'Grading', cls: 'iv-card__tab--thinking', dot: true };
   if (step.stage === 'result') return { t: 'Block graded', cls: 'iv-card__tab--review', dot: false };
+  if (step.stage === 'answer') return { t: 'Answer key', cls: 'iv-card__tab--review', dot: false };
   if (step.sub === 'rec') return { t: 'Recording', cls: 'iv-card__tab--recording', dot: true };
   if (step.sub === 'tx') return { t: 'Transcribing', cls: 'iv-card__tab--transcribing', dot: true };
   return { t: TURNS[step.turn].kind, cls: 'iv-card__tab--ready', dot: false };
@@ -159,6 +175,8 @@ export default function InterviewDemo() {
 
       {step.stage === 'result' ? (
         <BlockResult reduced={reduced} />
+      ) : step.stage === 'answer' ? (
+        <AnswerKey reduced={reduced} />
       ) : (
         <div className="mt-4">
           {/* completed turns, collapsed */}
@@ -287,6 +305,45 @@ function BlockResult({ reduced }: { reduced: boolean }) {
       <div className="mt-3.5 border-t border-line pt-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-muted" style={at(500)}>
         <span>Graded to the director bar</span>
         <span>{RESULT.progress}</span>
+      </div>
+    </div>
+  );
+}
+
+function AnswerKey({ reduced }: { reduced: boolean }) {
+  // Stagger the sections in unless reduced-motion is requested.
+  const at = (ms: number): React.CSSProperties => (reduced ? {} : enter(620, ms));
+
+  return (
+    <div className="mt-5">
+      {/* the answer key arrives once the block is graded */}
+      <div className="flex items-center justify-between border-b border-line pb-3" style={at(40)}>
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">After the grade {'·'} {BLOCK.name}</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold">Answer key</span>
+      </div>
+
+      {/* what a strong answer covers */}
+      <div className="mt-4" style={at(200)}>
+        <div className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-muted">What a strong answer covers</div>
+        <ul className="mt-2.5 space-y-2">
+          {ANSWER_KEY.covers.map((c, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-[13px] leading-snug text-ink/85">
+              <span className="mt-0.5 shrink-0 text-gold text-[12px] leading-none" aria-hidden>{'✓'}</span>
+              <span>{c}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* the model answer, written to the bar */}
+      <div className="mt-5 border-t border-line pt-4" style={at(360)}>
+        <div className="font-mono text-[9.5px] uppercase tracking-[0.18em] text-gold">Model answer</div>
+        <p
+          className="mt-2 font-serif italic text-[14.5px] leading-snug text-ink/80 pl-3.5"
+          style={{ borderLeft: '2px solid var(--gold)' }}
+        >
+          {ANSWER_KEY.model}
+        </p>
       </div>
     </div>
   );
