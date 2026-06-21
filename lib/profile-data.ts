@@ -1,22 +1,17 @@
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { percentToLetter } from '@/lib/interview-prompts';
 import type {
   UserProfile,
   InterviewHistoryItem,
 } from '@/lib/types';
 
+// Overall-score (0-100) -> display letter. Single source of truth: the same
+// whole-letter scale (A/B/C/D/F) the interview scorecard uses via
+// percentToLetter. No +/- — those flip between runs and would not match the
+// per-block grades the candidate actually sees.
 function scoreToLetter(score: number | null): string | null {
   if (score == null) return null;
-  if (score >= 90) return 'A+';
-  if (score >= 85) return 'A';
-  if (score >= 80) return 'A-';
-  if (score >= 75) return 'B+';
-  if (score >= 70) return 'B';
-  if (score >= 65) return 'B-';
-  if (score >= 60) return 'C+';
-  if (score >= 55) return 'C';
-  if (score >= 50) return 'C-';
-  if (score >= 45) return 'D';
-  return 'F';
+  return percentToLetter(score / 100);
 }
 
 

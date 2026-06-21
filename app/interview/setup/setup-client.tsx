@@ -37,7 +37,7 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
     tagline: 'First superday season. Build muscle on the basics before the real heat.',
     pitch: "Foundations of accounting, valuation, and a soft fit-check. No deal walk-throughs — we keep follow-ups gentle and let you build muscle before the real heat.",
     tags: ['3 statements', 'Comps & DCF basics', 'Why banking', 'Soft fit'],
-    sample: { q: 'Walk me through how $10 of depreciation flows through the three statements. Take your time — I want to hear the logic, not just the numbers.', phase: 'Accounting', grade: 'B-' },
+    sample: { q: 'Walk me through how $10 of depreciation flows through the three statements. Take your time — I want to hear the logic, not just the numbers.', phase: 'Accounting', grade: 'B' },
     tone: 'foundations',
   },
   {
