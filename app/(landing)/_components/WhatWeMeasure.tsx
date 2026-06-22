@@ -19,12 +19,8 @@ export default function WhatWeMeasure() {
         <Reveal delay={140}>
           <div className="ww-lede">
             <p>
-              Every interview ends with a director-grade rubric: a letter, a skill profile, follow-up depth, and a hire call &mdash; then the model answer for every question.
-              No vibes, no participation trophies.
+              Every interview ends with a director-grade rubric: a letter, a skill profile, and a hire call. No vibes, no participation trophies &mdash; if a director can&rsquo;t grade it on paper, neither will we.
             </p>
-            <blockquote className="ww-pullquote">
-              If a director can&rsquo;t grade it on paper, neither will we.
-            </blockquote>
           </div>
         </Reveal>
 
@@ -34,7 +30,7 @@ export default function WhatWeMeasure() {
             <article className="ww-card">
               <header className="ww-cardhead">
                 <span className="ww-name">Letter grade</span>
-                <span className="ww-idx">&mdash; 01 / 04</span>
+                <span className="ww-idx">&mdash; 01 / 03</span>
               </header>
               <h3 className="ww-headline">
                 A single mark, weighted across <em>every</em> category.
@@ -60,7 +56,7 @@ export default function WhatWeMeasure() {
             <article className="ww-card">
               <header className="ww-cardhead">
                 <span className="ww-name">Skill radar</span>
-                <span className="ww-idx">&mdash; 02 / 04</span>
+                <span className="ww-idx">&mdash; 02 / 03</span>
               </header>
               <h3 className="ww-headline">
                 Six axes. <em>No averaging</em> away a weak spot.
@@ -131,38 +127,12 @@ export default function WhatWeMeasure() {
             </article>
           </Reveal>
 
-          {/* 3. Follow-up depth */}
-          <Reveal delay={320}>
-            <article className="ww-card">
-              <header className="ww-cardhead">
-                <span className="ww-name">Follow-up depth</span>
-                <span className="ww-idx">&mdash; 03 / 04</span>
-              </header>
-              <h3 className="ww-headline">
-                How far do you hold under <em>pressure</em>?
-              </h3>
-              <p className="ww-desc">
-                We push every answer with follow-ups until you break or land it. The depth you held is on the report.
-              </p>
-              <div className="ww-vis ww-vis-dots">
-                <ol className="ww-dots" aria-label="Follow-up depth: held through follow-up 3 of 5">
-                  <li className="on" />
-                  <li className="on" />
-                  <li className="on" />
-                  <li />
-                  <li />
-                </ol>
-                <div className="ww-dotslabel">Through #3 &middot; held &mdash; then thinned</div>
-              </div>
-            </article>
-          </Reveal>
-
-          {/* 4. Hire call */}
+          {/* 3. Hire call */}
           <Reveal delay={380}>
             <article className="ww-card">
               <header className="ww-cardhead">
                 <span className="ww-name">Hire call</span>
-                <span className="ww-idx">&mdash; 04 / 04</span>
+                <span className="ww-idx">&mdash; 03 / 03</span>
               </header>
               <h3 className="ww-headline">
                 The verdict a <em>director</em> would write.
@@ -182,37 +152,11 @@ export default function WhatWeMeasure() {
           </Reveal>
         </div>
 
-        <Reveal delay={420} as="article" className="ww-answerkey">
-          <div>
-            <div className="eyebrow"><span className="dash" aria-hidden /> After the grade {'·'} The answer key</div>
-            <h3 className="ww-ak-headline">
-              You don&rsquo;t just get graded. <em>You get the answer.</em>
-            </h3>
-            <p className="ww-ak-desc">
-              Every question, once you&rsquo;re scored: the points a strong answer has to hit, and a model answer written to the bar. The gap between what you said and what lands &mdash; on paper.
-            </p>
-          </div>
-          <div className="ww-ak-card">
-            <div className="ww-ak-label">What a strong answer covers</div>
-            <ul className="ww-ak-covers">
-              <li><span className="ww-ak-check" aria-hidden>{'✓'}</span>Risk-adjusted NPV &mdash; peak sales weighted by phase probability.</li>
-              <li><span className="ww-ak-check" aria-hidden>{'✓'}</span>Discount rate set to the binary clinical risk, not a mature-pharma rate.</li>
-              <li><span className="ww-ak-check" aria-hidden>{'✓'}</span>Cross-checked against comparable deal value per pipeline asset.</li>
-            </ul>
-            <div className="ww-ak-model">
-              <div className="ww-ak-label">Model answer</div>
-              <p>Build an rNPV: project peak sales, probability-weight by phase, discount at 12&ndash;15% for clinical risk, then sanity-check against recent comparable transactions.</p>
-            </div>
-          </div>
-        </Reveal>
-
-        <Reveal delay={460}>
+        <Reveal delay={300}>
           <ul className="ww-chips" aria-label="Other signals we surface">
             <li className="gold"><span className="dot" aria-hidden /> Rubric on every answer</li>
             <li className="gold"><span className="dot" aria-hidden /> Model answer on every question</li>
             <li><span className="dot" aria-hidden /> Calibrated to director bar</li>
-            <li><span className="dot" aria-hidden /> Cited from real banker workflow</li>
-            <li><span className="dot" aria-hidden /> Reproducible across runs</li>
           </ul>
         </Reveal>
       </div>
