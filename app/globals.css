@@ -1079,6 +1079,62 @@ body.font-sans {
 .cta-pill { position: relative; transition: transform 240ms cubic-bezier(0.16,1,0.3,1); }
 .cta-pill:hover { transform: translateY(-1px); }
 
+/* ===================================
+   Landing header — animated nav underline + expressive primary CTA
+   =================================== */
+
+/* Nav link: a hairline gold underline grows in from the left on hover */
+.nav-link { position: relative; }
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link:hover::after { transform: scaleX(1); }
+
+/* Primary CTA: rich deep-gold pill (ink label), foil shine + gold bloom on hover */
+.hdr-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(135deg, #CB9B43 0%, #B0822F 50%, #946C22 100%);
+  color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 8px 20px -11px rgba(148, 108, 34, 0.7);
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 260ms ease;
+}
+.hdr-cta:hover {
+  transform: translateY(-2.5px) scale(1.015);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42),
+              0 0 0 1px rgba(184, 135, 54, 0.7),
+              0 0 24px -2px rgba(203, 155, 67, 0.6),
+              0 20px 42px -10px rgba(184, 135, 54, 0.9),
+              0 8px 18px -8px rgba(14, 30, 54, 0.34);
+}
+.hdr-cta:active { transform: translateY(0) scale(0.99); }
+/* foil shine, behind the label (z-index -1 within the isolated pill) */
+.hdr-cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 26%, rgba(255, 255, 255, 0.5) 50%, transparent 74%);
+  transform: translateX(-130%);
+  transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hdr-cta:hover::after { transform: translateX(130%); }
+.hdr-cta .arr {
+  display: inline-block;
+  transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hdr-cta:hover .arr { transform: translateX(4px); }
+
 /* --- Depth: parallax-friendly decorative ledger glyph in the hero --- */
 .hero-figure {
   position: absolute;

@@ -11,22 +11,22 @@ type Props = {
 
 export default function LandingHeader({ signedIn = false, isAdmin = false, isPaid = false, onLanding = false }: Props) {
   return (
-    <header className="border-b border-line bg-paper/80 backdrop-blur sticky top-0 z-40">
+    <header className="border-b border-line bg-paper/85 backdrop-blur-md sticky top-0 z-40">
       <div className="max-w-page mx-auto px-6 h-16 flex items-center justify-between">
         <Brand size="md" />
         <nav className="hidden md:flex items-center gap-7 text-[13.5px] text-ink-2">
         {onLanding && (
           <>
-            <a href="/#how" className="hover:text-ink">How it works</a>
+            <a href="/#how" className="nav-link hover:text-ink">How it works</a>
             {!isPaid && (
-              <a href="/#pricing" className="hover:text-ink">Pricing</a>
+              <a href="/#pricing" className="nav-link hover:text-ink">Pricing</a>
             )}
           </>
         )}
-        <Link href="/knowledge" className="hover:text-ink">Knowledge Hub</Link>
-        <Link href={signedIn ? '/vault' : '/login'} className="hover:text-ink">Question Vault</Link>
+        <Link href="/knowledge" className="nav-link hover:text-ink">Knowledge Hub</Link>
+        <Link href={signedIn ? '/vault' : '/login'} className="nav-link hover:text-ink">Question Vault</Link>
         {onLanding && (
-          <a href="/#faq" className="hover:text-ink">FAQ</a>
+          <a href="/#faq" className="nav-link hover:text-ink">FAQ</a>
         )}
       </nav>
         <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export default function LandingHeader({ signedIn = false, isAdmin = false, isPai
             <div className="hidden sm:block relative group">
               <button
                 type="button"
-                className="text-[11px] tracking-[0.18em] uppercase text-[#B88736] border border-[#B88736]/40 px-2 py-1 rounded-sm hover:border-[#B88736] transition-colors inline-flex items-center gap-1.5"
+                className="text-[11px] tracking-[0.18em] uppercase text-gold border border-gold/40 px-2.5 py-1 rounded-sm hover:border-gold hover:bg-gold-soft transition-colors inline-flex items-center gap-1.5"
                 aria-haspopup="true"
               >
                 Admin
@@ -68,10 +68,10 @@ export default function LandingHeader({ signedIn = false, isAdmin = false, isPai
           )}
           <Link
             href={signedIn ? '/interview/setup' : '/login'}
-            className="inline-flex items-center justify-center gap-1.5 bg-ink text-paper text-[13px] px-4 py-2 min-h-[44px] rounded-full hover:bg-navy transition-colors"
+            className="hdr-cta group inline-flex items-center justify-center gap-2 text-ink text-[13px] font-semibold px-5 py-2 min-h-[44px] rounded-full"
           >
             {signedIn ? 'Start interview' : 'Start free'}
-            <span aria-hidden>{'\u2192'}</span>
+            <span aria-hidden className="arr text-[15px] leading-none">{'\u2192'}</span>
           </Link>
           <MobileMenu signedIn={signedIn} isAdmin={isAdmin} isPaid={isPaid} onLanding={onLanding} />
         </div>
