@@ -209,7 +209,7 @@ function BottomCTA({ plan }: { plan: 'anon' | 'free' | 'paid' }) {
 function ScorecardSection() {
   return (
     <section className="border-t border-line bg-cream/40">
-      <div className="max-w-page mx-auto px-6 py-24 md:py-28 grid gap-12 md:gap-16 md:grid-cols-[0.85fr_1.15fr] md:items-center">
+      <div className="max-w-page mx-auto px-6 py-24 md:py-28 grid gap-12 md:gap-16 md:grid-cols-[0.85fr_1.15fr] md:items-start">
         <div>
           <Reveal>
             <div className="eyebrow"><span className="dash" aria-hidden /> An actual scorecard</div>
@@ -221,7 +221,7 @@ function ScorecardSection() {
           </Reveal>
           <Reveal delay={140}>
             <p className="mt-5 text-[16px] text-ink-2 leading-relaxed max-w-md">
-              Per-category grades, follow-up depth, a hire call \u2014 and, on every question, the model answer behind the grade.
+              Per-category grades, follow-up depth, a hire call &mdash; and, on every question, the model answer behind the grade.
             </p>
           </Reveal>
         </div>
