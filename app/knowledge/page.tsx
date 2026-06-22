@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { listPublishedArticles, ARTICLE_CATEGORIES, isArticleCategory, type ArticleCategory } from '@/lib/knowledge/queries';
+import { listPublishedArticles, ARTICLE_CATEGORIES, isArticleCategory, type ArticleCategory, type KnowledgeArticle } from '@/lib/knowledge/queries';
 import LandingFooter from '@/app/(landing)/_components/Footer';
 import JsonLd from '@/app/_components/JsonLd';
 import HeaderAuth from '@/app/_components/HeaderAuth';
@@ -67,7 +67,7 @@ export default async function KnowledgeIndex({ searchParams }: { searchParams: P
           </div>
         </section>
 
-        <section>
+        <section className="bg-cream/30">
           <div className="max-w-page mx-auto px-6 py-16">
             {articles.length === 0 ? (
               <div className="border border-line rounded-md bg-paper p-12 text-center max-w-2xl mx-auto">
@@ -83,35 +83,18 @@ export default async function KnowledgeIndex({ searchParams }: { searchParams: P
                 </Link>
               </div>
             ) : (
-              <ul className="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-                {articles.map((a) => {
-                  const tag = a.tags?.[0];
-                  return (
-                    <li key={a.id} className="border-t border-line pt-5">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-[10.5px] uppercase tracking-widest text-gold-2">{a.category}</span>
-                        {tag && (
-                          <>
-                            <span className="text-muted">{'\u00b7'}</span>
-                            <span className="font-mono text-[10.5px] uppercase tracking-widest text-muted">{tag}</span>
-                          </>
-                        )}
-                      </div>
-                      <Link href={`/knowledge/${a.slug}`} className="group block mt-3">
-                        <h2 className="font-serif text-[22px] font-medium leading-snug group-hover:text-gold transition-colors">
-                          {a.title}
-                        </h2>
-                        {a.description && (
-                          <p className="mt-3 text-[14px] text-ink-2 leading-relaxed">{a.description}</p>
-                        )}
-                      </Link>
-                      <div className="mt-4 font-mono text-[10.5px] uppercase tracking-widest text-muted">
-                        {fmtDate(a.published_at)}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+              <div className="space-y-12 md:space-y-16">
+                <FeatureCard a={articles[0]} />
+                {articles.length > 1 && (
+                  <ul className="grid gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+                    {articles.slice(1).map((a) => (
+                      <li key={a.id} className="h-full">
+                        <ArticleCard a={a} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </div>
         </section>
@@ -146,6 +129,106 @@ function CategoryTab({ href, label, active }: { href: string; label: string; act
       }
     >
       {label}
+    </Link>
+  );
+}
+
+// Featured lead article — the eye-grabber: large cover beside an oversized
+// serif headline, with a "Featured" chip and a Read affordance on hover.
+function FeatureCard({ a }: { a: KnowledgeArticle }) {
+  const tag = a.tags?.[0];
+  return (
+    <Link
+      href={`/knowledge/${a.slug}`}
+      className="kn-card group grid md:grid-cols-[1.25fr_1fr] items-center gap-6 md:gap-10 rounded-lg border border-line bg-paper p-4 md:p-6"
+    >
+      <div className="relative overflow-hidden rounded-md bg-cream aspect-[16/10] md:aspect-[4/3]">
+        {a.cover_url ? (
+          <img
+            src={a.cover_url}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center font-mono text-[11px] uppercase tracking-widest text-muted">HARDO</div>
+        )}
+        <span className="absolute left-3 top-3 inline-flex items-center font-mono text-[9.5px] uppercase tracking-widest text-gold-2 bg-paper/90 backdrop-blur px-2.5 py-1 rounded-full border border-line">
+          Featured
+        </span>
+      </div>
+      <div className="min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-mono text-[10.5px] uppercase tracking-widest text-gold-2">{a.category}</span>
+          {tag && (
+            <>
+              <span className="text-muted">{'·'}</span>
+              <span className="font-mono text-[10.5px] uppercase tracking-widest text-muted">{tag}</span>
+            </>
+          )}
+        </div>
+        <h2 className="mt-3 font-serif text-[28px] md:text-[36px] font-light leading-[1.08] tracking-[-0.012em] group-hover:text-gold transition-colors">
+          {a.title}
+        </h2>
+        {a.description && (
+          <p className="mt-3 text-[15px] text-ink-2 leading-relaxed max-w-xl line-clamp-3">{a.description}</p>
+        )}
+        <div className="mt-5 flex items-center gap-3 font-mono text-[10.5px] uppercase tracking-widest text-muted">
+          <span>{fmtDate(a.published_at)}</span>
+          <span className="h-px w-6 bg-line" aria-hidden />
+          <span className="inline-flex items-center gap-1 text-gold opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+            Read the breakdown <span aria-hidden>{'→'}</span>
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// Standard article card — cover on top, then category, title, blurb, date.
+// Equal-height in the grid (mt-auto pins the footer); hover lifts the card,
+// zooms the cover, and slides in a "Read" cue.
+function ArticleCard({ a }: { a: KnowledgeArticle }) {
+  const tag = a.tags?.[0];
+  return (
+    <Link
+      href={`/knowledge/${a.slug}`}
+      className="kn-card group flex h-full flex-col rounded-lg border border-line bg-paper p-3.5"
+    >
+      <div className="relative overflow-hidden rounded-md bg-cream aspect-[16/10]">
+        {a.cover_url ? (
+          <img
+            src={a.cover_url}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div className="absolute inset-0 grid place-items-center font-mono text-[10px] uppercase tracking-widest text-muted">HARDO</div>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col px-1.5 pt-4 pb-1">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-gold-2">{a.category}</span>
+          {tag && (
+            <>
+              <span className="text-muted text-[10px]">{'·'}</span>
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted">{tag}</span>
+            </>
+          )}
+        </div>
+        <h2 className="mt-2.5 font-serif text-[20px] font-medium leading-snug group-hover:text-gold transition-colors line-clamp-2">
+          {a.title}
+        </h2>
+        {a.description && (
+          <p className="mt-2.5 text-[13.5px] text-ink-2 leading-relaxed line-clamp-2">{a.description}</p>
+        )}
+        <div className="mt-auto pt-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-widest text-muted">
+          <span>{fmtDate(a.published_at)}</span>
+          <span className="inline-flex items-center gap-1 text-gold opacity-0 -translate-x-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+            Read <span aria-hidden>{'→'}</span>
+          </span>
+        </div>
+      </div>
     </Link>
   );
 }
