@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { VaultQuestionDetail } from '@/lib/vault/queries';
 
+// Mirrors the listing so a question's grade reads the same on both screens.
 function gradeTone(grade: string | null): string {
   if (!grade) return 'text-muted border-line';
-  const g = grade[0];
-  if (g === 'A') return 'text-[#3F7A4E] border-[#3F7A4E]/40';
-  if (g === 'B') return 'text-[#7A6A2F] border-[#7A6A2F]/40';
-  if (g === 'C') return 'text-[#9A6F26] border-[#9A6F26]/40';
-  return 'text-[#B4452F] border-[#B4452F]/40';
+  const head = grade[0];
+  if (head === 'A') return 'text-[#2F7D4F] border-[#2F7D4F]/45';
+  if (head === 'B') return 'text-[#B88736] border-[#B88736]/50';
+  if (head === 'C') return 'text-[#9A6F26] border-[#9A6F26]/45';
+  return 'text-[#B4452F] border-[#B4452F]/45';
 }
 
 function fmtDate(iso: string | null): string {
@@ -51,6 +52,15 @@ function parseFeedback(raw: string | null): ParsedFeedback | null {
   } catch {
     return { summary: raw, strengths: [], weaknesses: [], howToImprove: null };
   }
+}
+
+function Stat({ label, value, first }: { label: string; value: number | string; first?: boolean }) {
+  return (
+    <div className={`px-4 py-5 text-center ${first ? '' : 'border-l border-line'}`}>
+      <p className="font-serif text-[26px] font-light leading-none text-ink">{value}</p>
+      <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">{label}</p>
+    </div>
+  );
 }
 
 export function QuestionDetailClient({
@@ -106,72 +116,67 @@ export function QuestionDetailClient({
   }
 
   return (
-    <main className="max-w-[860px] mx-auto px-5 md:px-12 py-10 md:py-14">
+    <main className="max-w-[820px] mx-auto px-5 md:px-12 py-10 md:py-16">
       <Link
         href="/vault"
-        className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-muted hover:text-ink transition-colors mb-8"
+        className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.16em] text-muted hover:text-ink transition-colors mb-9"
       >
-        {'\u2190'} Question Vault
+        <span aria-hidden>{'←'}</span> Question Vault
       </Link>
 
-      <div className="flex items-center justify-between mb-4">
-        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#B88736]">{detail.category}</span>
-        {detail.bestGrade && (
-          <span className={`font-mono text-[13px] px-2 py-1 border rounded-sm ${gradeTone(detail.bestGrade)}`}>
-            Best {detail.bestGrade}
-          </span>
-        )}
+      <header className="relative overflow-hidden mb-9">
+        <div className="bg-orb" aria-hidden style={{ top: '-190px', left: '-130px' }} />
+        <div className="relative z-[1]">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div className="eyebrow">{detail.category}</div>
+            {detail.bestGrade && (
+              <span className={`font-mono text-[12px] px-2.5 py-1 border rounded-[3px] ${gradeTone(detail.bestGrade)}`}>
+                Best {detail.bestGrade}
+              </span>
+            )}
+          </div>
+          <h1 className="font-serif text-[26px] md:text-[34px] font-light leading-[1.12] tracking-[-0.015em] text-ink">
+            {detail.question}
+          </h1>
+          {detail.subtopic && (
+            <p className="mt-3.5 font-mono text-[11px] uppercase tracking-[0.16em] text-muted">{detail.subtopic}</p>
+          )}
+        </div>
+      </header>
+
+      <div className="grid grid-cols-3 border border-line rounded-[3px] bg-paper overflow-hidden mb-10">
+        <Stat label="Attempts" value={detail.attempts} first />
+        <Stat label="Avg score" value={detail.avgScore ?? '—'} />
+        <Stat label="Deep dives" value={detail.deepDiveCount} />
       </div>
 
-      <h1 className="font-serif text-2xl md:text-3xl leading-snug text-ink mb-3">{detail.question}</h1>
-      {detail.subtopic && (
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted mb-8">{detail.subtopic}</p>
-      )}
-
-      <div className="grid grid-cols-3 gap-3 mb-9">
-        <div className="lift border border-line rounded-sm bg-paper p-4 text-center">
-          <p className="font-serif text-2xl text-ink">{detail.attempts}</p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Attempts</p>
-        </div>
-        <div className="lift border border-line rounded-sm bg-paper p-4 text-center">
-          <p className="font-serif text-2xl text-ink">{detail.avgScore ?? '\u2014'}</p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Avg score</p>
-        </div>
-        <div className="lift border border-line rounded-sm bg-paper p-4 text-center">
-          <p className="font-serif text-2xl text-ink">{detail.deepDiveCount}</p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Deep dives</p>
-        </div>
-      </div>
-
-      <div className="border border-[#B88736]/30 bg-[#B88736]/[0.05] rounded-sm p-5 md:p-6 mb-10">
-        <h2 className="font-serif text-lg text-ink mb-1">Deep dive this question</h2>
-        <p className="text-[13.5px] text-ink-2 leading-relaxed mb-4">
+      <div className="relative border border-gold-line bg-gold-soft rounded-[4px] p-6 md:p-7 mb-12">
+        <div className="eyebrow mb-3">Go deeper</div>
+        <h2 className="font-serif text-[21px] md:text-[23px] font-light leading-snug text-ink">Deep dive this question</h2>
+        <p className="mt-2.5 text-[13.5px] text-ink-2 leading-relaxed max-w-lg">
           Run this question on its own with up to five follow-ups, graded the same way as a real round.
           It will not use your free interview.
         </p>
         {isPaid && (
-          <div className="mb-5">
-            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted block mb-2">How will you answer?</span>
-            <div className="inline-flex rounded-sm border border-line overflow-hidden">
-              {(['text', 'voice'] as const).map((m) => {
-                const isActive = m === inputMode;
-                return (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setInputMode(m)}
-                    aria-pressed={isActive}
-                    className={`font-mono text-[11px] uppercase tracking-[0.16em] px-4 py-2 transition-colors ${isActive ? 'bg-ink text-paper' : 'bg-paper text-ink-2 hover:text-ink'}`}
-                  >
-                    {m === 'text' ? 'Type' : 'Speak'}
-                  </button>
-                );
-              })}
+          <div className="mt-5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted block mb-2.5">How will you answer?</span>
+            <div className="inline-flex gap-2">
+              {(['text', 'voice'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setInputMode(m)}
+                  aria-pressed={m === inputMode}
+                  className="vault-pill"
+                >
+                  {m === 'text' ? 'Type' : 'Speak'}
+                </button>
+              ))}
             </div>
-            <p className="mt-2 text-[12px] text-ink-2">
+            <p className="mt-2.5 text-[12px] text-ink-2">
               {inputMode === 'voice'
-                ? 'Speak your answer out loud \u2014 microphone required, transcript is editable.'
-                : 'Type your answer \u2014 quiet practice, edit before you send.'}
+                ? 'Speak your answer out loud — microphone required, transcript is editable.'
+                : 'Type your answer — quiet practice, edit before you send.'}
             </p>
           </div>
         )}
@@ -179,14 +184,14 @@ export function QuestionDetailClient({
           type="button"
           onClick={startDeepDive}
           disabled={starting}
-          className="inline-flex items-center justify-center bg-ink text-paper font-mono text-[12px] uppercase tracking-[0.16em] px-5 py-2.5 rounded-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="mt-6 inline-flex items-center justify-center bg-ink text-paper font-mono text-[12px] uppercase tracking-[0.16em] px-6 py-3 rounded-[3px] transition-opacity hover:opacity-90 disabled:opacity-50"
         >
-          {starting ? 'Starting\u2026' : isPaid ? 'Start deep dive' : 'Upgrade to deep dive'}
+          {starting ? 'Starting…' : isPaid ? 'Start deep dive' : 'Upgrade to deep dive'}
         </button>
         {!isPaid && (
-          <p className="mt-3 text-[12.5px] text-ink-2">
+          <p className="mt-3.5 text-[12.5px] text-ink-2">
             Deep dives are a paid feature.{' '}
-            <Link href="/upgrade" className="text-[#B88736] underline underline-offset-2 hover:text-[#9A6F26]">
+            <Link href="/upgrade" className="text-gold underline underline-offset-2 hover:text-gold-2">
               See plans
             </Link>
           </p>
@@ -194,31 +199,44 @@ export function QuestionDetailClient({
         {error && <p className="mt-3 text-[12.5px] text-[#B4452F]">{error}</p>}
       </div>
 
-      <h2 className="font-serif text-xl text-ink mb-4">Feedback history</h2>
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="font-serif text-[21px] font-light text-ink">Feedback history</h2>
+        {detail.feedback.length > 0 && (
+          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">{detail.feedback.length} graded</span>
+        )}
+      </div>
+
       {detail.feedback.length === 0 ? (
-        <p className="text-muted text-[14px] py-10 text-center border border-line rounded-sm bg-cream/30">
-          No graded answers yet. Start a deep dive or meet this question in an interview.
-        </p>
+        <div className="border border-line rounded-[3px] bg-cream/40 py-12 text-center">
+          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
+            No graded answers yet &mdash; start a deep dive, or meet this question in a round.
+          </p>
+        </div>
       ) : (
         <ul className="space-y-4">
-          {detail.feedback.map((f) => {
+          {detail.feedback.map((f, idx) => {
             const fb = parseFeedback(f.feedback);
             return (
-              <li key={f.stepId} className="border border-line rounded-sm bg-paper p-5 transition-colors hover:border-[#B88736]/40">
-                <div className="flex items-center justify-between mb-3">
+              <li key={f.stepId} className="border border-line rounded-[3px] bg-paper p-5 transition-colors hover:border-gold-line">
+                <div className="flex items-center justify-between gap-3 mb-3">
                   <div className="flex items-center gap-2">
-                    {f.grade && (
-                      <span className={`font-mono text-[11px] px-1.5 py-0.5 border rounded-sm ${gradeTone(f.grade)}`}>
-                        {f.grade}
-                      </span>
-                    )}
+                    <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
+                      Attempt {detail.feedback.length - idx}
+                    </span>
                     {f.kind === 'deep_dive' && (
-                      <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#B88736] border border-[#B88736]/40 rounded-sm px-1.5 py-0.5">
+                      <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-gold border border-gold-line rounded-[3px] px-1.5 py-0.5">
                         Deep dive
                       </span>
                     )}
                   </div>
-                  <span className="font-mono text-[10.5px] text-muted">{fmtDate(f.createdAt)}</span>
+                  <div className="flex items-center gap-2.5">
+                    {f.grade && (
+                      <span className={`font-mono text-[11px] px-1.5 py-0.5 border rounded-[3px] ${gradeTone(f.grade)}`}>
+                        {f.grade}
+                      </span>
+                    )}
+                    <span className="font-mono text-[10.5px] text-muted whitespace-nowrap">{fmtDate(f.createdAt)}</span>
+                  </div>
                 </div>
                 {f.answer && (
                   <div className="mb-3">
@@ -228,14 +246,12 @@ export function QuestionDetailClient({
                 )}
                 {fb && (fb.summary || fb.strengths.length > 0 || fb.weaknesses.length > 0 || fb.howToImprove) && (
                   <div className="border-t border-line/70 pt-3">
-                    <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#B88736] block mb-1.5">Feedback</span>
-                    {fb.summary && (
-                      <p className="text-[13.5px] text-ink leading-relaxed mb-2">{fb.summary}</p>
-                    )}
+                    <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-gold block mb-1.5">Feedback</span>
+                    {fb.summary && <p className="text-[13.5px] text-ink leading-relaxed mb-2">{fb.summary}</p>}
                     {fb.strengths.length > 0 && (
                       <ul className="mb-2 space-y-0.5">
                         {fb.strengths.map((x, i) => (
-                          <li key={i} className="text-[13px] text-[#3F7A4E] leading-relaxed pl-3 relative before:content-['+'] before:absolute before:left-0">{x}</li>
+                          <li key={i} className="text-[13px] text-[#2F7D4F] leading-relaxed pl-3 relative before:content-['+'] before:absolute before:left-0">{x}</li>
                         ))}
                       </ul>
                     )}
