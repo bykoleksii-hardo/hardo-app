@@ -17,8 +17,7 @@ type Cmd = {
 const COMMANDS: Cmd[] = [
   { id: 'home', label: 'Home', hint: '/', group: 'GO', href: '/' },
   { id: 'how', label: 'How it works', hint: '/#how', group: 'GO', href: '/#how' },
-  { id: 'voice', label: 'Voice mode', hint: '/#voice', group: 'GO', href: '/#voice' },
-  { id: 'measure', label: 'What we measure', hint: '/#measure', group: 'GO', href: '/#measure' },
+  { id: 'measure', label: 'What we measure', hint: '/#what-we-measure', group: 'GO', href: '/#what-we-measure' },
   { id: 'pricing', label: 'Pricing', hint: '/#pricing', group: 'GO', href: '/#pricing' },
   { id: 'faq', label: 'FAQ', hint: '/#faq', group: 'GO', href: '/#faq' },
   { id: 'knowledge', label: 'Knowledge Hub', hint: '/knowledge', group: 'GO', href: '/knowledge' },

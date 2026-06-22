@@ -18,7 +18,6 @@ export default function LandingHeader({ signedIn = false, isAdmin = false, isPai
         {onLanding && (
           <>
             <a href="/#how" className="hover:text-ink">How it works</a>
-            <a href="/#voice" className="hover:text-ink">Voice mode</a>
             {!isPaid && (
               <a href="/#pricing" className="hover:text-ink">Pricing</a>
             )}

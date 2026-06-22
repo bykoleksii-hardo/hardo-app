@@ -54,7 +54,6 @@ export default function MobileMenu({ signedIn = false, isAdmin = false, isPaid =
             {onLanding && (
               <>
                 <Link href="/#how" onClick={close} className={linkClass}>How it works</Link>
-                <Link href="/#voice" onClick={close} className={linkClass}>Voice mode</Link>
                 {!isPaid && <Link href="/#pricing" onClick={close} className={linkClass}>Pricing</Link>}
                 <Link href="/#faq" onClick={close} className={linkClass}>FAQ</Link>
               </>
