@@ -6,15 +6,12 @@ import LandingHeader from './(landing)/_components/Header';
 import LandingFooter from './(landing)/_components/Footer';
 import HowItWorks from './(landing)/_components/HowItWorks';
 import WhatWeMeasure from './(landing)/_components/WhatWeMeasure';
-import VoiceMode from './(landing)/_components/VoiceMode';
 import Pricing from './(landing)/_components/Pricing';
 import KnowledgeTeaser from './(landing)/_components/KnowledgeTeaser';
 import FAQ from './(landing)/_components/FAQ';
 import InterviewDemo from './(landing)/_components/InterviewDemo';
 import TheRoom from './(landing)/_components/TheRoom';
-import Scorecard from './(landing)/_components/Scorecard';
 import Parallax from './_components/Parallax';
-import Reveal from './_components/Reveal';
 import JsonLd from './_components/JsonLd';
 import { baseFaq, pricingFaq } from './(landing)/_components/faq-data';
 import { organizationLd, websiteLd, faqLd } from '@/lib/seo';
@@ -42,9 +39,7 @@ export default async function Page() {
         {viewer.plan === 'paid' && <PaidHero />}
 
         <HowItWorks />
-        <VoiceMode />
         <TheRoom />
-        <ScorecardSection />
         <WhatWeMeasure />
         {viewer.plan !== 'paid' && <Pricing />}
         <KnowledgeTeaser />
@@ -201,31 +196,6 @@ function BottomCTA({ plan }: { plan: 'anon' | 'free' | 'paid' }) {
         <Link href={ctaHref} className="mt-8 inline-flex items-center gap-1.5 bg-ink text-paper text-[14px] px-6 py-3 rounded-full hover:bg-navy">
           {ctaText} <span aria-hidden>{'\u2192'}</span>
         </Link>
-      </div>
-    </section>
-  );
-}
-
-function ScorecardSection() {
-  return (
-    <section className="border-t border-line bg-cream/40">
-      <div className="max-w-page mx-auto px-6 py-24 md:py-28 grid gap-12 md:gap-16 md:grid-cols-[0.85fr_1.15fr] md:items-start">
-        <div>
-          <Reveal>
-            <div className="eyebrow"><span className="dash" aria-hidden /> An actual scorecard</div>
-          </Reveal>
-          <Reveal delay={80}>
-            <h2 className="font-serif text-[36px] md:text-[52px] font-light leading-[1.04] tracking-[-0.016em] mt-3 max-w-[14ch]">
-              What lands when the room closes<span className="text-gold">.</span>
-            </h2>
-          </Reveal>
-          <Reveal delay={140}>
-            <p className="mt-5 text-[16px] text-ink-2 leading-relaxed max-w-md">
-              Per-category grades, follow-up depth, a hire call &mdash; and, on every question, the model answer behind the grade.
-            </p>
-          </Reveal>
-        </div>
-        <Scorecard />
       </div>
     </section>
   );
