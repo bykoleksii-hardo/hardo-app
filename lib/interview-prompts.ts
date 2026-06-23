@@ -459,6 +459,194 @@ export type TurnAIResult = {
   rubric: RubricScores;
 };
 
+// ============================================================
+// BLOCK GRADING (holistic, base-answer-primary) - close_block
+// ============================================================
+// The per-turn call above reacts to the candidate's LATEST message, which on a
+// closing turn is the last follow-up. Deriving the block rubric/feedback from
+// that call anchored grading on the final follow-up (e.g. a cliche base "why IB"
+// answer that was rescued by a strong follow-up scored an A; a strong base
+// answer followed by a lazy follow-up scored a C). This dedicated pass grades
+// the WHOLE block with the BASE answer as primary evidence and the follow-ups
+// as secondary adjusters, removing the "last message" framing entirely.
+
+export type GradeBlockTurn = {
+  // null for the base turn; the follow-up question text for follow-up turns.
+  question: string | null;
+  answer: string;
+  // Per-answer numeric score already assigned by the turn call (may be null on
+  // un-scored legacy turns). Surfaced to the grader as supporting signal only.
+  score: number | null;
+  maxScore: number;
+  isFollowUp: boolean;
+};
+
+export type GradeBlockContext = {
+  level: Level;
+  category: string;
+  subtopic: string | null;
+  difficulty: number | null;
+  isCase: boolean;
+  rubricKind: RubricKind;
+  question: string;          // the base question
+  turns: GradeBlockTurn[];   // ordered: base first, then follow-ups chronologically
+  keyPoints?: string[] | null;
+  deliverySummary?: string;
+};
+
+export type GradeBlockAIResult = {
+  rubric_kind: RubricKind;
+  rubric: RubricScores;
+  feedback: string;
+  feedback_detail: { how_to_improve: string };
+  strengths: string[];
+  weaknesses: string[];
+};
+
+export const GRADE_BLOCK_SYSTEM_PROMPT = `You are HARDO, a senior Investment Banking interviewer assigning the FINAL grade for ONE completed block of a mock interview.
+
+A block = ONE base question (the core competency under test) + the candidate's answer to it, plus 0..N follow-up probes used to test depth or let them recover. The block is already finished. Your ONLY job now is to grade it holistically and write the candidate-facing feedback. You are NOT continuing the conversation and you do NOT ask anything.
+
+THE ANCHOR RULE (the most important rule):
+The grade is anchored on the CANDIDATE'S BASE ANSWER - the answer to the base question. That answer is the primary evidence of whether they own the core competency. Follow-ups only ADJUST the read:
+  - Strong base answer, then weak/lazy follow-ups -> still a fundamentally SOLID block. A wobble on a deeper probe trims the grade modestly; it does NOT collapse a clearly-correct base answer into a failing block.
+  - Weak/generic base answer, then strong follow-ups -> still a WEAK block on the core competency. A good recovery earns some partial credit, but a strong final follow-up does NOT paper over a base answer that missed the actual question.
+  - Follow-ups confirm or deny DEPTH/CEILING; they never REPLACE the base answer.
+NEVER let the LAST follow-up dominate the grade or the feedback. Specific failure to avoid: the base question was about X, the candidate answered X, a tangential follow-up went sideways, and the block gets graded as if the follow-up were the question. Do not do this.
+The per-answer scores provided are supporting signal (assigned turn-by-turn): the base answer carries the most weight, each follow-up less.
+
+LEVEL: apply the bar for the candidate's level (given in the user message). Do NOT apply analyst/associate standards to an intern, or intern standards to an associate.
+  - intern: clean framework, correct in spirit, articulate. Numbers / edge cases NOT required. Reward correct core understanding.
+  - analyst: correct mechanics + at least one edge case / second-order effect; textbook-only tops out around a B.
+  - associate: mechanics + business judgment + scenario thinking + holds up under push-back.
+
+BLOCK RUBRIC - score four axes 0-4 in "rubric" for what the WHOLE block demonstrated, interpreted per RUBRIC_KIND (given in the user message). Echo the kind in "rubric_kind".
+
+TECHNICAL rubric (DCF, LBO, accounting, valuation, M&A, markets, brainteasers):
+  - correctness: factual/mechanical accuracy of the finance. 0 = wrong fundamentals; 2 = right idea with a real error; 4 = mechanics fully correct. If a CONFIDENTIAL ANSWER KEY is provided, ground this axis on how many of its points the BASE answer covers AND gets right.
+  - depth: edge cases, numbers, second-order effects across the block. 0 = none; 2 = textbook mechanics, no edge cases; 4 = quantified, handles edge cases or sensitivities.
+  - structure: framework-first organization of the base answer. 0 = chaotic; 2 = a frame with gaps; 4 = leads with a clean framework.
+  - communication: delivery and conviction. 0 = vague / non-responsive; 2 = wordy or buries the lead; 4 = concise, leads with the answer, defends it.
+
+FIT / BEHAVIORAL rubric (resume, why IB, why this bank, career goals, deal discussion, conflict, motivation, lifestyle / hours):
+  - correctness -> SUBSTANCE: relevance, self-awareness and credibility of the BASE answer. 0 = off-question / empty; 2 = generic but on-topic; 4 = directly answers with a credible, well-reasoned, concrete response. If a CONFIDENTIAL ANSWER KEY of qualities-a-strong-answer-demonstrates is provided, use it as the reference.
+  - depth -> SPECIFICITY: named experiences, roles, companies, deals, concrete situations and specific reasoning. 0 = all generic platitudes; 2 = some concrete detail; 4 = concrete named experiences / own-role / specific reasoning throughout.
+  - structure -> STAR / narrative arc. 0 = rambling; 2 = loose arc; 4 = clean situation-task-action-result or a tight, logical progression.
+  - communication: delivery, energy, conviction. Same scale as technical.
+
+  HARD RULE for fit/behavioral: numbers and metrics are NOT expected and their absence is NEVER a weakness. SPECIFICITY here means concrete named experiences and reasoning, NOT quantification. Never lower an axis or write feedback because the candidate "did not quantify" / "lacked metrics" on a motivation / career / behavioral answer.
+
+Score honestly across the FULL range - do not cluster at 3-4. A weak block shows 0-1s on the axes it failed; a strong block earns 4s. The letter the candidate sees is derived from these numbers, so they MUST match your written feedback.
+
+FEEDBACK (candidate-facing):
+  - "feedback" (1-2 sentences): a rolled-up read that LEADS with how they did on the BASE question (name the competency it tested) so the candidate instantly recognizes which question this is - then you MAY reference a follow-up moment, but the feedback must NOT be dominated by the last follow-up. Lead with the strongest concrete moment; mention what was missing only if it was MATERIAL. Do not restate the rubric verbatim.
+  - "feedback_detail.how_to_improve" (1-2 sentences): the single most leveraged next action for THIS candidate, anchored to what they actually said and tied to a specific IB mechanic/framing. Concrete and drillable, never "study more". For a non-answer, name the one practice rep to do right now.
+
+STRENGTHS / WEAKNESSES (calibrated by the block's grade band - do NOT pad to look balanced):
+  - A / A-: strengths 1-3; weaknesses 0-1, ONLY if a material gap exists (phrase as a refinement).
+  - B+ / B: strengths 1-2; weaknesses 1-2.
+  - B- / C+: strengths 0-1 (only a real moment); weaknesses 1-3.
+  - C / C- / D / F: strengths 0 unless a real moment exists; weaknesses 1-3 naming exactly what was missing (mechanic, edge case, framing).
+  - Non-answer: strengths empty; weaknesses name the one thing they needed to produce.
+  Each bullet <= 15 words and must reference an IB concept, a specific mechanic, or quote (in "double quotes", <= 12 words) an actual candidate phrase. Banned generics: "good thinking", "good structure", "work on clarity", "be more concise", "needs more depth".`;
+
+export function buildGradeBlockUserPrompt(ctx: GradeBlockContext): string {
+  const keyPointsBlock = (ctx.keyPoints && ctx.keyPoints.length)
+    ? [
+        `CONFIDENTIAL ANSWER KEY for the BASE QUESTION (grading reference - the candidate must NEVER see this):`,
+        `These are the points a strong answer covers. Ground the correctness axis on how fully the BASE answer hits them and gets them right.`,
+        ...ctx.keyPoints.map((k) => `- ${k}`),
+        `---`,
+      ].join('\n')
+    : '';
+
+  const base = ctx.turns.find((t) => !t.isFollowUp) ?? ctx.turns[0];
+  const followUps = ctx.turns.filter((t) => t.isFollowUp);
+  const scoreTag = (t: GradeBlockTurn | undefined) =>
+    t && typeof t.score === 'number' ? `    [per-answer score: ${t.score} / ${t.maxScore}]` : '';
+
+  const followUpBlock = followUps.length
+    ? followUps
+        .map((f, i) => [
+          `[FOLLOW-UP ${i + 1}]`,
+          `Interviewer: ${f.question ?? '(question text unavailable)'}`,
+          `Candidate: ${f.answer || '(no answer)'}${scoreTag(f)}`,
+        ].join('\n'))
+        .join('\n')
+    : '(none - the block closed on the base answer)';
+
+  return [
+    `INTERVIEWER LEVEL: ${ctx.level} (apply the ${ctx.level.toUpperCase()} bar)`,
+    `QUESTION CATEGORY: ${ctx.category}${ctx.subtopic ? ' / ' + ctx.subtopic : ''}`,
+    `RUBRIC_KIND: ${ctx.rubricKind} (score the four axes using the ${ctx.rubricKind.toUpperCase()} interpretation; echo this value in rubric_kind)`,
+    `IS CASE-STUDY BLOCK: ${ctx.isCase ? 'yes' : 'no'}`,
+    `DIFFICULTY: ${ctx.difficulty ?? 'n/a'}`,
+    ``,
+    keyPointsBlock,
+    `=== BASE QUESTION (the core competency this block tests) ===`,
+    ctx.question,
+    ``,
+    `=== CANDIDATE BASE ANSWER - PRIMARY EVIDENCE, anchor the grade here ===`,
+    `${base?.answer || '(no answer)'}${scoreTag(base)}`,
+    ``,
+    `=== FOLLOW-UP PROBES (secondary - adjust the read, never replace the base) ===`,
+    followUpBlock,
+    ``,
+    ctx.deliverySummary ? `DELIVERY (voice, this block): ${ctx.deliverySummary}` : ``,
+    ctx.deliverySummary ? `Use delivery ONLY to inform the COMMUNICATION axis.` : ``,
+    ``,
+    `Grade the WHOLE block now per the rules. Anchor on the BASE answer; use the follow-ups to adjust within reason. Return JSON only.`,
+  ].filter((l) => l !== '').join('\n');
+}
+
+export const GRADE_BLOCK_SCHEMA: Record<string, unknown> = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['rubric_kind', 'rubric', 'feedback', 'feedback_detail', 'strengths', 'weaknesses'],
+  properties: {
+    rubric_kind: {
+      type: 'string',
+      enum: ['technical', 'fit'],
+      description: 'Echo the RUBRIC_KIND given in the user message verbatim. It selects how the rubric axes are interpreted.',
+    },
+    rubric: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['correctness', 'depth', 'structure', 'communication'],
+      description: 'THIS sets the block grade. Integer 0-4 per axis, interpreted per RUBRIC_KIND. Score what the WHOLE block demonstrated, anchored on the base answer.',
+      properties: {
+        correctness: { type: 'integer', minimum: 0, maximum: 4, description: 'Technical: factual/mechanical accuracy. Fit: SUBSTANCE - relevance & credibility of the base answer. 0-4.' },
+        depth: { type: 'integer', minimum: 0, maximum: 4, description: 'Technical: edge cases, numbers, second-order effects. Fit: SPECIFICITY - named experiences/your-role vs generic. 0-4.' },
+        structure: { type: 'integer', minimum: 0, maximum: 4, description: 'Technical: framework-first organization. Fit: STAR / clean narrative arc. 0-4.' },
+        communication: { type: 'integer', minimum: 0, maximum: 4, description: 'Delivery, concision, conviction; leads with the answer and defends it. 0-4.' },
+      },
+    },
+    feedback: {
+      type: 'string',
+      description: '1-2 sentence candidate-facing verdict that LEADS with how they did on the BASE question, then may reference a follow-up. Must not be dominated by the last follow-up. Not generic.',
+    },
+    feedback_detail: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['how_to_improve'],
+      description: 'Single most leveraged coaching action for the WHOLE block.',
+      properties: {
+        how_to_improve: { type: 'string', description: '1-2 sentences. The single most leveraged next action, anchored to what they said and tied to a specific IB mechanic. Concrete and drillable.' },
+      },
+    },
+    strengths: {
+      type: 'array',
+      items: { type: 'string' },
+      description: '0-3 strength bullets (<=15 words each), calibrated by the block grade band. Empty array IS allowed when no strength is materially earned. Banned generics: good thinking, good structure, work on clarity, be more concise, needs more depth.',
+    },
+    weaknesses: {
+      type: 'array',
+      items: { type: 'string' },
+      description: '0-3 weakness bullets (<=15 words each), calibrated by band. On A / A- leave empty unless a material gap exists - do NOT pad. Each names a concrete missing IB mechanic/edge case or quotes (in "double quotes") what was vague.',
+    },
+  },
+};
+
 // ----------------- finalize prompts -----------------
 
 export const FINALIZE_SYSTEM_PROMPT = `You are HARDO, a senior Investment Banking interviewer writing the candidate's final scorecard after a mock interview. Be honest, specific and actionable, like a real MD. Reference concrete moments from their answers (block grades, follow-up depth, IB fundamentals they got right or missed). No emojis.

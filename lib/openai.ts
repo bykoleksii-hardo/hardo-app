@@ -5,6 +5,13 @@ export type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: stri
 
 const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
+// Base URL for the Chat Completions API. Defaults to OpenAI; can be pointed at
+// any OpenAI-compatible endpoint (e.g. an Azure/OpenRouter/Gemini-compat gateway)
+// via OPENAI_BASE_URL — used by the eval harness to grade against alternate
+// models without touching production. Trailing slashes are trimmed.
+const API_BASE = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
+const CHAT_COMPLETIONS_URL = `${API_BASE}/chat/completions`;
+
 // Structured error so callers can show a friendly UI message instead of leaking raw API output.
 export class OpenAIError extends Error {
   status: number;
@@ -113,7 +120,7 @@ export async function chatJSON<T>(opts: {
       },
     },
   };
-  const r = await fetchOpenAI('https://api.openai.com/v1/chat/completions', {
+  const r = await fetchOpenAI(CHAT_COMPLETIONS_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -171,7 +178,7 @@ export async function chatText(opts: {
     temperature: opts.temperature ?? 0.4,
     max_tokens: opts.maxTokens ?? 900,
   };
-  const r = await fetchOpenAI('https://api.openai.com/v1/chat/completions', {
+  const r = await fetchOpenAI(CHAT_COMPLETIONS_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
