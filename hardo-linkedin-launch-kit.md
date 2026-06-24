@@ -155,6 +155,46 @@ _"Good/bad answers" theme. Real question + real rubric. Shows the follow-up. Ref
 
 ---
 
+### POST 3 — Carousel version (LinkedIn document post)
+_9 slides · 1080×1350 (4:5 portrait) · serif headlines (Times/Georgia) · ink `#11161E` / cream `#F2ECDF` / paper `#FBF7EE` / gold `#B88736` · export as PDF. One idea per slide._
+
+**Slide 1 — Cover.** Kicker (gold): WHY INVESTMENT BANKING? · Headline: "The answer isn't what gets you cut. **The follow-up is.**" · Sub: "Good answer vs bad answer — swipe →"
+_Visual: ink bg, cream serif, "follow-up" in gold, oversized gold quote-mark motif, swipe cue bottom-right._
+
+**Slide 2 — The answer that sounds fine.** Kicker: THE ANSWER THAT SOUNDS FINE · "It's fast-paced, I'll learn a lot, and I'm passionate about finance."
+_Visual: paper bg, large ink serif quote, gold quote marks — clean and safe on purpose._
+
+**Slide 3 — Why it fails.** "It's a **slogan.** And slogans have nowhere to go when you push on them."
+_Visual: ink bg, single centered line, only "slogan" in gold, heavy negative space._
+
+**Slide 4 — The follow-up that ends it.** Tag (gold): INTERVIEWER · "That's all true of consulting too. So **why not consulting?**" · (muted) …silence.
+_Visual: ink bg, gold INTERVIEWER tag, "…silence." low and small — tension via empty space._
+
+**Slide 5 — What a strong answer contains.** Kicker: WHAT A REAL INTERVIEWER IS CHECKING · **1** A concrete, personal reason — not clichés · **2** Skills you genuinely enjoy, tied to banking's day-to-day · **3** A realistic grasp of the hours & deal process · **4** A longer-term goal banking enables · **5** Why banking vs consulting or PE — a deliberate choice
+_Visual: paper bg, gold numerals, tight serif list — the save-worthy slide (dense by design)._
+
+**Slide 6 — The rebuilt answer.** Kicker: THE ANSWER THAT HOLDS · "Building a DCF and comps to value a retailer for a class project hooked me — the analysis **drove a real recommendation.** I want to do that on live deals, with real consequences."
+_Visual: paper bg, ink serif, "drove a real recommendation" emphasized in gold._
+
+**Slide 7 — …and it survives the push.** INTERVIEWER (gold): "Why not PE, then?" · YOU (cream): "Long term, maybe. But I want to learn how deals get built before I judge them from the buy-side."
+_Visual: ink bg, two-voice layout — gold INTERVIEWER line vs cream YOU line._
+
+**Slide 8 — The lesson.** "Not a better script. An answer that survives **the second question.**"
+_Visual: ink bg, big centered serif, "the second question" in gold, nothing else._
+
+**Slide 9 — CTA.** Headline: "Rehearse the pushback — not just the pitch." · Sub: "Hardo asks the follow-ups a real interviewer would — up to **5 deep on a case**, graded on how far you hold." · Row: ▶ Run a free mock — hardo.app · 💾 Save this · ➕ Follow Hardo
+_Visual: paper bg, gold CTA line, Hardo wordmark + logo space bottom-center._
+
+**Carousel caption:**
+> "Why investment banking?" is the easy part. "So… why not consulting?" is where most candidates go quiet. Here's the difference between an answer that *sounds* fine and one that survives the follow-up — swipe 👉 (save slide 5, it's the rubric a real interviewer is checking).
+> #InvestmentBanking #IBRecruiting #InterviewPrep #FinanceCareers #FinanceStudents
+
+**Carousel first comment:**
+> The versions that survive "why not consulting / why not the buy-side / why this bank": hardo.app/knowledge/why-investment-banking-answers-that-survive-pushback
+> Want to rehearse yours against an interviewer that actually pushes back — and grades how deep you hold? Run a free mock → hardo.app
+
+---
+
 ### POST 4 — The Follow-up (flagship differentiator)
 _The strongest post. Pair with Video 1. Public framing is defensible ("the part others skip"), not an absolute "no one has it"._
 
@@ -187,6 +227,44 @@ _The strongest post. Pair with Video 1. Public framing is defensible ("the part 
 > Want to feel it? Run a free mock: hardo.app
 
 **Hashtags:** #InvestmentBanking #IBRecruiting #InterviewPrep #FinanceCareers #BreakingIntoWallStreet
+
+---
+
+### POSTS 5–7 — Light "Saturday" posts (mindset / relatable)
+_Low-lift, high-relatability — fill the Saturday slots in the launch sequence. Empathetic senior-analyst voice; soft or no CTA; no product hard-sell; no link needed._
+
+**POST 5 — "Recruiting is a second job"**
+> Nobody tells you that recruiting for IB is a second full-time job — stacked on top of the one called "your degree."
+>
+> Coffee chats between lectures. Technicals at midnight. Forty deadlines in a spreadsheet. Networking when you'd rather sleep.
+>
+> If you're tired, it's not a sign you're not cut out for this. It's a sign you're doing two jobs at once.
+>
+> Be kind to yourself this weekend. The grind is real — but so is the part where it ends, and you walk in an analyst.
+
+**Hashtags:** #IBRecruiting #FinanceStudents #InvestmentBanking
+
+**POST 6 — "The 2am WSO scroll"**
+> It's 2am. You're scrolling WallStreetOasis, reading about someone who locked a bulge-bracket offer in August, and quietly spiraling.
+>
+> Here's what the thread doesn't show: the person who posted it bombed two superdays first. The "easy" offer that took 60 applications. The "natural" who ran the same DCF walkthrough thirty times.
+>
+> Comparison is a tax on your confidence. Reps are an investment in it.
+>
+> Close the tab. Say one answer out loud. That's the whole game.
+
+**Hashtags:** #IBRecruiting #FinanceCareers #InterviewPrep
+
+**POST 7 — "Confidence is just reps"**
+> The candidate who walks in calm isn't smarter than you. They've just said it out loud more times.
+>
+> You don't freeze in an interview because you don't know the answer. You freeze because the first time you've ever spoken it is in the room that counts.
+>
+> Confidence isn't a personality trait. It's a rep count.
+>
+> Whatever you're prepping this weekend — don't just read it. Say it. Out loud. To a wall if you have to. (The wall is undefeated, but it's good practice.)
+
+**Hashtags:** #InterviewPrep #FinanceStudents #InvestmentBanking
 
 ---
 
@@ -270,10 +348,10 @@ Format for both: **9:16 · 1080×1920 · subtitles burned-in · palette ink/crea
 |---|---|---|
 | Wk1 Tue | Post 1 — Open Call (Content Analyst Program) | Apply (link in post) |
 | Wk1 Thu | Post 4 — The Follow-up + **Video 1** | Free mock (first comment) |
-| Wk1 Sat | light/relatable text (mindset) | — |
+| Wk1 Sat | Post 5 — "Recruiting is a second job" | — |
 | Wk2 Tue | Post 2 — What Hardo is + **Video 2** | Manifesto / free mock (first comment) |
 | Wk2 Thu | Post 3 — Why IB good vs bad (carousel) | "survive pushback" article (first comment) |
-| Wk2 Sat | light/relatable text | — |
+| Wk2 Sat | Post 6 — "The 2am WSO scroll" (Post 7 = next-Sat reserve) | — |
 
 Engage 20–30 min right after each post (first hour drives reach). Never two product posts back-to-back.
 
