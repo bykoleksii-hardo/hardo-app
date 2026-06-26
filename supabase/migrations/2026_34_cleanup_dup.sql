@@ -1,14 +1,17 @@
--- Migration: cleanup - remove one exact-duplicate primary question
+-- Migration: cleanup - remove exact-duplicate "Pitch me a stock" (id 329)
 --
--- id 329 ("Pitch me a stock", category Case Study, childless) is an exact text
--- duplicate of id 319 ("Pitch me a stock", category Business Acumen / Markets),
--- which is the canonical copy and carries the follow-up chain (320, 321, 322).
--- Removing the childless duplicate de-duplicates the bank. Reversible.
+-- id 329 (Case Study) is an exact text duplicate of id 319 (Business Acumen / Markets),
+-- which is canonical and owns the follow-up chain (320,321,322).
 --
--- NOTE (not applied here): a set of venture-capital-flavored questions currently
--- live under "Private Equity / LBO" (538,1040,1041,1042,1173,1175-1181),
--- "Case Study" (561,584,586) and "Corporate Finance" (1136). They are defensibly
--- categorized (there is no dedicated Venture Capital category); recategorizing
--- them is left as a product decision rather than changed unilaterally.
+-- GUARDED delete: only removes 329 if it is NOT referenced by interview history
+-- (interview_steps / question_exposure), so it can never violate those foreign keys.
+-- In production 329 IS referenced, so this is a safe no-op there and the duplicate is
+-- intentionally retained to preserve interview history.
+--
+-- NOTE (not applied): VC-flavored questions under PE/LBO (538,1040-1042,1173,1175-1181),
+-- Case Study (561,584,586) and Corporate Finance (1136) are left as a product decision.
 
-delete from public.questions where id = 329;
+delete from public.questions q
+where q.id = 329
+  and not exists (select 1 from public.interview_steps s where s.question_id = q.id)
+  and not exists (select 1 from public.question_exposure e where e.question_id = q.id);
