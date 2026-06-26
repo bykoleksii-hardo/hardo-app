@@ -191,4 +191,92 @@ export const CASES: EvalCase[] = [
     }],
     expect: { band: ['C'], axes: { depth: [0, 1] }, note: 'no names, no numbers, no thesis' },
   },
+
+  // ---- Block inversions: base-answer quality diverges from the LAST follow-up.
+  // These are the cases the last-follow-up-anchored grader gets backwards. The
+  // grade must track the BASE answer, not the final follow-up. Mirrors the real
+  // intern interview that surfaced the bug.
+
+  // WEAK base "why IB" rescued by strong follow-ups -> must stay a weak block.
+  {
+    id: 'whyib-weakbase-strongfu',
+    level: 'intern',
+    category: 'Behavioral',
+    question: 'Why investment banking?',
+    turns: [
+      { answer: "I'm interested in investment banking because I want to learn a lot and it's a great opportunity. The pay is good and there are a lot of exit opportunities. I've always been interested in finance and I think banking would be a good fit for me. It's prestigious and I'd get to work with smart people." },
+      { followUpQuestion: 'You mentioned wanting to learn a lot - what specific skills are you hoping to gain?', answer: 'Three things specifically. First, financial modeling and valuation rigor - building integrated three-statement models, LBOs and DCFs to the point where I can stress-test assumptions live. Second, deal execution mechanics - running a process end to end, diligence, drafting the CIM, coordinating with lawyers and accountants. Third, judgment around what drives value - how to frame strategic alternatives for a board and how financing structure affects feasibility.' },
+      { followUpQuestion: 'Describe a specific aspect of deal execution that excites you most.', answer: "The due diligence and quality-of-earnings phase - pressure-testing whether the story in the CIM holds up in the numbers. In a corp dev internship I saw how a single normalization to EBITDA, like adding back a non-recurring legal settlement, could swing the implied purchase price by a couple of turns. It's where financial analysis meets detective work." },
+    ],
+    expect: { band: ['C', 'D'], axes: { correctness: [1, 2], depth: [0, 2] }, note: 'BASE is all cliche; strong FUs must not paper over it' },
+  },
+
+  // STRONG resume base, then lazy follow-ups -> must stay a solid block.
+  {
+    id: 'resume-strongbase-weakfu',
+    level: 'intern',
+    category: 'Behavioral',
+    question: 'Walk me through your resume.',
+    turns: [
+      { answer: "I'm a junior at a target school majoring in finance with a 3.8 GPA. My interest in IB started during a sophomore-year internship at a boutique advisory firm, where I supported a sell-side process for a $40M manufacturing company - I built the data room index and helped scrub the working-capital adjustment in the QoE. Last summer I interned in corporate development at a mid-cap industrials company, where I built three-statement models to evaluate two bolt-on targets and ran a contribution-margin analysis that informed the go/no-go. I also lead our student fund's industrials team, where I pitched a roll-up long that's up 22%. The throughline: I want to be on the advisory side executing transactions." },
+      { followUpQuestion: 'Elaborate on a specific challenge you faced during that internship and how you overcame it.', answer: "Honestly it was pretty challenging at times but I just worked hard and figured it out. There were a lot of late nights and the work was difficult, but I'm a hard worker so I pushed through. The main challenge was just getting used to everything. I overcame it by staying positive and asking questions." },
+      { followUpQuestion: 'Share a specific example of a question you asked that helped you.', answer: "Yeah, I asked my manager a bunch of questions when I was confused. I don't remember a specific one exactly, but I made sure to ask whenever something didn't make sense. That helped me a lot. Asking questions is really important I think." },
+    ],
+    expect: { band: ['A', 'B'], axes: { correctness: [3, 4], depth: [2, 4] }, note: 'BASE is specific and strong; lazy FUs trim modestly, do not collapse it' },
+  },
+
+  // STRONG recent-deal base, then weak follow-ups -> must stay strong.
+  {
+    id: 'deal-strongbase-weakfu',
+    level: 'intern',
+    category: 'Behavioral',
+    question: 'Tell me about a recent deal you read about and what you found interesting.',
+    turns: [
+      { answer: "Mars's acquisition of Kellanova - the Pringles and Cheez-It maker - for roughly $36 billion, announced in 2024. The strategic logic: Mars, a private family-owned company, using its balance sheet to build scale in salty snacks and diversify beyond confectionery and pet care, which strengthens its hand with retailers. The financing stood out - a large all-cash deal backed by committed bank financing in a higher-rate environment, signalling conviction. On valuation it was struck at a meaningful premium to the unaffected price and at an EBITDA multiple above where packaged-food comps traded, which raises the bar on synergies. And the antitrust angle made deal certainty and timeline real variables." },
+      { followUpQuestion: 'How might the premium and regulatory scrutiny affect the deal timeline?', answer: "I think those factors could make it harder to close and maybe slow it down a bit. Regulators might look at it and a high price is always a bit risky. But big companies like Mars usually know what they're doing, so it'll probably work out fine in the end. Deals like this happen all the time." },
+      { followUpQuestion: 'What specific actions might they take to address regulatory concerns?', answer: "I'm not totally sure on the specifics, but probably they'd talk to the regulators and explain why it's good. Maybe sell off a brand or two if they have to. Big companies have lawyers for this kind of thing so they'd handle it. I think mostly they just wait it out." },
+    ],
+    expect: { band: ['A', 'B'], axes: { correctness: [3, 4], depth: [2, 4] }, note: 'BASE names deal, size, thesis, valuation, antitrust; weak FUs trim only' },
+  },
+
+  // WEAK "EV/EBITDA vs equity/NI" base, strong bridge follow-up -> stays weak.
+  {
+    id: 'evebitda-weakbase-strongfu',
+    level: 'intern',
+    category: 'Valuation',
+    question: 'Why do we use enterprise value with EBITDA but equity value with net income?',
+    turns: [
+      { answer: "I think it's just kind of the convention that people use. EBITDA goes with enterprise value and net income goes with equity value because that's how the multiples are usually set up, like EV/EBITDA and P/E. I'm not 100% sure on the deeper reason but I know you're supposed to match them and not mix them up. If you used the wrong one the multiple would be off. So mostly I just remember the pairings." },
+      { followUpQuestion: 'Explain what happens if you mix them up and why that matters.', answer: "The real reason is matching the metric to the capital providers it belongs to. Enterprise value covers all investors, debt and equity. EBITDA, EBIT and unlevered FCF are pre-interest, so they're available to all capital providers - they pair with EV. Net income is after interest, so it belongs to equity holders only and pairs with equity value. Mixing them, like EV over net income, compares a whole-firm numerator to an equity-only denominator, so the multiple is internally inconsistent and not comparable across differently-levered companies." },
+    ],
+    expect: { band: ['C', 'D'], axes: { correctness: [1, 2], depth: [0, 2] }, note: 'BASE is "just convention, not sure why"; strong FU must not lift to A' },
+  },
+
+  // WEAK DCF base, strong projection follow-ups -> stays weak.
+  {
+    id: 'dcf-weakbase-strongfu',
+    level: 'intern',
+    category: 'Valuation',
+    question: 'What is a DCF and why would you use one to value a company?',
+    turns: [
+      { answer: "A DCF is when you look at a company's future cash and figure out what it's worth today. You add up the cash flows and that gives you the value. It's useful because it tells you what a company is worth based on the money it makes. People use it a lot because it's pretty accurate. You just project the cash flows out and then total them up to get the company's value." },
+      { followUpQuestion: 'How would you determine those cash flow projections?', answer: "To be precise, in a DCF you project unlevered free cash flow and discount it back at WACC rather than just summing it. The projection is built bottom-up off the operating model: start with revenue from volume times price, grounded in historicals, guidance and market size; apply margin assumptions to get to EBIT; then bridge EBIT to unlevered FCF - tax-effect EBIT to NOPAT, add back D&A, subtract capex, adjust for the change in net working capital." },
+      { followUpQuestion: 'What if your revenue growth assumptions are overly optimistic?', answer: "I'd pressure-test them: compare implied growth to market size and share - if it implies unrealistic share gains, that's a red flag - and benchmark against history, peers and analyst estimates. I'd also check the model is internally consistent: aggressive growth needs more capex, working capital and S&M, so if those don't scale the cash flows are doubly overstated. To fix it I'd taper the growth curve toward a sustainable rate and run a downside scenario." },
+    ],
+    expect: { band: ['C', 'D'], axes: { correctness: [1, 2], depth: [0, 2] }, note: 'BASE misses PV/discounting ("just total them up"); strong FUs must not lift to A' },
+  },
+
+  // STRONG terminal-value base, then weak follow-ups -> stays strong.
+  {
+    id: 'terminalvalue-strongbase-weakfu',
+    level: 'intern',
+    category: 'Valuation',
+    question: 'Explain the two main ways to calculate terminal value and when each is more appropriate.',
+    turns: [
+      { answer: "Two methods. Gordon growth: take terminal-year unlevered FCF, grow it by a modest perpetual rate g, and divide by (WACC - g), so TV = FCF*(1+g)/(WACC-g); g has to be at or below long-run GDP/inflation because nothing outgrows the economy forever. Exit multiple: apply a market EV/EBITDA multiple to terminal-year EBITDA, reflecting what a buyer would pay. Exit multiple is more common in banking and LBO work because it's grounded in observable comps, but it imports current conditions into a far-future year; Gordon is the purer intrinsic approach and a good sanity check. In practice you compute both and cross-check - back out the implied growth from your exit multiple and vice versa - since terminal value usually drives most of the DCF." },
+      { followUpQuestion: 'Which would you default to and why?', answer: "Yeah, so basically you just pick whichever one seems right for the situation. The exit multiple is usually fine. I'd probably just go with that one most of the time since it's more common. The growth one is okay too but I think people use the multiple more. Honestly they kind of give similar answers if you do them right." },
+      { followUpQuestion: 'Give a scenario where Gordon growth is more appropriate than an exit multiple.', answer: "Hmm, maybe when you don't have a good multiple to use? Like if the company is kind of unique. I'm not really sure to be honest. I'd probably still just use the exit multiple and try to find some comps. But if there's really nothing comparable then I guess the growth one makes sense. That's about all I can think of." },
+    ],
+    expect: { band: ['A', 'B'], axes: { correctness: [3, 4], depth: [2, 4] }, note: 'BASE has both methods + formula + cross-check; weak FUs trim modestly' },
+  },
 ];

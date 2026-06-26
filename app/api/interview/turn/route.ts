@@ -14,6 +14,11 @@ import {
   percentToLetter,
   normalizeAiGrade,
   GRADING_TEMPERATURE,
+  GRADE_BLOCK_SYSTEM_PROMPT,
+  GRADE_BLOCK_SCHEMA,
+  buildGradeBlockUserPrompt,
+  type GradeBlockAIResult,
+  type GradeBlockTurn,
   type TurnAIResult,
   type TurnContext,
 } from '@/lib/interview-prompts';
@@ -446,7 +451,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   // 7c.2. Aggregate per-answer scores across the whole block (base + all follow-ups).
   const { data: blockSteps } = await supabase
     .from('interview_steps')
-    .select('id, is_follow_up, parent_step_id, order_index, score_numeric, created_at')
+    .select('id, is_follow_up, parent_step_id, order_index, score_numeric, created_at, user_answer, custom_question')
     .or(`id.eq.${baseStepId},parent_step_id.eq.${baseStepId}`)
     .order('created_at', { ascending: true });
 
@@ -488,6 +493,78 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     blockDelivery = aggregateDelivery([...prior, currentDelivery]);
   } catch { /* delivery optional */ }
 
+  // 7c.2a-grade. HOLISTIC block grading. The per-turn AI call above reacted to
+  // the candidate's LATEST message (on a closing turn, the last follow-up), so
+  // reusing its rubric/feedback anchored grading on the final follow-up. Run a
+  // dedicated pass that grades the WHOLE block with the BASE answer as primary
+  // evidence and the follow-ups as secondary adjusters. Falls back to the turn
+  // call's grading fields if this pass is unavailable, so a block always grades.
+  const gradeTurns: GradeBlockTurn[] = [];
+  if (baseRow) {
+    gradeTurns.push({
+      question: null,
+      answer: (baseRow as { user_answer?: string | null }).user_answer ?? '',
+      score: orderedScores[0] ?? null,
+      maxScore: maxScoreForTurn(0, isCase),
+      isFollowUp: false,
+    });
+  }
+  fuRows.forEach((fu: { user_answer?: string | null; custom_question?: string | null }, i: number) => {
+    gradeTurns.push({
+      question: fu.custom_question ?? '',
+      answer: fu.user_answer ?? '',
+      score: orderedScores[(baseRow ? 1 : 0) + i] ?? null,
+      maxScore: maxScoreForTurn(i + 1, isCase),
+      isFollowUp: true,
+    });
+  });
+
+  let grading: {
+    rubric: unknown;
+    feedback: string;
+    strengths: string[];
+    weaknesses: string[];
+    feedbackDetail: { how_to_improve: string } | null;
+  } = {
+    rubric: (ai as { rubric?: unknown }).rubric,
+    feedback: ai.feedback,
+    strengths: Array.isArray(ai.strengths) ? ai.strengths : [],
+    weaknesses: Array.isArray(ai.weaknesses) ? ai.weaknesses : [],
+    feedbackDetail: ai.feedback_detail ?? null,
+  };
+  try {
+    const g = await chatJSON<GradeBlockAIResult>({
+      schemaName: 'hardo_grade_block',
+      schema: GRADE_BLOCK_SCHEMA,
+      temperature: GRADING_TEMPERATURE,
+      maxTokens: 1200,
+      messages: [
+        { role: 'system', content: GRADE_BLOCK_SYSTEM_PROMPT },
+        { role: 'user', content: buildGradeBlockUserPrompt({
+          level, category, subtopic, difficulty, isCase,
+          rubricKind: rubricKindForCategory(category),
+          question: baseQuestion,
+          turns: gradeTurns,
+          keyPoints,
+          deliverySummary: blockDelivery ? formatDeliveryForPrompt(blockDelivery) : undefined,
+        }) },
+      ],
+    });
+    if (isValidRubric(g.data.rubric)) {
+      grading = {
+        rubric: g.data.rubric,
+        feedback: g.data.feedback || ai.feedback,
+        strengths: Array.isArray(g.data.strengths) ? g.data.strengths : [],
+        weaknesses: Array.isArray(g.data.weaknesses) ? g.data.weaknesses : [],
+        feedbackDetail: g.data.feedback_detail ?? null,
+      };
+    } else {
+      console.warn('[turn] grade_block returned invalid rubric; using turn-call grading', { baseStepId });
+    }
+  } catch (e) {
+    console.warn('[turn] grade_block call failed; using turn-call grading', { baseStepId, err: (e as Error).message });
+  }
+
   // 7c.2b. Block grade = blend of the holistic close_block RUBRIC (primary) and a
   // deterministic per-answer component where the base answer counts more than the
   // follow-ups (base max 30, each follow-up max 15 -> base ~2x a follow-up). The
@@ -496,7 +573,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   const RUBRIC_WEIGHT = 0.7;
   const ANSWER_WEIGHT = 0.3;
   const rubricKind = rubricKindForCategory(category);
-  const aiRubric = (ai as { rubric?: unknown }).rubric;
+  const aiRubric = grading.rubric;
   const rubricPct: number | null = isValidRubric(aiRubric) ? rubricToPct(aiRubric, rubricKind, level) : null;
 
   // Weighted per-answer %: sum(scores) / sum(max per answered turn). Base turn
@@ -523,10 +600,10 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
 
   // 7c.3. Build feedback payload (rubric + per-answer scores + blended grade).
   const feedbackPayload = JSON.stringify({
-    summary: ai.feedback,
-    strengths: ai.strengths,
-    weaknesses: ai.weaknesses,
-    detail: ai.feedback_detail ?? null,
+    summary: grading.feedback,
+    strengths: grading.strengths,
+    weaknesses: grading.weaknesses,
+    detail: grading.feedbackDetail ?? null,
     rubric: isValidRubric(aiRubric) ? aiRubric : null,
     rubric_kind: rubricKind,
     rubric_pct: rubricPct,
@@ -583,7 +660,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     is_last: isLast,
     messages: [
       { role: 'candidate', kind: 'answer', text: message },
-      { role: 'ai', kind: 'close_block', text: ai.feedback },
+      { role: 'ai', kind: 'close_block', text: grading.feedback },
     ],
   });
 });
