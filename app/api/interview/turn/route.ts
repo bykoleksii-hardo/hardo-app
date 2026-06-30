@@ -308,12 +308,22 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
       }
     } else if (ai.kind === 'close_block') {
       // AI tried to close early on a >=30% answer with FU budget remaining.
-      // Override to follow_up - the block must continue to its full depth.
-      // The AI's prompt forbids this, but we enforce here as a safety net.
-      console.warn('[turn] overriding AI close_block to follow_up', { reason: 'strong_answer_with_budget', score: cas, turnMax, pct, followUpsSoFar, maxFollowUps, baseStepId });
-      ai.kind = 'follow_up';
-      if (!ai.follow_up_question || !String(ai.follow_up_question).trim()) {
-        console.error('[turn] CRITICAL: AI emitted close_block at >=30% with no follow_up_question - prompt drift');
+      const hasFollowUpQuestion = !!ai.follow_up_question && !!String(ai.follow_up_question).trim();
+      if (hasFollowUpQuestion) {
+        // Override to follow_up - the block must continue to its full depth.
+        // The AI's prompt forbids this, but we enforce here as a safety net.
+        console.warn('[turn] overriding AI close_block to follow_up', { reason: 'strong_answer_with_budget', score: cas, turnMax, pct, followUpsSoFar, maxFollowUps, baseStepId });
+        ai.kind = 'follow_up';
+      } else {
+        // Can't override safely: the model has no follow-up question to ask
+        // (prompt drift). Forcing kind=follow_up here would insert a follow-up
+        // step with blank delivered text the candidate cannot meaningfully
+        // answer. Accept the AI's close_block instead - the block ends one turn
+        // short of full depth, which is a smaller harm than a blank stuck step.
+        console.error('[turn] AI emitted close_block at >=30% with no follow_up_question (prompt drift) - accepting close_block instead of forcing a blank follow-up', { score: cas, turnMax, pct, followUpsSoFar, maxFollowUps, baseStepId });
+        if (!ai.feedback || !String(ai.feedback).trim()) {
+          ai.feedback = 'Closing the block here.';
+        }
       }
     }
   }
