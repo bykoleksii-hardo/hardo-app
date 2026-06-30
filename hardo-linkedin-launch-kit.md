@@ -61,23 +61,23 @@ _Audience-builder. Honest contributor program (unpaid, real perks). Application 
 - B — We're opening applications for the Hardo IB Content Analyst Program. Unpaid, remote, and built for finance students who want real reps building the question bank they'll one day train on.
 
 **Body:**
-> We're opening **[10]** spots on the **Hardo IB Content Analyst Program** — a remote contributor cohort for finance students who want hands-on IB content experience before (and during) recruiting.
+> We're opening **[10]** spots on the **Hardo IB Content Analyst Program**, a remote contributor cohort for finance students who want hands-on IB content experience going into recruiting.
 >
 > **What you'll do:**
-> • Help expand our interview question bank (already 664 questions across 12 categories — Valuation, M&A, LBO, Accounting, Behavioral, and more)
-> • Pressure-test model answers and grading rubrics — flag what's weak, sharpen what's vague
-> • Suggest real questions from your own interviews and superdays
+> • Help expand our interview question bank (664 questions across 12 categories right now — Valuation, M&A, LBO, Accounting, Behavioral, and more)
+> • Pressure-test model answers and grading rubrics, and flag what's weak or vague
+> • Contribute real questions from your own interviews and superdays
 >
-> **What you get** (this is a volunteer program — no salary, but real value):
+> **What you get** (this is a volunteer program, so no salary — but not nothing):
 > • Free **Hardo Pro** access for the duration
-> • A verifiable credential + byline: *"IB Content Analyst — Hardo"* for your CV and LinkedIn
-> • Portfolio material — the questions and breakdowns you help build
-> • A recommendation letter on request if you contribute meaningfully
+> • A verifiable credential and byline, *"IB Content Analyst — Hardo,"* for your CV and LinkedIn
+> • Portfolio material from the questions and breakdowns you help build
+> • A recommendation letter on request, if you contribute meaningfully
 > • A small cohort of people recruiting alongside you
 >
-> **Who it's for:** penultimate/final-year students recruiting for IB. Target school, non-target, or switching in — all welcome. ~**[2–3 hours/week]**, **[6-week]** cohort.
+> **Who it's for:** penultimate or final-year students recruiting for IB. Target school, non-target, switching in from another major — all welcome. About **[2–3 hours/week]**, over a **[6-week]** cohort.
 >
-> Honest about it: this is a learning and portfolio opportunity, not a paid hire — but you'll come out with reps, a credential, and a network.
+> This isn't a paid hire. It's a learning and portfolio opportunity, and what you walk away with is real reps, a credential, and a network.
 >
 > **Apply here → [application form link]** (takes 5 minutes; first cohort closes **[date]**).
 
@@ -92,22 +92,22 @@ _Audience-builder. Honest contributor program (unpaid, real perks). Application 
 _"What is Hardo" + "question pools". References the manifesto article, doesn't duplicate it._
 
 **Hook (A recommended):**
-- A — Most interview prep hands you a list of questions. Almost none of it tells you what a good answer actually contains. That gap is the whole reason we built Hardo.
-- B (lead with the wedge) — Most interview prep gives you questions. A real interviewer gives you follow-ups — and that's the part that decides the offer. Here's how we rebuilt it.
+- A — Most interview prep hands you a list of questions and stops there. It rarely tells you what a good answer actually contains. That's the part we built Hardo around.
+- B (lead with the wedge) — Most interview prep gives you questions. A real interviewer gives you follow-ups, and that's usually the part that decides the offer. Here's what we built around that.
 
 **Body:**
-> Reading a list of "top 50 IB interview questions" feels productive. Then you sit in the real seat, get asked one of them, and realize you've never once said the answer out loud — let alone been told where it was weak.
+> Reading a list of "top 50 IB interview questions" feels productive. Then you sit in the actual interview, get asked one of them, and realize you've never once said your answer out loud, let alone found out where it was weak.
 >
-> That's the gap Hardo is built to close. What's inside:
+> Hardo is built around that problem. What's inside:
 >
 > • **664 questions across 12 categories** — Valuation, M&A, LBO/PE, Accounting, Corporate Finance, Case Studies, Behavioral/Fit, Brainteasers, Restructuring, Capital Markets, Due Diligence, Markets — at four difficulty levels.
 > • **Three interviewer tiers**, from a friendly first-round to a VP who pushes back on every number.
-> • **Follow-ups that dig** — the interviewer adapts to *your* answer and presses where it's thin, up to 5 deep on a case. The part a static question list can't do.
-> • **A letter grade** on every session — not "good job," but where you actually stand.
-> • **A model answer and a rubric behind every question** — the same key points a real interviewer is quietly checking off while you talk.
-> • **12 questions per session**, so it feels like the real thing, not a flashcard deck.
+> • **Follow-ups that adapt to your answer** and press where it's thin, up to 5 deep on a case study. A static question list can't do that.
+> • **A letter grade on every session**, so you know where you actually stand, not just whether it felt fine.
+> • **A model answer and a rubric behind every question** — roughly the same points a real interviewer is checking for while you talk.
+> • **12 questions per session**, closer to a real interview than a flashcard deck.
 >
-> The bet we made: you don't get better by reading more answers. You get better by giving yours, out loud, and getting told exactly what to fix.
+> Reading more answers doesn't make you better at this. Saying your own answer out loud, and finding out exactly what to fix, does.
 
 **First comment (links):**
 > The manifesto — what Hardo is and why we built it this way: hardo.app/knowledge/what-is-hardo
@@ -121,31 +121,31 @@ _"What is Hardo" + "question pools". References the manifesto article, doesn't d
 _"Good/bad answers" theme. Real question + real rubric. Shows the follow-up. References the "survive pushback" article._
 
 **Hook (A recommended):**
-- A — Two answers to "Why investment banking?" Both sound fine — until the follow-up. That's where one of them falls apart.
-- B — "Why investment banking?" is easy. "So why not consulting?" is where most candidates go quiet.
+- A — Two answers to "Why investment banking?" Both sound fine on their own. Only one survives the follow-up.
+- B — "Why investment banking?" is the easy question. "So why not consulting?" is where most candidates go quiet.
 
 **Body:**
-> Everyone preps an answer to "Why investment banking?" Almost no one preps for what comes *after* it.
+> Most people prep an answer to "Why investment banking?" Almost nobody preps for what comes after it.
 >
 > **The answer that sounds fine:**
 > *"It's fast-paced, I'll learn a lot, and I'm passionate about finance."*
 >
 > **The follow-up that ends it:**
-> *"Sure — but that's all true of consulting too. So why not consulting?"*
-> …silence. Because the first answer was a slogan, and slogans have nowhere to go when you push on them.
+> *"That's all true of consulting too, though. So why not consulting?"*
+> …silence. The first answer was a slogan, and a slogan has nowhere to go once someone pushes on it.
 >
-> **What a strong answer contains** (the rubric we grade against on Hardo):
-> 1. A concrete, personal reason — not clichés
-> 2. Skills you genuinely enjoy, tied to the real day-to-day of banking
-> 3. A realistic grasp of the hours and the deal process
-> 4. A longer-term goal banking enables
-> 5. Specific to banking vs consulting or PE — a deliberate choice
+> **What a strong answer actually contains** (the rubric we grade against on Hardo):
+> 1. A concrete, personal reason — not a cliché
+> 2. Skills you genuinely enjoy, tied to what bankers actually spend their day on
+> 3. A realistic read on the hours and the deal process
+> 4. A longer-term goal that banking specifically enables
+> 5. A clear answer for why banking and not consulting or PE
 >
-> **Rebuilt — and notice it has somewhere to go when pushed:**
-> *"When I built a DCF and comps to value a retailer for a class project, what hooked me was that the analysis drove a real recommendation. I want to do that on live transactions with real consequences. The hours are brutal, but I learn fastest under pressure, and I want the foundation an analyst program builds."*
-> Push it — *"Why not PE, then?"* — and it still holds: *"Long term, maybe. But I want to learn how deals get built before I judge them from the buy-side."*
+> **A version that holds up:**
+> *"Building a DCF and comps to value a retailer for a class project is what hooked me — the analysis fed into a real recommendation, and I want to do that on live deals where it actually matters. The hours don't scare me off; I want the foundation an analyst program builds."*
+> Pushed further — *"Why not PE, then?"* — it still holds: *"Long term, maybe. But I want to learn how deals get built before I judge them from the buy-side."*
 >
-> That's the difference. Not a better script — an answer that survives the second question.
+> The second version isn't better-written. It just has somewhere to go when someone pushes back.
 
 **First comment (links):**
 > The versions that survive "why not consulting / why not buy-side / why this bank": hardo.app/knowledge/why-investment-banking-answers-that-survive-pushback
@@ -186,12 +186,12 @@ _Visual: ink bg, big centered serif, "the second question" in gold, nothing else
 _Visual: paper bg, gold CTA line, Hardo wordmark + logo space bottom-center._
 
 **Carousel caption:**
-> "Why investment banking?" is the easy part. "So… why not consulting?" is where most candidates go quiet. Here's the difference between an answer that *sounds* fine and one that survives the follow-up — swipe 👉 (save slide 5, it's the rubric a real interviewer is checking).
+> "Why investment banking?" is the easy part. "So... why not consulting?" is where most candidates go quiet. Swipe through for what separates an answer that sounds fine from one that survives the follow-up. (Slide 5 is the rubric a real interviewer is checking against — worth saving.)
 > #InvestmentBanking #IBRecruiting #InterviewPrep #FinanceCareers #FinanceStudents
 
 **Carousel first comment:**
-> The versions that survive "why not consulting / why not the buy-side / why this bank": hardo.app/knowledge/why-investment-banking-answers-that-survive-pushback
-> Want to rehearse yours against an interviewer that actually pushes back — and grades how deep you hold? Run a free mock → hardo.app
+> More versions that survive "why not consulting," "why not the buy-side," and "why this bank": hardo.app/knowledge/why-investment-banking-answers-that-survive-pushback
+> Or rehearse yours against an interviewer that actually pushes back, and get graded on how deep you hold: hardo.app
 
 ---
 
@@ -199,28 +199,28 @@ _Visual: paper bg, gold CTA line, Hardo wordmark + logo space bottom-center._
 _The strongest post. Pair with Video 1. Public framing is defensible ("the part others skip"), not an absolute "no one has it"._
 
 **Hook (A recommended):**
-- A — Anyone can hand you a list of interview questions. A real interviewer doesn't read from a list — they listen to your answer and press exactly where it's thin. That's the part almost no prep makes you practice.
-- B — The question isn't what gets you cut. The follow-up is.
-- C — In a real IB interview, the first answer is the easy part. Then they lean in: "I'm going to push back — convince me."
+- A — Anyone can hand you a list of interview questions. A real interviewer listens to your answer first, then presses exactly where it's thin. Almost no prep tool makes you practice that part.
+- B — The question rarely gets you cut. The follow-up does.
+- C — In a real IB interview, the first answer is the easy part. Then they lean in: "I'm going to push back. Convince me."
 
 **Body:**
-> You can rehearse a clean "walk me through a DCF" until it's perfect. Then the interviewer leans in:
+> You can rehearse a clean "walk me through a DCF" until it's polished. Then the interviewer leans in:
 >
-> *"OK — now what if WACC moves from 9 to 11%? Walk me through the EV impact."*
-> *"You said you'd use an exit multiple. Comps trade at 7x, precedents at 11x — which do you trust?"*
+> *"Now what if WACC moves from 9 to 11%? Walk me through the EV impact."*
+> *"You said you'd use an exit multiple. Comps trade at 7x, precedents at 11x. Which do you trust?"*
 > *"The CFO just refinanced at 5%. Why is your 9.5% right?"*
 >
-> That's where offers are actually won and lost — not in the first answer, but in whether it survives the follow-up.
+> Most offers are decided right here, in whether the answer survives the follow-up, not in how clean the first answer sounded.
 >
-> It's also the part almost every prep tool skips. A static list of questions can't listen to what you said and dig into the weak spot. A human mock can — but you get one, maybe two, and never at 11pm the night before the superday.
+> It's also the part most prep tools skip entirely. A static question list can't listen to what you actually said and dig into the weak spot. A human mock interviewer can, but you usually get one or two of those, and rarely at 11pm the night before a superday.
 >
-> So we built Hardo to drill exactly that part:
+> We built Hardo's mocks around that gap:
 >
-> • **Follow-ups that adapt to your actual answer** — pressing where it's thin, not reading from a script. Up to **2 per question, 5 on a case study**.
-> • **In the voice of the room you'll face:** an Intern-tier interviewer nudges; an Analyst stress-tests your mechanics; an MD plays the skeptical CFO and makes you defend your number.
-> • **Graded on follow-up depth** — how far you held under pressure, not just whether the first answer was clean.
+> • Follow-ups adapt to your actual answer and press where it's thin, not off a script. Up to **2 per question, 5 on a case study**.
+> • The interviewer matches the room you'll face: an Intern nudges, an Analyst stress-tests your mechanics, an MD plays the skeptical CFO and makes you defend your number.
+> • You're graded on follow-up depth too — how far you held under pressure, not just whether the opening answer was clean.
 >
-> Knowing the answer is table stakes. Defending it is the job.
+> Knowing the first answer gets you in the room. Holding up under the second question is what gets you the offer.
 
 **First comment (links):**
 > The follow-up is also what separates a first-round from a superday: hardo.app/knowledge/first-round-vs-superday-what-actually-changes
@@ -234,35 +234,35 @@ _The strongest post. Pair with Video 1. Public framing is defensible ("the part 
 _Low-lift, high-relatability — fill the Saturday slots in the launch sequence. Empathetic senior-analyst voice; soft or no CTA; no product hard-sell; no link needed._
 
 **POST 5 — "Recruiting is a second job"**
-> Nobody tells you that recruiting for IB is a second full-time job — stacked on top of the one called "your degree."
+> Recruiting for IB while you're still in school is basically a second job, on top of the one called "your degree."
 >
-> Coffee chats between lectures. Technicals at midnight. Forty deadlines in a spreadsheet. Networking when you'd rather sleep.
+> Coffee chats between lectures. Technicals at midnight. A spreadsheet full of deadlines. Networking on nights you'd rather sleep.
 >
-> If you're tired, it's not a sign you're not cut out for this. It's a sign you're doing two jobs at once.
+> If you're exhausted right now, that's not a sign you're behind. It's just what doing two jobs at once feels like.
 >
-> Be kind to yourself this weekend. The grind is real — but so is the part where it ends, and you walk in an analyst.
+> Take the weekend if you need it. The season is long, and it does end.
 
 **Hashtags:** #IBRecruiting #FinanceStudents #InvestmentBanking
 
 **POST 6 — "The 2am WSO scroll"**
-> It's 2am. You're scrolling WallStreetOasis, reading about someone who locked a bulge-bracket offer in August, and quietly spiraling.
+> It's 2am and you're scrolling WallStreetOasis, reading about someone who locked a bulge-bracket offer back in August. Hard not to spiral a little.
 >
-> Here's what the thread doesn't show: the person who posted it bombed two superdays first. The "easy" offer that took 60 applications. The "natural" who ran the same DCF walkthrough thirty times.
+> What that thread won't show you: the same person probably bombed two superdays first. The "easy" offer took 60 applications. The "natural" ran the same DCF walkthrough thirty times before it sounded effortless.
 >
-> Comparison is a tax on your confidence. Reps are an investment in it.
+> Someone else's timeline looking cleaner online doesn't put you behind. Not having said an answer out loud yet today might.
 >
-> Close the tab. Say one answer out loud. That's the whole game.
+> Close the tab and go run one.
 
 **Hashtags:** #IBRecruiting #FinanceCareers #InterviewPrep
 
 **POST 7 — "Confidence is just reps"**
-> The candidate who walks in calm isn't smarter than you. They've just said it out loud more times.
+> The candidate who walks in calm isn't smarter than you. They've just said the answer out loud more times before today.
 >
-> You don't freeze in an interview because you don't know the answer. You freeze because the first time you've ever spoken it is in the room that counts.
+> Most freezing in interviews has nothing to do with not knowing the material. It happens because the first time you ever spoke the answer was in the room that counted.
 >
-> Confidence isn't a personality trait. It's a rep count.
+> That part is fixable. It just means saying things out loud before they matter, not after.
 >
-> Whatever you're prepping this weekend — don't just read it. Say it. Out loud. To a wall if you have to. (The wall is undefeated, but it's good practice.)
+> Whatever you're prepping this weekend: read it once, then say it. To a wall, a roommate, a voice memo on your phone. Doesn't matter who's listening.
 
 **Hashtags:** #InterviewPrep #FinanceStudents #InvestmentBanking
 
@@ -372,7 +372,7 @@ Evergreen carousels to build once and re-run each cycle: **DCF · EV vs Equity V
 
 ## 8. Growth plan — 30 days, 0 → ~100 relevant followers (reference)
 
-> Founder-profile-led, but the Multiplier outreach + DM templates also power the company-page push. Core truth: at 0 followers, **content is bait, distribution is the engine** — you comment & DM more than you post.
+> Founder-profile-led, but the Multiplier outreach + DM templates also power the company-page push. At 0 followers, content alone won't move much — distribution does most of the work, which means more time spent commenting and DMing than posting.
 
 **Profile (do before posting):**
 - **Headline formula:** `Helping [WHO] [OUTCOME] | Building Hardo — [WHAT, 4–6 words]`.
@@ -392,7 +392,7 @@ DM Template B (career services):
 > Hi [Name] — I work with students recruiting for investment banking and noticed [University]'s career team does a lot around finance recruiting (saw [workshop / post]). I'm the founder of Hardo, an AI mock-interview tool built specifically for IB technical + behavioral prep. I'd be glad to offer your finance-track students **free access during the upcoming recruiting season**, in whatever way fits your process. No cost, nothing salesy. Could I send you a quick overview to see if it's a fit?
 
 DM Template C (peer / micro-creator):
-> Hey [Name] — really liked your post on [topic]; the point about [detail] is exactly what I see students struggle with. I'm building Hardo — AI-powered IB mock interviews (technical + behavioral, instant feedback). Since you're close to this audience, I'd genuinely value your take. Happy to set you up with free access to poke around — no expectation to post anything. Either way I'd love your honest feedback.
+> Hey [Name] — really liked your post on [topic]; the point about [detail] is exactly what I see students struggle with. I'm building Hardo, AI-powered IB mock interviews (technical + behavioral, instant feedback). Since you're close to this audience, I'd love your take. Happy to set you up with free access to poke around, no expectation to post anything. Either way, I'd appreciate the honest feedback.
 
 Follow-up (once, ~5 days):
 > Hi [Name] — totally understand recruiting season is hectic. Still happy to set your members up with free Hardo access whenever it's useful — no rush, just leaving the door open. Wishing your cohort a strong cycle.
