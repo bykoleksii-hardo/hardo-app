@@ -1034,10 +1034,16 @@ export default function InterviewClient({ interviewId, level, totalQuestions, in
                         );
                       }
                       if (phase === "locked") {
+                        // No draft.trim() gate here: the only way to reach "locked" with
+                        // an empty draft is the timer auto-lock (manual "Done" already
+                        // requires non-empty text). handleSubmit falls back to a
+                        // "(No answer provided.)" placeholder for an empty draft, so
+                        // gating Send on non-empty text would strand the candidate in a
+                        // round they can neither edit nor submit.
                         return (
                           <button
                             onClick={() => { void handleSubmit(); }}
-                            disabled={submitting || finalizing || draft.trim().length < 1}
+                            disabled={submitting || finalizing}
                             className="bg-gold text-paper font-medium tracking-wide px-6 py-2.5 disabled:opacity-40 hover:bg-gold"
                           >
                             Send
