@@ -186,7 +186,7 @@ _Visual: ink bg, big centered serif, "the second question" in gold, nothing else
 _Visual: paper bg, gold CTA line, Hardo wordmark + logo space bottom-center._
 
 **Carousel caption:**
-> "Why investment banking?" is the easy part. "So... why not consulting?" is where most candidates go quiet. Swipe through for what separates an answer that sounds fine from one that survives the follow-up. (Slide 5 is the rubric a real interviewer is checking against — worth saving.)
+> "Why investment banking?" is the easy part. "So... why not consulting?" is where most candidates go quiet. Swipe through for what separates an answer that sounds fine from one that survives the follow-up. (Slide 5 is the rubric a real interviewer is checking against, and it's worth saving.)
 > #InvestmentBanking #IBRecruiting #InterviewPrep #FinanceCareers #FinanceStudents
 
 **Carousel first comment:**
