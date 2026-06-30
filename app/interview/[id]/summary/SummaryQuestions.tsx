@@ -373,7 +373,7 @@ export default function SummaryQuestions({ steps, isCompleted, initialFeedback, 
                         <div className="text-[10px] tracking-[0.22em] text-gold">— FOLLOW-UPS</div>
                         {followUps.map(f => (
                           <div key={f.id} className="text-[13px]">
-                            <p className="font-serif italic text-ink/75 mb-1">{f.custom_question ?? f.questions?.question}</p>
+                            <p className="font-serif italic text-ink/75 mb-1">{(f.custom_question?.trim() || f.questions?.question?.trim()) ?? 'Follow-up question'}</p>
                             <p className="text-ink/85 leading-[1.6] whitespace-pre-wrap">{f.user_answer ?? <span className="text-ink/35 italic">not answered</span>}</p>
                           </div>
                         ))}
