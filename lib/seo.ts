@@ -10,6 +10,12 @@ export const ORG_LOGO = `${SITE_URL}/apple-touch-icon.png`;
 export const DEFAULT_OG = `${SITE_URL}/og.png`;
 export const CONTACT_EMAIL = 'hello@hardo.app';
 
+/** Official external social profiles, used for the footer icon row and the
+ * Organization schema's `sameAs` (tells search engines these are the same entity). */
+export const SOCIAL_LINKS = {
+  linkedin: 'https://www.linkedin.com/company/133963955/',
+} as const;
+
 /** Resolve a path or absolute URL to a fully-qualified canonical URL. */
 export function abs(pathOrUrl: string): string {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
@@ -33,6 +39,7 @@ export function organizationLd(): Json {
     image: DEFAULT_OG,
     description: SITE_DESCRIPTION,
     email: CONTACT_EMAIL,
+    sameAs: Object.values(SOCIAL_LINKS),
   };
 }
 
