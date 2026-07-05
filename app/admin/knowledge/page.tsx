@@ -12,6 +12,7 @@ function fmtDate(s: string | null) {
 const CATEGORY_BADGE: Record<string, string> = {
   'HARDO Insights': 'bg-[#d4a04a]/15 text-[#9c6c1f] border-[#d4a04a]/40',
   'Live Deal Examples': 'bg-[#0a1422]/8 text-ink border-line',
+  'Market Brief': 'bg-[#3d7a3d]/10 text-[#2f5f2f] border-[#3d7a3d]/30',
   'Knowledge Hub': 'bg-cream text-ink-2 border-line',
 };
 
