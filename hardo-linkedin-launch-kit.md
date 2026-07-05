@@ -26,7 +26,7 @@ never a fake paid job). ~80% value / ~20% product. Outbound links go in the **fi
   Brainteaser 50 · Due Diligence 45 · Capital Markets 40 · Restructuring 39.
 - Every question stores a **model answer + key_points** (the grading rubric).
 - **Three interviewer tiers:** Intern (patient, hint-shaped) · Analyst (stress-tests mechanics) ·
-  MD/Associate (plays skeptical CFO/board, "convince me").
+  Associate (plays skeptical CFO/board, "convince me").
 - **Grading:** a **letter grade per question**, a **six-axis skill radar**, **follow-up depth**,
   and **one of four hire calls**. **12 questions per session.**
 - **Follow-ups (the wedge):** adaptive to your answer, pressing exactly where it's thin.
@@ -101,7 +101,7 @@ _"What is Hardo" + "question pools". References the manifesto article, doesn't d
 > Hardo is built around that problem. What's inside:
 >
 > • **997 questions across 12 categories**: Valuation, M&A, LBO/PE, Accounting, Corporate Finance, Case Studies, Behavioral/Fit, Brainteasers, Restructuring, Capital Markets, Due Diligence, Markets, across four difficulty levels.
-> • **Three interviewer tiers**, from a friendly first-round to a VP who pushes back on every number.
+> • **Three interviewer tiers**, from a friendly first-round to an Associate who pushes back on every number.
 > • **Follow-ups that adapt to your answer** and press where it's thin, up to 5 deep on a case study. A static question list can't do that.
 > • **A letter grade on every session**, so you know where you actually stand, not just whether it felt fine.
 > • **A model answer and a rubric behind every question**, roughly the same points a real interviewer is checking for while you talk.
@@ -123,7 +123,7 @@ _9 slides · 1080×1350 (4:5 portrait) · same visual system as the Post 3 carou
 **Slide 1 — Cover.** Kicker: WHAT HARDO ACTUALLY IS · Headline: "A list of questions isn't **interview prep.**" · Sub: "Here's what's actually inside the pool."
 **Slide 2 — The gap.** "You can read fifty answers." · Sub: "The first time you say yours out loud is usually the interview that counts."
 **Slide 3 — 997.** Big stat "997" · Sub: "Questions across 12 categories: Valuation, M&A, LBO, Accounting, Case Studies, Behavioral, and more. Four difficulty levels."
-**Slide 4 — Three interviewer tiers.** INTERN: patient, nudges you toward the answer · ANALYST: stress-tests your mechanics · MD: plays the skeptical CFO, pushes back on every number.
+**Slide 4 — Three interviewer tiers.** INTERN: patient, nudges you toward the answer · ANALYST: stress-tests your mechanics · ASSOCIATE: plays the skeptical CFO, pushes back on every number.
 **Slide 5 — Follow-ups.** "Follow-ups press **where your answer is thin.**" · Sub: "Up to 5 deep on a case study. A static question list can't do that."
 **Slide 6 — Grading.** "A letter grade **on every session.**" · Sub: "So you know where you actually stand, not just whether it felt fine."
 **Slide 7 — Rubric.** 4-point list: model answer behind every question · a rubric of the points a strong answer hits · roughly what a real interviewer is quietly checking · 12 questions a session, closer to the real thing than a flashcard deck.
@@ -240,7 +240,7 @@ _The strongest post. Pair with Video 1. Public framing is defensible ("the part 
 > We built Hardo's mocks around that gap:
 >
 > • Follow-ups adapt to your actual answer and press where it's thin, not off a script. Up to **2 per question, 5 on a case study**.
-> • The interviewer matches the room you'll face: an Intern nudges, an Analyst stress-tests your mechanics, an MD plays the skeptical CFO and makes you defend your number.
+> • The interviewer matches the room you'll face: an Intern nudges, an Analyst stress-tests your mechanics, an Associate plays the skeptical CFO and makes you defend your number.
 > • You're graded on follow-up depth too, meaning how far you held under pressure, not just whether the opening answer was clean.
 >
 > Knowing the first answer gets you in the room. Holding up under the second question is what gets you the offer.
@@ -325,7 +325,7 @@ Format for both: **9:16 · 1080×1920 · subtitles burned-in · palette ink/crea
 | Time | Video (on screen) | Audio | Caption (burn-in) |
 |---|---|---|---|
 | 0:00–0:05 | Brand card, golden text | VO: "What if you could fail an IB interview safely — fifty times — before the one that counts?" | FAIL SAFELY. 50 TIMES. |
-| 0:05–0:12 | Tier-select screen (intern / analyst / MD) | VO: "Pick your interviewer. A patient intern. A sharp analyst. Or an MD who plays the skeptical CFO." | INTERN · ANALYST · MD |
+| 0:05–0:12 | Tier-select screen (intern / analyst / associate) | VO: "Pick your interviewer. A patient intern. A sharp analyst. Or an Associate who plays the skeptical CFO." | INTERN · ANALYST · ASSOCIATE |
 | 0:12–0:22 | Question on screen, AI asks it | Product audio + VO: "Sit a real question — a technical, a behavioral, a deal walk." | 12 QUESTIONS A SESSION |
 | 0:22–0:32 | Follow-up + short answer | Product audio + VO: "Answer — and it presses exactly where you're thin." | IT FOLLOWS UP WHERE YOU'RE THIN |
 | 0:32–0:42 | Scorecard reveal: letter + six-axis radar, zoom | VO: "Then you're graded against the real bar — a letter, a six-axis read, a hire call." | GRADED AGAINST THE BAR |
@@ -335,7 +335,7 @@ Format for both: **9:16 · 1080×1920 · subtitles burned-in · palette ink/crea
 **Capture checklist:** tier-select screen · a question + AI asking · a follow-up + short answer (can reuse a clip from Video 1) · Scorecard reveal. The "997 · 12 categories" beat = a **title card** (animated number), not a screenshot.
 
 **VO text (ElevenLabs — full block):**
-> What if you could fail an IB interview safely — fifty times — before the one that counts? Pick your interviewer: a patient intern, a sharp analyst, or an MD who plays the skeptical CFO. Sit a real question — a technical, a behavioral, a deal walk. Answer, and it presses exactly where you're thin. Then you're graded against the real bar — a letter, a six-axis read, and a hire call. Nine hundred ninety-seven questions, twelve categories, as many reps as you need. Walk in having already done it. Run a free mock.
+> What if you could fail an IB interview safely — fifty times — before the one that counts? Pick your interviewer: a patient intern, a sharp analyst, or an Associate who plays the skeptical CFO. Sit a real question — a technical, a behavioral, a deal walk. Answer, and it presses exactly where you're thin. Then you're graded against the real bar — a letter, a six-axis read, and a hire call. Nine hundred ninety-seven questions, twelve categories, as many reps as you need. Walk in having already done it. Run a free mock.
 
 ### Shared production kit
 - **Capture:** Screen Studio (Mac, auto-zoom) or OBS (free). Record system audio (AI voice) and mic (your voice) on **separate tracks**. 2–3 takes; pick the best. Test account; hide personal data. Use a **real** grade (don't fabricate).
