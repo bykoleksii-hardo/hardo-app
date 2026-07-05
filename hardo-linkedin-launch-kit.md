@@ -3,14 +3,14 @@
 _Assembled 2026-06-24 · Domain: **hardo.app** · Articles: hardo.app/knowledge/<slug>_
 
 Current direction: lead with the **company page** (personal profile later), use **follow-ups** as the
-wedge, and build audience partly through an honest **Content Analyst Program** (volunteer/contributor —
+wedge, and build audience partly through an honest **Content Analyst Program** (volunteer/contributor,
 never a fake paid job). ~80% value / ~20% product. Outbound links go in the **first comment**, not the body.
 
 ---
 
 ## 1. Brand voice & hard rules (quick reference)
 
-- **Voice:** confident senior-analyst — sharp, specific, empathetic to the stress. Not hypey, not guru.
+- **Voice:** confident senior-analyst, sharp, specific, empathetic to the stress. Not hypey, not guru.
   Sliders: Professional 8 · Warmth 6 · Wit 5 · Formality 5.
 - **Hard rules:** no job/offer guarantees · no fabricated stats or testimonials (use `[INSERT real metric]`) ·
   never publish wrong technical content · inclusive of non-target schools & switchers ·
@@ -20,16 +20,16 @@ never a fake paid job). ~80% value / ~20% product. Outbound links go in the **fi
 
 ## 2. Real product facts (all verified — safe to use)
 
-- **Question pool: 664 questions across 12 categories**, difficulty 1–4:
-  Case Study 134 · Behavioral/Fit 108 · M&A 72 · Valuation 70 · Accounting 69 ·
-  Business Acumen/Markets 61 · Private Equity/LBO 51 · Corporate Finance 45 ·
-  Brainteaser 24 · Due Diligence 18 · Restructuring 6 · Capital Markets 6.
+- **Question pool: 997 questions across 12 categories**, difficulty 1–4 (live count, verified against the database):
+  Case Study 181 · Valuation 112 · M&A 109 · Accounting 101 · Behavioral/Fit 95 ·
+  Private Equity/LBO 85 · Business Acumen/Markets 80 · Corporate Finance 60 ·
+  Brainteaser 50 · Due Diligence 45 · Capital Markets 40 · Restructuring 39.
 - Every question stores a **model answer + key_points** (the grading rubric).
 - **Three interviewer tiers:** Intern (patient, hint-shaped) · Analyst (stress-tests mechanics) ·
   MD/Associate (plays skeptical CFO/board, "convince me").
 - **Grading:** a **letter grade per question**, a **six-axis skill radar**, **follow-up depth**,
   and **one of four hire calls**. **12 questions per session.**
-- **Follow-ups (the wedge):** adaptive to your answer — press exactly where it's thin.
+- **Follow-ups (the wedge):** adaptive to your answer, pressing exactly where it's thin.
   **Up to 2 per question, up to 5 on a case study.** Graded on how deep you held.
 
 ### Published articles to reference (don't duplicate — link them)
@@ -64,18 +64,18 @@ _Audience-builder. Honest contributor program (unpaid, real perks). Application 
 > We're opening **[10]** spots on the **Hardo IB Content Analyst Program**, a remote contributor cohort for finance students who want hands-on IB content experience going into recruiting.
 >
 > **What you'll do:**
-> • Help expand our interview question bank (664 questions across 12 categories right now — Valuation, M&A, LBO, Accounting, Behavioral, and more)
+> • Help expand our interview question bank (997 questions across 12 categories right now: Valuation, M&A, LBO, Accounting, Behavioral, and more)
 > • Pressure-test model answers and grading rubrics, and flag what's weak or vague
 > • Contribute real questions from your own interviews and superdays
 >
-> **What you get** (this is a volunteer program, so no salary — but not nothing):
+> **What you get** (this is a volunteer program, so no salary, but not nothing):
 > • Free **Hardo Pro** access for the duration
 > • A verifiable credential and byline, *"IB Content Analyst — Hardo,"* for your CV and LinkedIn
 > • Portfolio material from the questions and breakdowns you help build
 > • A recommendation letter on request, if you contribute meaningfully
 > • A small cohort of people recruiting alongside you
 >
-> **Who it's for:** penultimate or final-year students recruiting for IB. Target school, non-target, switching in from another major — all welcome. About **[2–3 hours/week]**, over a **[6-week]** cohort.
+> **Who it's for:** penultimate or final-year students recruiting for IB. Target school, non-target, switching in from another major, all welcome. About **[2–3 hours/week]**, over a **[6-week]** cohort.
 >
 > This isn't a paid hire. It's a learning and portfolio opportunity, and what you walk away with is real reps, a credential, and a network.
 >
@@ -100,11 +100,11 @@ _"What is Hardo" + "question pools". References the manifesto article, doesn't d
 >
 > Hardo is built around that problem. What's inside:
 >
-> • **664 questions across 12 categories** — Valuation, M&A, LBO/PE, Accounting, Corporate Finance, Case Studies, Behavioral/Fit, Brainteasers, Restructuring, Capital Markets, Due Diligence, Markets — at four difficulty levels.
+> • **997 questions across 12 categories**: Valuation, M&A, LBO/PE, Accounting, Corporate Finance, Case Studies, Behavioral/Fit, Brainteasers, Restructuring, Capital Markets, Due Diligence, Markets, across four difficulty levels.
 > • **Three interviewer tiers**, from a friendly first-round to a VP who pushes back on every number.
 > • **Follow-ups that adapt to your answer** and press where it's thin, up to 5 deep on a case study. A static question list can't do that.
 > • **A letter grade on every session**, so you know where you actually stand, not just whether it felt fine.
-> • **A model answer and a rubric behind every question** — roughly the same points a real interviewer is checking for while you talk.
+> • **A model answer and a rubric behind every question**, roughly the same points a real interviewer is checking for while you talk.
 > • **12 questions per session**, closer to a real interview than a flashcard deck.
 >
 > Reading more answers doesn't make you better at this. Saying your own answer out loud, and finding out exactly what to fix, does.
@@ -122,13 +122,13 @@ _9 slides · 1080×1350 (4:5 portrait) · same visual system as the Post 3 carou
 
 **Slide 1 — Cover.** Kicker: WHAT HARDO ACTUALLY IS · Headline: "A list of questions isn't **interview prep.**" · Sub: "Here's what's actually inside the pool."
 **Slide 2 — The gap.** "You can read fifty answers." · Sub: "The first time you say yours out loud is usually the interview that counts."
-**Slide 3 — 664.** Big stat "664" · Sub: "Questions across 12 categories: Valuation, M&A, LBO, Accounting, Case Studies, Behavioral, and more. Four difficulty levels."
+**Slide 3 — 997.** Big stat "997" · Sub: "Questions across 12 categories: Valuation, M&A, LBO, Accounting, Case Studies, Behavioral, and more. Four difficulty levels."
 **Slide 4 — Three interviewer tiers.** INTERN: patient, nudges you toward the answer · ANALYST: stress-tests your mechanics · MD: plays the skeptical CFO, pushes back on every number.
 **Slide 5 — Follow-ups.** "Follow-ups press **where your answer is thin.**" · Sub: "Up to 5 deep on a case study. A static question list can't do that."
 **Slide 6 — Grading.** "A letter grade **on every session.**" · Sub: "So you know where you actually stand, not just whether it felt fine."
 **Slide 7 — Rubric.** 4-point list: model answer behind every question · a rubric of the points a strong answer hits · roughly what a real interviewer is quietly checking · 12 questions a session, closer to the real thing than a flashcard deck.
 **Slide 8 — The lesson.** "Reading more answers won't make you better at this." / "Saying **yours** will."
-**Slide 9 — CTA.** "Run your first mock." · Sub: "664 questions, three interviewer tiers, graded like the real thing." · Button: "Run a free mock" · "Save this and follow HARDO for more"
+**Slide 9 — CTA.** "Run your first mock." · Sub: "997 questions, three interviewer tiers, graded like the real thing." · Button: "Run a free mock" · "Save this and follow HARDO for more"
 
 **Carousel caption:**
 > Most interview prep hands you a list of questions and stops there. It rarely tells you what a good answer actually contains. Here's what's actually inside Hardo's question pool.
@@ -158,15 +158,15 @@ _"Good/bad answers" theme. Real question + real rubric. Shows the follow-up. Ref
 > …silence. The first answer was a slogan, and a slogan has nowhere to go once someone pushes on it.
 >
 > **What a strong answer actually contains** (the rubric we grade against on Hardo):
-> 1. A concrete, personal reason — not a cliché
+> 1. A concrete, personal reason, not a cliché
 > 2. Skills you genuinely enjoy, tied to what bankers actually spend their day on
 > 3. A realistic read on the hours and the deal process
 > 4. A longer-term goal that banking specifically enables
 > 5. A clear answer for why banking and not consulting or PE
 >
 > **A version that holds up:**
-> *"Building a DCF and comps to value a retailer for a class project is what hooked me — the analysis fed into a real recommendation, and I want to do that on live deals where it actually matters. The hours don't scare me off; I want the foundation an analyst program builds."*
-> Pushed further — *"Why not PE, then?"* — it still holds: *"Long term, maybe. But I want to learn how deals get built before I judge them from the buy-side."*
+> *"Building a DCF and comps to value a retailer for a class project is what hooked me. The analysis fed into a real recommendation, and I want to do that on live deals where it actually matters. The hours don't scare me off; I want the foundation an analyst program builds."*
+> Push further with *"Why not PE, then?"* and it still holds: *"Long term, maybe. But I want to learn how deals get built before I judge them from the buy-side."*
 >
 > The second version isn't better-written. It just has somewhere to go when someone pushes back.
 
@@ -241,7 +241,7 @@ _The strongest post. Pair with Video 1. Public framing is defensible ("the part 
 >
 > • Follow-ups adapt to your actual answer and press where it's thin, not off a script. Up to **2 per question, 5 on a case study**.
 > • The interviewer matches the room you'll face: an Intern nudges, an Analyst stress-tests your mechanics, an MD plays the skeptical CFO and makes you defend your number.
-> • You're graded on follow-up depth too — how far you held under pressure, not just whether the opening answer was clean.
+> • You're graded on follow-up depth too, meaning how far you held under pressure, not just whether the opening answer was clean.
 >
 > Knowing the first answer gets you in the room. Holding up under the second question is what gets you the offer.
 
@@ -329,13 +329,13 @@ Format for both: **9:16 · 1080×1920 · subtitles burned-in · palette ink/crea
 | 0:12–0:22 | Question on screen, AI asks it | Product audio + VO: "Sit a real question — a technical, a behavioral, a deal walk." | 12 QUESTIONS A SESSION |
 | 0:22–0:32 | Follow-up + short answer | Product audio + VO: "Answer — and it presses exactly where you're thin." | IT FOLLOWS UP WHERE YOU'RE THIN |
 | 0:32–0:42 | Scorecard reveal: letter + six-axis radar, zoom | VO: "Then you're graded against the real bar — a letter, a six-axis read, a hire call." | GRADED AGAINST THE BAR |
-| 0:42–0:50 | Title-card montage of numbers | VO: "Six hundred sixty-four questions. Twelve categories. As many reps as you need." | 664 QUESTIONS · 12 CATEGORIES |
+| 0:42–0:50 | Title-card montage of numbers | VO: "Nine hundred ninety-seven questions. Twelve categories. As many reps as you need." | 997 QUESTIONS · 12 CATEGORIES |
 | 0:50–0:56 | End card on cream + CTA | VO: "Walk in having already done it. Run a free mock." | hardo.app |
 
-**Capture checklist:** tier-select screen · a question + AI asking · a follow-up + short answer (can reuse a clip from Video 1) · Scorecard reveal. The "664 · 12 categories" beat = a **title card** (animated number), not a screenshot.
+**Capture checklist:** tier-select screen · a question + AI asking · a follow-up + short answer (can reuse a clip from Video 1) · Scorecard reveal. The "997 · 12 categories" beat = a **title card** (animated number), not a screenshot.
 
 **VO text (ElevenLabs — full block):**
-> What if you could fail an IB interview safely — fifty times — before the one that counts? Pick your interviewer: a patient intern, a sharp analyst, or an MD who plays the skeptical CFO. Sit a real question — a technical, a behavioral, a deal walk. Answer, and it presses exactly where you're thin. Then you're graded against the real bar — a letter, a six-axis read, and a hire call. Six hundred sixty-four questions, twelve categories, as many reps as you need. Walk in having already done it. Run a free mock.
+> What if you could fail an IB interview safely — fifty times — before the one that counts? Pick your interviewer: a patient intern, a sharp analyst, or an MD who plays the skeptical CFO. Sit a real question — a technical, a behavioral, a deal walk. Answer, and it presses exactly where you're thin. Then you're graded against the real bar — a letter, a six-axis read, and a hire call. Nine hundred ninety-seven questions, twelve categories, as many reps as you need. Walk in having already done it. Run a free mock.
 
 ### Shared production kit
 - **Capture:** Screen Studio (Mac, auto-zoom) or OBS (free). Record system audio (AI voice) and mic (your voice) on **separate tracks**. 2–3 takes; pick the best. Test account; hide personal data. Use a **real** grade (don't fabricate).
