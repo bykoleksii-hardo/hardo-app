@@ -42,7 +42,7 @@ const PAGE_FAQ: FaqItem[] = [
   { q: 'What does the mock interview cover?', a: 'Twelve questions per session across technicals (accounting, valuation, DCF, LBO, M&A, accretion/dilution), behavioral, and a live case — the same ground a real first-round and superday cover.' },
   { q: 'Is it voice or text?', a: 'Both. Answer out loud for real-room pressure with a live transcript, or type. The scorecard is the same either way.' },
   { q: 'How is the interview graded?', a: 'A letter grade on every answer, a six-axis skill radar, how far you held under follow-ups, and one of four hire calls — the rubric a real banker would use.' },
-  { q: 'Which levels can I practice?', a: 'Three interviewer tiers — Intern, Analyst, and Associate — each pulling from its own question pool and graded against the bar for that level.' },
+  { q: 'Which levels can I practice?', a: 'Three candidate levels — Intern, Analyst, and Associate — each pulling from its own question pool and graded against the bar for that level.' },
 ];
 
 export default async function Page() {
@@ -144,7 +144,7 @@ export default async function Page() {
           <div className="max-w-3xl mx-auto px-6 py-16">
             <h2 className="font-serif text-[30px] md:text-[36px] font-light tracking-[-0.01em]">Why HARDO is not a chatbot</h2>
             <ul className="mt-6 space-y-4 text-[16.5px] text-ink-2 leading-relaxed">
-              <li><strong className="text-ink font-semibold">Three interviewer tiers.</strong> Intern, Analyst, and Associate — each graded against the bar for that level, not a generic one.</li>
+              <li><strong className="text-ink font-semibold">Three candidate levels.</strong> Intern, Analyst, and Associate — each graded against the bar for that level, not a generic one.</li>
               <li><strong className="text-ink font-semibold">A real scorecard.</strong> A letter grade on every answer, a six-axis skill radar, follow-up depth, and one of four hire calls — the verdict a director would write.</li>
               <li><strong className="text-ink font-semibold">Delivery is scored too.</strong> In voice mode, pace, filler, and jargon hygiene are on the report — not just whether the numbers tied.</li>
               <li><strong className="text-ink font-semibold">Voice or text.</strong> Answer out loud with a live transcript, or type. Same rubric either way.</li>
