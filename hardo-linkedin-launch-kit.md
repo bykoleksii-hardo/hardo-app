@@ -130,13 +130,30 @@ _9 slides · 1080×1350 (4:5 portrait) · same visual system as the Post 3 carou
 **Slide 8 — The lesson.** "Reading more answers won't make you better at this." / "Saying **yours** will."
 **Slide 9 — CTA.** "Run your first mock." · Sub: "997 questions, three interviewer tiers, graded like the real thing." · Button: "Run a free mock" · "Save this and follow HARDO for more"
 
-**Carousel caption:**
-> Most interview prep hands you a list of questions and stops there. It rarely tells you what a good answer actually contains. Here's what's actually inside Hardo's question pool.
-> #InvestmentBanking #IBRecruiting #InterviewPrep #FinanceCareers #Fintech
+**Carousel caption (final, user-approved):**
+> You can read every "top 50 IB interview questions" list on the internet and still go quiet in your first round.
+>
+> Reading an answer and defending one out loud are different skills. Hardo trains the second one.
+>
+> What is inside right now:
+>
+> • A bank of 997 questions
+> • Three interviewer tiers. The Intern sticks to the fundamentals, the Analyst stress-tests the mechanics, the Associate makes you defend your assumptions and pushes through the tougher challenges
+> • Follow-ups that adapt to your answer
+> • A model answer and a grading rubric behind every question
+> • 12 questions per session, then a letter grade and a hire call
+>
+> The carousel walks through why each piece is built the way it is.
+>
+> If you are recruiting this cycle, save this for the week before your first round.
+>
+> #IBRecruiting #InvestmentBanking #InterviewPrep #FinanceStudents #FinanceCareers
 
 **Carousel first comment:**
-> The manifesto, what Hardo is and why we built it this way: hardo.app/knowledge/what-is-hardo
-> Or just run a free mock and see your first grade: hardo.app
+> The longer story, what Hardo is and why we built it this way: hardo.app/knowledge/what-is-hardo
+> Run a free mock and see your first letter grade: hardo.app
+>
+> _UTM: append `?utm_source=linkedin&utm_medium=organic&utm_campaign=what_is_hardo` to both links to trace signups from this post._
 
 ---
 
