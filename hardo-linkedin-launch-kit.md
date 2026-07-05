@@ -110,10 +110,33 @@ _"What is Hardo" + "question pools". References the manifesto article, doesn't d
 > Reading more answers doesn't make you better at this. Saying your own answer out loud, and finding out exactly what to fix, does.
 
 **First comment (links):**
-> The manifesto — what Hardo is and why we built it this way: hardo.app/knowledge/what-is-hardo
+> The manifesto, what Hardo is and why we built it this way: hardo.app/knowledge/what-is-hardo
 > Or just run a free mock and see your first grade: hardo.app
 
 **Hashtags:** #InvestmentBanking #IBRecruiting #InterviewPrep #FinanceCareers #Fintech
+
+---
+
+### POST 2 — Carousel version (LinkedIn document post)
+_9 slides · 1080×1350 (4:5 portrait) · same visual system as the Post 3 carousel: ink `#11161E` / cream `#F2ECDF` / paper `#FBF7EE` / navy `#0E1E36` / gold `#B88736`, serif headlines, logo lockup, radial-ring motif, film grain. Built with `marketing/carousel-what-is-hardo/slides-post2.html`. One idea per slide._
+
+**Slide 1 — Cover.** Kicker: WHAT HARDO ACTUALLY IS · Headline: "A list of questions isn't **interview prep.**" · Sub: "Here's what's actually inside the pool."
+**Slide 2 — The gap.** "You can read fifty answers." · Sub: "The first time you say yours out loud is usually the interview that counts."
+**Slide 3 — 664.** Big stat "664" · Sub: "Questions across 12 categories: Valuation, M&A, LBO, Accounting, Case Studies, Behavioral, and more. Four difficulty levels."
+**Slide 4 — Three interviewer tiers.** INTERN: patient, nudges you toward the answer · ANALYST: stress-tests your mechanics · MD: plays the skeptical CFO, pushes back on every number.
+**Slide 5 — Follow-ups.** "Follow-ups press **where your answer is thin.**" · Sub: "Up to 5 deep on a case study. A static question list can't do that."
+**Slide 6 — Grading.** "A letter grade **on every session.**" · Sub: "So you know where you actually stand, not just whether it felt fine."
+**Slide 7 — Rubric.** 4-point list: model answer behind every question · a rubric of the points a strong answer hits · roughly what a real interviewer is quietly checking · 12 questions a session, closer to the real thing than a flashcard deck.
+**Slide 8 — The lesson.** "Reading more answers won't make you better at this." / "Saying **yours** will."
+**Slide 9 — CTA.** "Run your first mock." · Sub: "664 questions, three interviewer tiers, graded like the real thing." · Button: "Run a free mock" · "Save this and follow HARDO for more"
+
+**Carousel caption:**
+> Most interview prep hands you a list of questions and stops there. It rarely tells you what a good answer actually contains. Here's what's actually inside Hardo's question pool.
+> #InvestmentBanking #IBRecruiting #InterviewPrep #FinanceCareers #Fintech
+
+**Carousel first comment:**
+> The manifesto, what Hardo is and why we built it this way: hardo.app/knowledge/what-is-hardo
+> Or just run a free mock and see your first grade: hardo.app
 
 ---
 
