@@ -8,13 +8,15 @@ Carousel for Post 2 — **"What Hardo actually is"** (inside the question pool).
 - Caption and first-comment text below. Article link goes in the **first comment**, not the post body.
 
 ### Caption (post body)
-> Most interview prep hands you a list of questions and stops there. It rarely tells you what a good answer actually contains. Here's what's actually inside Hardo's question pool.
->
-> #InvestmentBanking #IBRecruiting #InterviewPrep #FinanceCareers #Fintech
+The final user-approved caption lives in `hardo-linkedin-launch-kit.md`, section "POST 2 — Carousel
+version" (hook: "You can read every 'top 50 IB interview questions' list..."). Use that text verbatim,
+it is kept in sync with the slides (997 questions, three candidate levels).
 
 ### First comment
-> The manifesto, what Hardo is and why we built it this way: hardo.app/knowledge/what-is-hardo
-> Or just run a free mock and see your first grade: hardo.app
+> The longer story, what Hardo is and why we built it this way: hardo.app/knowledge/what-is-hardo
+> Run a free mock and see your first letter grade: hardo.app
+
+Append `?utm_source=linkedin&utm_medium=organic&utm_campaign=what_is_hardo` to both links.
 
 ## How it's built (reproducible)
 Same system as the Why-IB carousel (`marketing/carousel-why-ib/`): plain HTML/CSS rendered headless,
