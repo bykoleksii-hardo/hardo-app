@@ -1,11 +1,20 @@
 import Link from 'next/link';
 import Brand from '@/app/_components/Brand';
 import SubscribeForm from './SubscribeForm';
+import { SOCIAL_LINKS } from '@/lib/seo';
 
 type Props = {
   signedIn?: boolean;
   isPaid?: boolean;
 };
+
+function LinkedInIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45Z" />
+    </svg>
+  );
+}
 
 export default function LandingFooter({ signedIn = false, isPaid = false }: Props) {
   return (
@@ -53,7 +62,18 @@ export default function LandingFooter({ signedIn = false, isPaid = false }: Prop
       </div>
       <div className="border-t border-line">
         <div className="max-w-page mx-auto px-6 py-5 text-[12px] text-muted flex items-center justify-between">
-          <span>{'\u00a9'} {new Date().getFullYear()} HARDO. All rights reserved.</span>
+          <span className="flex items-center gap-3">
+            {'\u00a9'} {new Date().getFullYear()} HARDO. All rights reserved.
+            <a
+              href={SOCIAL_LINKS.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="HARDO on LinkedIn"
+              className="text-muted hover:text-ink transition-colors"
+            >
+              <LinkedInIcon />
+            </a>
+          </span>
           <span className="hidden md:inline">Built with Next.js, Cloudflare Workers, Supabase, OpenAI {'\u00b7'} Groq Whisper.</span>
           <span>Built for candidates, not hiring funnels.</span>
         </div>
