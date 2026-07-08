@@ -16,6 +16,14 @@ function LinkedInIcon() {
   );
 }
 
+function YouTubeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.81 3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.81ZM9.55 15.57V8.43L15.82 12l-6.27 3.57Z" />
+    </svg>
+  );
+}
+
 export default function LandingFooter({ signedIn = false, isPaid = false }: Props) {
   return (
     <footer className="border-t border-line mt-24">
@@ -72,6 +80,15 @@ export default function LandingFooter({ signedIn = false, isPaid = false }: Prop
               className="text-muted hover:text-ink transition-colors"
             >
               <LinkedInIcon />
+            </a>
+            <a
+              href={SOCIAL_LINKS.youtube}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="HARDO on YouTube"
+              className="text-muted hover:text-ink transition-colors"
+            >
+              <YouTubeIcon />
             </a>
           </span>
           <span className="hidden md:inline">Built with Next.js, Cloudflare Workers, Supabase, OpenAI {'\u00b7'} Groq Whisper.</span>
