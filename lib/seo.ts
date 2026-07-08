@@ -14,6 +14,7 @@ export const CONTACT_EMAIL = 'hello@hardo.app';
  * Organization schema's `sameAs` (tells search engines these are the same entity). */
 export const SOCIAL_LINKS = {
   linkedin: 'https://www.linkedin.com/company/133963955/',
+  youtube: 'https://www.youtube.com/channel/UCXXr40FdRIrQeGpJSZxmxEQ',
 } as const;
 
 /** Resolve a path or absolute URL to a fully-qualified canonical URL. */
