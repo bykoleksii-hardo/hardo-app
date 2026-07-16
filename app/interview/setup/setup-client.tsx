@@ -9,22 +9,54 @@ type Level = 'intern' | 'analyst' | 'associate';
 type InputMode = 'text' | 'voice';
 type Format = 'full' | 'topic';
 
-const FORMATS: Array<{ id: Format; label: string; title: string; tagline: string; bullets: string[] }> = [
+const FORMATS: Array<{ id: Format; label: string; title: string; tagline: string; count: string; meta: string; recipe: string }> = [
   {
     id: 'full',
     label: '— THE FULL ROUND',
     title: 'Full interview',
-    tagline: 'The complete superday flow — fit, technicals, a case, one curveball. The real rehearsal.',
-    bullets: ['12 questions', '~35–45 minutes', 'Full scorecard + hire call'],
+    tagline: 'The complete superday flow — the real rehearsal, graded end to end with a hire call.',
+    count: '12',
+    meta: '12 QUESTIONS · ≈ 35–45 MIN',
+    recipe: 'FIT · TECHNICALS · CASE · CURVEBALL',
   },
   {
     id: 'topic',
     label: '— TOPIC SPRINT',
     title: 'Topic sprint',
     tagline: 'Three questions on one topic you pick. Drill a weakness, get graded, get out.',
-    bullets: ['3 questions', '~10 minutes', 'One topic, easiest first'],
+    count: '3',
+    meta: '3 QUESTIONS · ≈ 10 MIN',
+    recipe: 'ONE TOPIC · EASIEST FIRST',
   },
 ];
+
+/** Editorial section header: numbered kicker + hairline rule. */
+function SectionKicker({ children }: { children: string }) {
+  return (
+    <div className="flex items-center gap-4 mb-5">
+      <span className="text-[11px] tracking-[0.22em] text-gold whitespace-nowrap">{children}</span>
+      <span className="h-px flex-1 bg-ink/10" aria-hidden />
+    </div>
+  );
+}
+
+/** Radio-style selection dot: reads faster than a SELECTED label. */
+function RadioDot({ active }: { active: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={`inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border transition-colors duration-200 ${
+        active ? 'border-gold' : 'border-ink/25 group-hover:border-ink/45'
+      }`}
+    >
+      <span
+        className={`h-2 w-2 rounded-full bg-gold transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+          active ? 'scale-100 opacity-100' : 'scale-50 opacity-0'
+        }`}
+      />
+    </span>
+  );
+}
 
 const INPUT_MODES: Array<{ id: InputMode; title: string; tagline: string; bullets: string[] }> = [
   {
@@ -178,7 +210,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
 
         {/* FORMAT CARDS */}
         <div className="mb-12">
-          <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR FORMAT</div>
+          <SectionKicker>01 — PICK YOUR FORMAT</SectionKicker>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {FORMATS.map((f) => {
               const isActive = f.id === format;
@@ -186,20 +218,33 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 <button
                   key={f.id}
                   onClick={() => setFormat(f.id)}
-                  className={`text-left rounded-sm border p-7 transition-all duration-300 hover:-translate-y-0.5 ${isActive ? 'border-gold bg-cream shadow-[0_18px_38px_-28px_rgba(184,135,54,0.5)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'}`}
+                  className={`group text-left rounded-sm border p-7 transition-[transform,border-color,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 active:scale-[0.99] ${
+                    isActive ? 'border-gold bg-cream shadow-[0_22px_45px_-30px_rgba(184,135,54,0.55)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'
+                  }`}
                   aria-pressed={isActive}
                 >
-                  <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
+                  <div className="flex items-center justify-between mb-6 text-[10px] tracking-[0.22em]">
                     <span className={isActive ? 'text-gold' : 'text-ink/55'}>{f.label}</span>
-                    {isActive && <span className="text-gold">SELECTED</span>}
+                    <RadioDot active={isActive} />
                   </div>
-                  <h2 className="font-serif text-2xl mb-2">{f.title}</h2>
-                  <p className="text-sm text-ink/70 mb-5 leading-relaxed">{f.tagline}</p>
-                  <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-ink/65">
-                    {f.bullets.map((b) => (
-                      <li key={b}>— {b.toUpperCase()}</li>
-                    ))}
-                  </ul>
+                  <div className="flex items-end justify-between gap-6">
+                    <div className="min-w-0">
+                      <h2 className="font-serif text-3xl mb-2">{f.title}</h2>
+                      <p className="text-sm text-ink/70 leading-relaxed">{f.tagline}</p>
+                    </div>
+                    <div
+                      aria-hidden
+                      className={`font-serif italic leading-[0.75] text-[84px] tracking-[-0.05em] shrink-0 select-none transition-colors duration-300 ${
+                        isActive ? 'text-gold' : 'text-ink/[0.13] group-hover:text-ink/25'
+                      }`}
+                    >
+                      {f.count}
+                    </div>
+                  </div>
+                  <div className="mt-6 pt-4 border-t border-ink/10 flex items-center justify-between gap-x-4 gap-y-1 flex-wrap text-[10px] tracking-[0.2em]">
+                    <span className={isActive ? 'text-gold-2' : 'text-ink/50'}>{f.meta}</span>
+                    <span className="text-ink/40">{f.recipe}</span>
+                  </div>
                 </button>
               );
             })}
@@ -209,24 +254,31 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         {/* TOPIC PICKER (topic sprint only) */}
         {format === 'topic' && (
           <div className="mb-12">
-            <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR TOPIC</div>
+            <SectionKicker>02 — PICK YOUR TOPIC</SectionKicker>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {INTERVIEW_TOPICS.map((t) => {
+              {INTERVIEW_TOPICS.map((t, i) => {
                 const isActive = topicCat === t.key;
                 return (
                   <button
                     key={t.key}
                     onClick={() => setTopicCat(t.key)}
-                    className={`text-left rounded-sm border p-5 transition-all duration-300 hover:-translate-y-0.5 ${
+                    style={{ animationDelay: `${i * 45}ms` }}
+                    className={`anim-rise group text-left rounded-sm border p-5 transition-[transform,border-color,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 active:scale-[0.99] ${
                       isActive ? 'border-gold bg-cream shadow-[0_18px_38px_-28px_rgba(184,135,54,0.5)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'
                     }`}
                     aria-pressed={isActive}
                   >
-                    <div className="flex items-center justify-between mb-2 text-[10px] tracking-[0.22em]">
-                      <span className={isActive ? 'text-gold' : 'text-ink/55'}>— {t.label.toUpperCase()}</span>
-                      {isActive && <span className="text-gold">SELECTED</span>}
+                    <div className="flex items-center justify-between mb-3">
+                      <span
+                        aria-hidden
+                        className={`font-serif italic text-[15px] transition-colors duration-200 ${isActive ? 'text-gold' : 'text-ink/35'}`}
+                      >
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <RadioDot active={isActive} />
                     </div>
-                    <p className="text-[13px] text-ink/65 leading-relaxed">{t.blurb}</p>
+                    <h3 className="font-serif text-[21px] leading-tight mb-1.5">{t.label}</h3>
+                    <p className="text-[13px] text-ink/60 leading-relaxed">{t.blurb}</p>
                   </button>
                 );
               })}
@@ -234,7 +286,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
           </div>
         )}
 
-        <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR ROOM</div>
+        <SectionKicker>{format === 'topic' ? '03 — PICK YOUR ROOM' : '02 — PICK YOUR ROOM'}</SectionKicker>
 
         {/* THREE LEVEL CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -317,7 +369,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         {/* MODE PICKER (revealed after level is confirmed) */}
         {stage === 'mode' && (
           <div className="mt-14">
-            <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— HOW WILL YOU ANSWER?</div>
+            <SectionKicker>{format === 'topic' ? '04 — HOW WILL YOU ANSWER?' : '03 — HOW WILL YOU ANSWER?'}</SectionKicker>
             <h2 className="font-serif text-3xl leading-[1.1] mb-2">
               Pick your <span className="italic text-gold">delivery</span> for this round.
             </h2>
@@ -331,14 +383,14 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                   <button
                     key={m.id}
                     onClick={() => setInputMode(m.id)}
-                    className={`text-left rounded-sm border p-7 transition-all duration-300 hover:-translate-y-0.5 ${isActive ? 'border-gold bg-cream shadow-[0_18px_38px_-28px_rgba(184,135,54,0.5)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'}`}
+                    className={`group text-left rounded-sm border p-7 transition-[transform,border-color,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 active:scale-[0.99] ${isActive ? 'border-gold bg-cream shadow-[0_18px_38px_-28px_rgba(184,135,54,0.5)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'}`}
                     aria-pressed={isActive}
                   >
                     <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
                       <span className={isActive ? 'text-gold' : 'text-ink/55'}>
                         {m.id === 'voice' ? '— VOICE' : '— TEXT'}
                       </span>
-                      {isActive && <span className="text-gold">SELECTED</span>}
+                      <RadioDot active={isActive} />
                     </div>
                     <h3 className="font-serif text-2xl mb-2">{m.title}</h3>
                     <p className="text-sm text-ink/70 mb-5 leading-relaxed">{m.tagline}</p>
@@ -390,7 +442,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 }
               }}
               disabled={ctaDisabled}
-              className="bg-gold text-paper font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#9C6F1E] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="bg-gold text-paper font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#9C6F1E] transition-[background-color,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {stage === 'level'
                 ? (isLevelLocked(selected) || blockedByLimit ? ctaLabel : 'Continue \u2192')
