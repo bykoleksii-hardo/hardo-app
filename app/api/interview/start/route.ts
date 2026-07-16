@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { withLogging, logger } from '@/lib/observability';
 import { chatJSON } from '@/lib/openai';
+import { isTopicCategory, TOPIC_MIN_LEVEL } from '@/lib/interview/topics';
 import {
   REPHRASE_SYSTEM_PROMPT,
   REPHRASE_SCHEMA,
@@ -13,11 +14,20 @@ import {
 
 export const POST = withLogging('POST /api/interview/start', async (req: Request, ctx: { requestId: string }) => {
   try {
-    const { level, input_mode: inputModeRaw } = await req.json();
+    const { level, input_mode: inputModeRaw, mode: modeRaw, topic_category: topicCategoryRaw } = await req.json();
     if (!['intern', 'analyst', 'associate'].includes(level)) {
       return NextResponse.json({ error: 'Invalid level' }, { status: 400 });
     }
     const inputMode: 'text' | 'voice' = inputModeRaw === 'voice' ? 'voice' : 'text';
+    const mode: 'standard' | 'topic' = modeRaw === 'topic' ? 'topic' : 'standard';
+    if (mode === 'topic') {
+      if (!isTopicCategory(topicCategoryRaw)) {
+        return NextResponse.json({ error: 'Invalid topic category' }, { status: 400 });
+      }
+      if (TOPIC_MIN_LEVEL[topicCategoryRaw] === 'analyst' && level === 'intern') {
+        return NextResponse.json({ error: `${topicCategoryRaw} sprints start at the Analyst level.` }, { status: 400 });
+      }
+    }
 
     const supabase = await getSupabaseServer();
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
@@ -37,6 +47,7 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
       free_limit: number;
       allowed_levels: string[];
       can_start: boolean;
+      can_start_topic?: boolean;
     };
     if (!q.allowed_levels.includes(level)) {
       return NextResponse.json(
@@ -44,7 +55,10 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
         { status: 403 }
       );
     }
-    if (!q.can_start) {
+    // Standard interviews and topic sprints are metered separately (the DB
+    // enforces both atomically inside the start RPCs; these are the friendly
+    // pre-checks).
+    if (mode === 'standard' && !q.can_start) {
       return NextResponse.json(
         {
           error: 'You have used your free interview. Upgrade to continue.',
@@ -56,9 +70,21 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
         { status: 403 }
       );
     }
+    if (mode === 'topic' && q.can_start_topic === false) {
+      return NextResponse.json(
+        {
+          error: 'You have used your free topic sprint. Upgrade to continue.',
+          reason: 'free_limit_reached',
+          plan: q.plan,
+        },
+        { status: 403 }
+      );
+    }
     // --- End gating ---
 
-    const { data, error } = await supabase.rpc('start_interview', { p_level: level });
+    const { data, error } = mode === 'topic'
+      ? await supabase.rpc('start_topic_interview', { p_level: level, p_category: topicCategoryRaw })
+      : await supabase.rpc('start_interview', { p_level: level });
     if (error) {
       // start_interview now enforces the quota atomically inside the DB
       // (race-safe + direct-RPC-proof). Map its in-DB rejections to the same 403
@@ -77,10 +103,22 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
           { status: 403 }
         );
       }
+      if (msg.includes('topic_limit_reached')) {
+        return NextResponse.json(
+          { error: 'You have used your free topic sprint. Upgrade to continue.', reason: 'free_limit_reached', plan: q.plan },
+          { status: 403 }
+        );
+      }
       if (msg.includes('level_locked')) {
         return NextResponse.json(
           { error: 'This level is available on the paid plan only.', reason: 'level_locked', plan: q.plan },
           { status: 403 }
+        );
+      }
+      if (msg.includes('topic_unavailable')) {
+        return NextResponse.json(
+          { error: 'Not enough questions for this topic at this level yet — pick another topic or level.' },
+          { status: 400 }
         );
       }
       logger.error('start_interview RPC error', error);
@@ -108,7 +146,7 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
       }
     }
 
-    logger.info('interview started', { requestId: ctx.requestId, userId: user.id, interviewId: data, inputMode });
+    logger.info('interview started', { requestId: ctx.requestId, userId: user.id, interviewId: data, inputMode, mode, topicCategory: mode === 'topic' ? topicCategoryRaw : undefined });
     return NextResponse.json({ interview_id: data, input_mode: inputMode });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? 'Unknown error' }, { status: 500 });
