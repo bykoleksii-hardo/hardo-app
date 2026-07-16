@@ -58,18 +58,22 @@ function RadioDot({ active }: { active: boolean }) {
   );
 }
 
-const INPUT_MODES: Array<{ id: InputMode; title: string; tagline: string; bullets: string[] }> = [
+const INPUT_MODES: Array<{ id: InputMode; label: string; title: string; tagline: string; meta: string; note: string }> = [
   {
     id: 'text',
+    label: '— TEXT',
     title: 'Type your answers',
     tagline: 'Quiet rooms, late-night practice, or when you want to think on the page.',
-    bullets: ['2 minutes per question', '3 minutes for the case study', 'Edit before you send'],
+    meta: '2 MIN / QUESTION · 3 MIN CASE',
+    note: 'EDIT BEFORE YOU SEND',
   },
   {
     id: 'voice',
+    label: '— VOICE',
     title: 'Speak your answers',
     tagline: 'Closer to the real superday: think out loud, sound natural, hit the timer.',
-    bullets: ['1 minute per question', '2 minutes for the case study', 'Microphone required — transcript is editable'],
+    meta: '1 MIN / QUESTION · 2 MIN CASE',
+    note: 'MIC REQUIRED · EDITABLE TRANSCRIPT',
   },
 ];
 
@@ -123,7 +127,6 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
   const [quota, setQuota] = useState<Quota | null>(null);
   const [quotaLoading, setQuotaLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [stage, setStage] = useState<'level' | 'mode'>('level');
   const [inputMode, setInputMode] = useState<InputMode>('text');
 
   useEffect(() => {
@@ -146,7 +149,8 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
     ? (format === 'full' ? !quota.can_start : quota.can_start_topic === false)
     : false;
   const needsTopic = format === 'topic' && !topicCat;
-  const ctaDisabled = loading || quotaLoading || isLevelLocked(selected) || blockedByLimit || needsTopic;
+  // Locked/blocked states keep the button enabled — clicking it routes to /upgrade.
+  const ctaDisabled = loading || quotaLoading || needsTopic;
   const ctaLabel = (() => {
     if (loading) return 'Preparing your room...';
     if (quotaLoading) return 'Checking access...';
@@ -366,45 +370,66 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
           </div>
         </div>
 
-        {/* MODE PICKER (revealed after level is confirmed) */}
-        {stage === 'mode' && (
-          <div className="mt-14">
-            <SectionKicker>{format === 'topic' ? '04 — HOW WILL YOU ANSWER?' : '03 — HOW WILL YOU ANSWER?'}</SectionKicker>
-            <h2 className="font-serif text-3xl leading-[1.1] mb-2">
-              Pick your <span className="italic text-gold">delivery</span> for this round.
-            </h2>
-            <p className="text-ink/60 text-sm max-w-xl mb-8">
-              You can’t switch mid-interview — choose the one closest to how you want to drill today.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {INPUT_MODES.map((m) => {
-                const isActive = m.id === inputMode;
-                return (
-                  <button
-                    key={m.id}
-                    onClick={() => setInputMode(m.id)}
-                    className={`group text-left rounded-sm border p-7 transition-[transform,border-color,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 active:scale-[0.99] ${isActive ? 'border-gold bg-cream shadow-[0_18px_38px_-28px_rgba(184,135,54,0.5)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'}`}
-                    aria-pressed={isActive}
-                  >
-                    <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
-                      <span className={isActive ? 'text-gold' : 'text-ink/55'}>
-                        {m.id === 'voice' ? '— VOICE' : '— TEXT'}
-                      </span>
-                      <RadioDot active={isActive} />
+        {/* DELIVERY PICKER */}
+        <div className="mt-14">
+          <SectionKicker>{format === 'topic' ? '04 — HOW WILL YOU ANSWER?' : '03 — HOW WILL YOU ANSWER?'}</SectionKicker>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {INPUT_MODES.map((m) => {
+              const isActive = m.id === inputMode;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setInputMode(m.id)}
+                  className={`group text-left rounded-sm border p-7 transition-[transform,border-color,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 active:scale-[0.99] ${isActive ? 'border-gold bg-cream shadow-[0_22px_45px_-30px_rgba(184,135,54,0.55)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'}`}
+                  aria-pressed={isActive}
+                >
+                  <div className="flex items-center justify-between mb-6 text-[10px] tracking-[0.22em]">
+                    <span className={isActive ? 'text-gold' : 'text-ink/55'}>{m.label}</span>
+                    <RadioDot active={isActive} />
+                  </div>
+                  <div className="flex items-end justify-between gap-6">
+                    <div className="min-w-0">
+                      <h3 className="font-serif text-3xl mb-2">{m.title}</h3>
+                      <p className="text-sm text-ink/70 leading-relaxed">{m.tagline}</p>
                     </div>
-                    <h3 className="font-serif text-2xl mb-2">{m.title}</h3>
-                    <p className="text-sm text-ink/70 mb-5 leading-relaxed">{m.tagline}</p>
-                    <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-ink/65">
-                      {m.bullets.map((b) => (
-                        <li key={b}>— {b.toUpperCase()}</li>
-                      ))}
-                    </ul>
-                  </button>
-                );
-              })}
-            </div>
+                    {m.id === 'text' ? (
+                      <div
+                        aria-hidden
+                        className={`font-serif italic leading-[0.75] text-[72px] tracking-[-0.04em] shrink-0 select-none transition-colors duration-300 ${
+                          isActive ? 'text-gold' : 'text-ink/[0.13] group-hover:text-ink/25'
+                        }`}
+                      >
+                        Aa
+                        <span
+                          className={`ml-1.5 inline-block w-[3px] h-[0.68em] bg-current align-baseline ${isActive ? 'animate-[caret_1.1s_steps(2)_infinite]' : ''}`}
+                        />
+                      </div>
+                    ) : (
+                      <div aria-hidden className="flex items-end gap-[5px] h-[54px] shrink-0 pb-0.5">
+                        {[0.4, 0.75, 1, 0.6, 0.32].map((h, bi) => (
+                          <span
+                            key={bi}
+                            style={{ height: `${h * 100}%`, animationDelay: `${bi * 130}ms` }}
+                            className={`w-[6px] rounded-[1px] origin-bottom transition-colors duration-300 ${
+                              isActive ? 'bg-gold animate-[wave-bar_1.2s_ease-in-out_infinite]' : 'bg-ink/[0.13] group-hover:bg-ink/25'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-6 pt-4 border-t border-ink/10 flex items-center justify-between gap-x-4 gap-y-1 flex-wrap text-[10px] tracking-[0.2em]">
+                    <span className={isActive ? 'text-gold-2' : 'text-ink/50'}>{m.meta}</span>
+                    <span className="text-ink/40">{m.note}</span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
-        )}
+          <p className="mt-3 text-[11px] tracking-[0.08em] text-ink/45">
+            You can’t switch mid-interview — pick the one closest to how you want to drill today.
+          </p>
+        </div>
 
         {/* CTA */}
         <div className="mt-14 flex items-center justify-between flex-wrap gap-6">
@@ -415,40 +440,20 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 : 'YOUR FREE INTERVIEW IS USED. UPGRADE TO KEEP DRILLING.')
               : isLevelLocked(selected)
               ? 'THIS LEVEL UNLOCKS WITH THE HARDO PLAN.'
-              : needsTopic && stage === 'level'
-              ? 'PICK YOUR TOPIC, LOCK IN THE LEVEL, THEN CONTINUE.'
-              : stage === 'level'
-              ? 'LOCK IN THE LEVEL FIRST. NEXT STEP: PICK TEXT OR VOICE.'
+              : needsTopic
+              ? 'PICK YOUR TOPIC ABOVE, THEN START.'
               : "START WHEN READY. THE INTERVIEWER WON'T HOLD BACK."}
           </div>
-          <div className="flex items-center gap-3">
-            {stage === 'mode' && (
-              <button
-                onClick={() => setStage('level')}
-                className="text-ink/65 hover:text-gold tracking-[0.05em] px-5 py-4"
-                type="button"
-              >
-                Back
-              </button>
-            )}
-            <button
-              onClick={() => {
-                if (stage === 'level') {
-                  if (isLevelLocked(selected) || blockedByLimit) { router.push('/upgrade'); return; }
-                  if (needsTopic) return;
-                  setStage('mode');
-                } else {
-                  start();
-                }
-              }}
-              disabled={ctaDisabled}
-              className="bg-gold text-paper font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#9C6F1E] transition-[background-color,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {stage === 'level'
-                ? (isLevelLocked(selected) || blockedByLimit ? ctaLabel : 'Continue \u2192')
-                : ctaLabel}
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              if (isLevelLocked(selected) || blockedByLimit) { router.push('/upgrade'); return; }
+              start();
+            }}
+            disabled={ctaDisabled}
+            className="bg-gold text-paper font-medium tracking-[0.05em] px-9 py-4 rounded-sm hover:bg-[#9C6F1E] transition-[background-color,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {ctaLabel}
+          </button>
         </div>
 
         {error && (
