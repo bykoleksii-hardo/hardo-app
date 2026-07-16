@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { parseApiError, formatApiError, type ApiErrorShape } from '@/lib/observability/api-client';
-import { TOPIC_CATEGORIES, TOPIC_MIN_LEVEL, type TopicCategory } from '@/lib/interview/topics';
+import { INTERVIEW_TOPICS, TOPIC_LABELS, type TopicKey } from '@/lib/interview/topics';
 
 type Level = 'intern' | 'analyst' | 'associate';
 type InputMode = 'text' | 'voice';
@@ -86,7 +86,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
   const router = useRouter();
   const [selected, setSelected] = useState<Level>('intern');
   const [format, setFormat] = useState<Format>('full');
-  const [topicCat, setTopicCat] = useState<TopicCategory | null>(null);
+  const [topicCat, setTopicCat] = useState<TopicKey | null>(null);
   const [loading, setLoading] = useState(false);
   const [quota, setQuota] = useState<Quota | null>(null);
   const [quotaLoading, setQuotaLoading] = useState(true);
@@ -113,7 +113,6 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
   const blockedByLimit = quota
     ? (format === 'full' ? !quota.can_start : quota.can_start_topic === false)
     : false;
-  const isTopicLockedForLevel = (c: TopicCategory) => TOPIC_MIN_LEVEL[c] === 'analyst' && selected === 'intern';
   const needsTopic = format === 'topic' && !topicCat;
   const ctaDisabled = loading || quotaLoading || isLevelLocked(selected) || blockedByLimit || needsTopic;
   const ctaLabel = (() => {
@@ -121,7 +120,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
     if (quotaLoading) return 'Checking access...';
     if (isLevelLocked(selected)) return 'Upgrade to unlock';
     if (blockedByLimit) return 'Upgrade to continue';
-    if (format === 'topic') return `Start ${topicCat ?? 'topic'} sprint \u2192`;
+    if (format === 'topic') return `Start ${topicCat ? TOPIC_LABELS[topicCat] : 'topic'} sprint \u2192`;
     return `Start ${active.title} interview \u2192`;
   })();
 
@@ -211,22 +210,23 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         {format === 'topic' && (
           <div className="mb-12">
             <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR TOPIC</div>
-            <div className="flex flex-wrap gap-2.5">
-              {TOPIC_CATEGORIES.map((c) => {
-                const isActive = topicCat === c;
-                const lockedForLevel = isTopicLockedForLevel(c);
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {INTERVIEW_TOPICS.map((t) => {
+                const isActive = topicCat === t.key;
                 return (
                   <button
-                    key={c}
-                    onClick={() => { if (!lockedForLevel) setTopicCat(c); }}
-                    disabled={lockedForLevel}
-                    className={`px-4 py-2.5 rounded-sm border text-[11px] tracking-[0.18em] transition-colors ${
-                      isActive ? 'border-gold bg-cream text-ink' : 'border-ink/15 text-ink/65 hover:border-ink/40'
-                    } ${lockedForLevel ? 'opacity-40 cursor-not-allowed hover:border-ink/15' : ''}`}
+                    key={t.key}
+                    onClick={() => setTopicCat(t.key)}
+                    className={`text-left rounded-sm border p-5 transition-all duration-300 hover:-translate-y-0.5 ${
+                      isActive ? 'border-gold bg-cream shadow-[0_18px_38px_-28px_rgba(184,135,54,0.5)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'
+                    }`}
                     aria-pressed={isActive}
                   >
-                    {c.toUpperCase()}
-                    {lockedForLevel && <span className="text-ink/45"> · FROM ANALYST</span>}
+                    <div className="flex items-center justify-between mb-2 text-[10px] tracking-[0.22em]">
+                      <span className={isActive ? 'text-gold' : 'text-ink/55'}>— {t.label.toUpperCase()}</span>
+                      {isActive && <span className="text-gold">SELECTED</span>}
+                    </div>
+                    <p className="text-[13px] text-ink/65 leading-relaxed">{t.blurb}</p>
                   </button>
                 );
               })}
@@ -244,11 +244,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             return (
               <button
                 key={lvl.id}
-                onClick={() => {
-                  setSelected(lvl.id);
-                  // A topic that needs analyst+ can't survive a switch back to intern.
-                  if (lvl.id === 'intern' && topicCat && TOPIC_MIN_LEVEL[topicCat] === 'analyst') setTopicCat(null);
-                }}
+                onClick={() => setSelected(lvl.id)}
                 className={`group text-left rounded-sm border transition-all duration-300 p-7 flex flex-col relative hover:-translate-y-1 ${
                   isActive
                     ? 'border-gold bg-cream shadow-[0_22px_45px_-30px_rgba(184,135,54,0.55)]'

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { withLogging, logger } from '@/lib/observability';
 import { chatJSON } from '@/lib/openai';
-import { isTopicCategory, TOPIC_MIN_LEVEL } from '@/lib/interview/topics';
+import { isTopicKey } from '@/lib/interview/topics';
 import {
   REPHRASE_SYSTEM_PROMPT,
   REPHRASE_SCHEMA,
@@ -20,13 +20,8 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
     }
     const inputMode: 'text' | 'voice' = inputModeRaw === 'voice' ? 'voice' : 'text';
     const mode: 'standard' | 'topic' = modeRaw === 'topic' ? 'topic' : 'standard';
-    if (mode === 'topic') {
-      if (!isTopicCategory(topicCategoryRaw)) {
-        return NextResponse.json({ error: 'Invalid topic category' }, { status: 400 });
-      }
-      if (TOPIC_MIN_LEVEL[topicCategoryRaw] === 'analyst' && level === 'intern') {
-        return NextResponse.json({ error: `${topicCategoryRaw} sprints start at the Analyst level.` }, { status: 400 });
-      }
+    if (mode === 'topic' && !isTopicKey(topicCategoryRaw)) {
+      return NextResponse.json({ error: 'Invalid topic' }, { status: 400 });
     }
 
     const supabase = await getSupabaseServer();
