@@ -3,9 +3,28 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { parseApiError, formatApiError, type ApiErrorShape } from '@/lib/observability/api-client';
+import { TOPIC_CATEGORIES, TOPIC_MIN_LEVEL, type TopicCategory } from '@/lib/interview/topics';
 
 type Level = 'intern' | 'analyst' | 'associate';
 type InputMode = 'text' | 'voice';
+type Format = 'full' | 'topic';
+
+const FORMATS: Array<{ id: Format; label: string; title: string; tagline: string; bullets: string[] }> = [
+  {
+    id: 'full',
+    label: '— THE FULL ROUND',
+    title: 'Full interview',
+    tagline: 'The complete superday flow — fit, technicals, a case, one curveball. The real rehearsal.',
+    bullets: ['12 questions', '~35–45 minutes', 'Full scorecard + hire call'],
+  },
+  {
+    id: 'topic',
+    label: '— TOPIC SPRINT',
+    title: 'Topic sprint',
+    tagline: 'Three questions on one topic you pick. Drill a weakness, get graded, get out.',
+    bullets: ['3 questions', '~10 minutes', 'One topic, easiest first'],
+  },
+];
 
 const INPUT_MODES: Array<{ id: InputMode; title: string; tagline: string; bullets: string[] }> = [
   {
@@ -28,6 +47,9 @@ type Quota = {
   free_limit: number;
   allowed_levels: Level[];
   can_start: boolean;
+  topic_used?: number;
+  topic_free_limit?: number;
+  can_start_topic?: boolean;
 };
 
 const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; tags: string[]; sample: { q: string; phase: string; grade: string }; tone: string }> = [
@@ -63,6 +85,8 @@ const LEVELS: Array<{ id: Level; title: string; tagline: string; pitch: string; 
 export function SetupClient({ userEmail }: { userEmail: string }) {
   const router = useRouter();
   const [selected, setSelected] = useState<Level>('intern');
+  const [format, setFormat] = useState<Format>('full');
+  const [topicCat, setTopicCat] = useState<TopicCategory | null>(null);
   const [loading, setLoading] = useState(false);
   const [quota, setQuota] = useState<Quota | null>(null);
   const [quotaLoading, setQuotaLoading] = useState(true);
@@ -85,13 +109,19 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
 
   const active = LEVELS.find((l) => l.id === selected)!;
   const isLevelLocked = (lvl: Level) => quota ? !quota.allowed_levels.includes(lvl) : false;
-  const blockedByLimit = quota ? !quota.can_start : false;
-  const ctaDisabled = loading || quotaLoading || isLevelLocked(selected) || blockedByLimit;
+  // Standard interviews and topic sprints are metered separately on the free plan.
+  const blockedByLimit = quota
+    ? (format === 'full' ? !quota.can_start : quota.can_start_topic === false)
+    : false;
+  const isTopicLockedForLevel = (c: TopicCategory) => TOPIC_MIN_LEVEL[c] === 'analyst' && selected === 'intern';
+  const needsTopic = format === 'topic' && !topicCat;
+  const ctaDisabled = loading || quotaLoading || isLevelLocked(selected) || blockedByLimit || needsTopic;
   const ctaLabel = (() => {
     if (loading) return 'Preparing your room...';
     if (quotaLoading) return 'Checking access...';
     if (isLevelLocked(selected)) return 'Upgrade to unlock';
     if (blockedByLimit) return 'Upgrade to continue';
+    if (format === 'topic') return `Start ${topicCat ?? 'topic'} sprint \u2192`;
     return `Start ${active.title} interview \u2192`;
   })();
 
@@ -100,13 +130,19 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
       router.push('/upgrade');
       return;
     }
+    if (format === 'topic' && !topicCat) return;
     setLoading(true);
     setError(null);
     try {
       const res = await fetch('/api/interview/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level: selected, input_mode: inputMode }),
+        body: JSON.stringify({
+          level: selected,
+          input_mode: inputMode,
+          mode: format === 'topic' ? 'topic' : 'standard',
+          ...(format === 'topic' && topicCat ? { topic_category: topicCat } : {}),
+        }),
       });
       const j = await res.json();
       if (res.status === 403 && (j.reason === 'free_limit_reached' || j.reason === 'level_locked')) {
@@ -130,15 +166,75 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
     <div className="min-h-screen bg-paper text-ink font-sans">
       <main className="max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-12 py-10 lg:py-16">
         <div className="mb-12">
-          <div className="anim-rise d1 text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR ROOM</div>
+          <div className="anim-rise d1 text-[11px] tracking-[0.22em] text-gold mb-4">— BUILD YOUR SESSION</div>
           <h1 className="anim-rise d2 font-serif text-4xl sm:text-5xl leading-[1.05]">
-            Choose the <span className="italic text-gold">level</span> that matches today.
+            Choose the <span className="italic text-gold">session</span> that matches today.
           </h1>
           <p className="anim-rise d3 mt-4 text-ink/65 max-w-xl text-lg">
-            Twelve questions. Same superday flow — fit, technicals, deal walks, a curveball.
-            What changes is how hard the room hits back.
+            {format === 'full'
+              ? 'Twelve questions. Same superday flow — fit, technicals, deal walks, a curveball. What changes is how hard the room hits back.'
+              : "Three questions on one topic, about ten minutes. A focused rep for the days you can't give the room a full hour."}
           </p>
         </div>
+
+        {/* FORMAT CARDS */}
+        <div className="mb-12">
+          <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR FORMAT</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {FORMATS.map((f) => {
+              const isActive = f.id === format;
+              return (
+                <button
+                  key={f.id}
+                  onClick={() => setFormat(f.id)}
+                  className={`text-left rounded-sm border p-7 transition-all duration-300 hover:-translate-y-0.5 ${isActive ? 'border-gold bg-cream shadow-[0_18px_38px_-28px_rgba(184,135,54,0.5)]' : 'border-ink/15 hover:border-ink/40 bg-transparent'}`}
+                  aria-pressed={isActive}
+                >
+                  <div className="flex items-center justify-between mb-4 text-[10px] tracking-[0.22em]">
+                    <span className={isActive ? 'text-gold' : 'text-ink/55'}>{f.label}</span>
+                    {isActive && <span className="text-gold">SELECTED</span>}
+                  </div>
+                  <h2 className="font-serif text-2xl mb-2">{f.title}</h2>
+                  <p className="text-sm text-ink/70 mb-5 leading-relaxed">{f.tagline}</p>
+                  <ul className="space-y-1.5 text-[11px] tracking-[0.18em] text-ink/65">
+                    {f.bullets.map((b) => (
+                      <li key={b}>— {b.toUpperCase()}</li>
+                    ))}
+                  </ul>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* TOPIC PICKER (topic sprint only) */}
+        {format === 'topic' && (
+          <div className="mb-12">
+            <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR TOPIC</div>
+            <div className="flex flex-wrap gap-2.5">
+              {TOPIC_CATEGORIES.map((c) => {
+                const isActive = topicCat === c;
+                const lockedForLevel = isTopicLockedForLevel(c);
+                return (
+                  <button
+                    key={c}
+                    onClick={() => { if (!lockedForLevel) setTopicCat(c); }}
+                    disabled={lockedForLevel}
+                    className={`px-4 py-2.5 rounded-sm border text-[11px] tracking-[0.18em] transition-colors ${
+                      isActive ? 'border-gold bg-cream text-ink' : 'border-ink/15 text-ink/65 hover:border-ink/40'
+                    } ${lockedForLevel ? 'opacity-40 cursor-not-allowed hover:border-ink/15' : ''}`}
+                    aria-pressed={isActive}
+                  >
+                    {c.toUpperCase()}
+                    {lockedForLevel && <span className="text-ink/45"> · FROM ANALYST</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className="text-[11px] tracking-[0.22em] text-gold mb-4">— PICK YOUR ROOM</div>
 
         {/* THREE LEVEL CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -148,7 +244,11 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
             return (
               <button
                 key={lvl.id}
-                onClick={() => setSelected(lvl.id)}
+                onClick={() => {
+                  setSelected(lvl.id);
+                  // A topic that needs analyst+ can't survive a switch back to intern.
+                  if (lvl.id === 'intern' && topicCat && TOPIC_MIN_LEVEL[topicCat] === 'analyst') setTopicCat(null);
+                }}
                 className={`group text-left rounded-sm border transition-all duration-300 p-7 flex flex-col relative hover:-translate-y-1 ${
                   isActive
                     ? 'border-gold bg-cream shadow-[0_22px_45px_-30px_rgba(184,135,54,0.55)]'
@@ -181,7 +281,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
                 <h2 className="font-serif text-3xl italic mb-3">{lvl.title}</h2>
                 <p className="text-sm text-ink/70 leading-relaxed mb-5 flex-1">{lvl.tagline}</p>
                 <div className="flex items-center justify-between text-[11px] tracking-[0.18em]">
-                  <span className="text-gold">— 12 QUESTIONS</span>
+                  <span className="text-gold">— {format === 'full' ? '12' : '3'} QUESTIONS</span>
                   <span className="text-ink/45">{lvl.tone.toUpperCase()}</span>
                 </div>
               </button>
@@ -262,9 +362,13 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
         <div className="mt-14 flex items-center justify-between flex-wrap gap-6">
           <div className="text-xs tracking-[0.18em] text-ink/55">
             {blockedByLimit && !isLevelLocked(selected)
-              ? 'YOUR FREE INTERVIEW IS USED. UPGRADE TO KEEP DRILLING.'
+              ? (format === 'topic'
+                ? 'YOUR FREE TOPIC SPRINT IS USED. UPGRADE TO KEEP DRILLING.'
+                : 'YOUR FREE INTERVIEW IS USED. UPGRADE TO KEEP DRILLING.')
               : isLevelLocked(selected)
               ? 'THIS LEVEL UNLOCKS WITH THE HARDO PLAN.'
+              : needsTopic && stage === 'level'
+              ? 'PICK YOUR TOPIC, LOCK IN THE LEVEL, THEN CONTINUE.'
               : stage === 'level'
               ? 'LOCK IN THE LEVEL FIRST. NEXT STEP: PICK TEXT OR VOICE.'
               : "START WHEN READY. THE INTERVIEWER WON'T HOLD BACK."}
@@ -283,6 +387,7 @@ export function SetupClient({ userEmail }: { userEmail: string }) {
               onClick={() => {
                 if (stage === 'level') {
                   if (isLevelLocked(selected) || blockedByLimit) { router.push('/upgrade'); return; }
+                  if (needsTopic) return;
                   setStage('mode');
                 } else {
                   start();
