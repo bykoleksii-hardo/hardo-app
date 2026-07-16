@@ -6,6 +6,7 @@ import OverallFeedback from './OverallFeedback';
 import NextStepsCard from './NextStepsCard';
 import CountUp from '@/app/_components/CountUp';
 import { getSupabaseServer } from '@/lib/supabase/server';
+import { TOPIC_LABELS } from '@/lib/interview/topics';
 
 export const dynamic = 'force-dynamic';
 
@@ -227,7 +228,9 @@ export default async function SummaryPage({ params }: { params: Promise<{ id: st
           <Brand size="md" href="/" />
           <span className="hidden sm:inline text-[11px] tracking-[0.22em] text-ink/45 truncate">
             {'SCORECARD / '}{interview.candidate_level.toUpperCase()}
-            {interview.kind === 'topic' && interview.topic_category ? ` / ${String(interview.topic_category).toUpperCase()} SPRINT` : ''}
+            {interview.kind === 'topic' && interview.topic_category
+              ? ` / ${(TOPIC_LABELS[String(interview.topic_category)] ?? String(interview.topic_category)).toUpperCase()} SPRINT`
+              : ''}
           </span>
         </div>
         <div className="flex items-center gap-3">
