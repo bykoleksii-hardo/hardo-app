@@ -17,6 +17,10 @@ OPENAI_API_KEY=sk-... npx tsx evals/grading/run.ts
 # 3 passes per case to measure run-to-run consistency, and a stronger model
 OPENAI_API_KEY=sk-... OPENAI_MODEL=gpt-4o npx tsx evals/grading/run.ts --runs 3
 
+# NOTE: production grades blocks with OPENAI_MODEL_GRADING (falls back to
+# OPENAI_MODEL). To eval what production actually runs, set OPENAI_MODEL here
+# to the same value as the deployed OPENAI_MODEL_GRADING.
+
 # gate threshold (default 0.7) — exits non-zero below it (CI-friendly)
 OPENAI_API_KEY=sk-... npx tsx evals/grading/run.ts --min 0.75
 ```

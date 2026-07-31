@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { chatJSON, OpenAIError } from '@/lib/openai';
+import { chatJSON, GRADING_MODEL, OpenAIError } from '@/lib/openai';
 import {
   TURN_SYSTEM_PROMPT,
   TURN_SCHEMA,
@@ -556,6 +556,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     const g = await chatJSON<GradeBlockAIResult>({
       schemaName: 'hardo_grade_block',
       schema: GRADE_BLOCK_SCHEMA,
+      model: GRADING_MODEL,
       temperature: GRADING_TEMPERATURE,
       maxTokens: 1200,
       messages: [

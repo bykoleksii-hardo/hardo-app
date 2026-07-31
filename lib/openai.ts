@@ -5,6 +5,13 @@ export type ChatMessage = { role: 'system' | 'user' | 'assistant'; content: stri
 
 const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
+// Model tier for the grading-critical calls (block grading + finalize). These
+// are low-frequency (once per block / once per interview), latency-tolerant,
+// and carry the product's core promise - so they can afford a stronger model
+// than the hot conversational turn path. Defaults to the base model, so
+// behavior is unchanged until OPENAI_MODEL_GRADING is set in the environment.
+export const GRADING_MODEL = process.env.OPENAI_MODEL_GRADING || DEFAULT_MODEL;
+
 // Base URL for the Chat Completions API. Defaults to OpenAI; can be pointed at
 // any OpenAI-compatible endpoint (e.g. an Azure/OpenRouter/Gemini-compat gateway)
 // via OPENAI_BASE_URL — used by the eval harness to grade against alternate

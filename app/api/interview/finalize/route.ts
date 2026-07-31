@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { chatJSON, OpenAIError } from '@/lib/openai';
+import { chatJSON, GRADING_MODEL, OpenAIError } from '@/lib/openai';
 import { withLogging, logger } from '@/lib/observability';
 import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
 import {
@@ -135,6 +135,7 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     const out = await chatJSON<FinalizeAIResult>({
       schemaName: 'hardo_finalize',
       schema: FINALIZE_SCHEMA,
+      model: GRADING_MODEL,
       temperature: FINALIZE_TEMPERATURE,
       maxTokens: 1100,
       messages: [
