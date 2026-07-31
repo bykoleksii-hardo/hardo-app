@@ -7,6 +7,7 @@ import {
   FINALIZE_SYSTEM_PROMPT,
   FINALIZE_SCHEMA,
   FINALIZE_TEMPERATURE,
+  aggregateBlockScore,
   type FinalizeAIResult,
 } from '@/lib/interview-prompts';
 
@@ -47,13 +48,13 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
   // Pull every step + its grade + answers for the AI.
   const { data: stepsRaw } = await supabase
     .from('interview_steps')
-    .select('id, order_index, is_follow_up, parent_step_id, custom_question, ai_grade, ai_feedback, user_answer, questions(question, category, subtopic)')
+    .select('id, order_index, is_follow_up, parent_step_id, custom_question, ai_grade, ai_feedback, user_answer, score_numeric, questions(question, category, subtopic)')
     .eq('interview_id', interview.id)
     .order('order_index', { ascending: true });
   type S = {
     id: string; order_index: number; is_follow_up: boolean; parent_step_id: string | null;
     custom_question: string | null; ai_grade: string | null; ai_feedback: string | null;
-    user_answer: string | null;
+    user_answer: string | null; score_numeric: number | null;
     questions: { question: string; category: string; subtopic: string | null } | null;
   };
   const steps = (stepsRaw ?? []) as unknown as S[];
@@ -67,6 +68,12 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
   const axisSums: Record<string, number> = { correctness: 0, depth: 0, structure: 0, communication: 0 };
   let axisN = 0;
 
+  // Deterministic overall score: aggregate each block's per-answer numeric
+  // scores (base + follow-ups, budget-capped) and average the block
+  // percentages. The LLM echoes this number instead of inventing its own;
+  // null when no block has numeric scores (legacy interviews).
+  const blockPcts: number[] = [];
+
   const lines: string[] = [
     `Candidate level: ${interview.candidate_level}`,
     `Total base questions: ${baseSteps.length}`,
@@ -76,7 +83,13 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
   for (const b of baseSteps) {
     const q = b.questions?.question ?? '(unknown question)';
     const cat = b.questions?.category ?? '';
-    lines.push(`\nBlock ${b.order_index} [${cat}] grade=${b.ai_grade ?? '-'}`);
+    const blockFollowUps = steps.filter(s => s.parent_step_id === b.id && s.is_follow_up);
+    const agg = aggregateBlockScore(
+      [b.score_numeric, ...blockFollowUps.map(f => f.score_numeric)],
+      cat === 'Case Study',
+    );
+    if (agg) blockPcts.push(agg.pct);
+    lines.push(`\nBlock ${b.order_index} [${cat}] grade=${b.ai_grade ?? '-'}${agg ? ` score=${agg.total}/${agg.budget}` : ''}`);
     lines.push(`Q: ${q}`);
     if (b.user_answer) lines.push(`A: ${b.user_answer.slice(0, 600)}`);
     // Surface the rubric axes (0-4) for this block and fold them into the aggregate.
@@ -92,11 +105,17 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
       } catch { /* legacy / non-JSON feedback */ }
       lines.push(`Feedback: ${b.ai_feedback.slice(0, 400)}`);
     }
-    const followUps = steps.filter(s => s.parent_step_id === b.id && s.is_follow_up);
-    for (const f of followUps) {
+    for (const f of blockFollowUps) {
       lines.push(`  - FU: ${(f.custom_question ?? '').slice(0, 200)}`);
       if (f.user_answer) lines.push(`    A: ${f.user_answer.slice(0, 400)}`);
     }
+  }
+
+  const serverScore = blockPcts.length > 0
+    ? Math.max(0, Math.min(100, Math.round((blockPcts.reduce((a, b) => a + b, 0) / blockPcts.length) * 100)))
+    : null;
+  if (serverScore != null) {
+    lines.push(``, `SERVER-COMPUTED OVERALL SCORE: ${serverScore} / 100 (deterministic aggregate of the per-block numeric scores - echo this as overall_score and map hire_recommendation per the bands)`);
   }
 
   // Interview-wide skill profile (averaged axes) so the verdict + next steps can
@@ -134,7 +153,26 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
     return NextResponse.json({ friendly: 'The interviewer is unavailable right now. Please try again later.' }, { status: 502 });
   }
 
-  const score = Math.max(0, Math.min(100, Math.round(ai.overall_score)));
+  // The server-computed aggregate wins when available; the LLM's number is only
+  // trusted for legacy interviews with no numeric block scores.
+  const score = serverScore ?? Math.max(0, Math.min(100, Math.round(ai.overall_score)));
+
+  // Enforce score->recommendation consistency: the recommendation may sit at
+  // most ONE band below the score's band (a named disqualifying moment), never
+  // above it.
+  const bandFor = (s: number): FinalizeAIResult['hire_recommendation'] =>
+    s >= 75 ? 'hire' : s >= 60 ? 'leaning_hire' : s >= 40 ? 'leaning_no_hire' : 'no_hire';
+  const BAND_ORDER: FinalizeAIResult['hire_recommendation'][] = ['no_hire', 'leaning_no_hire', 'leaning_hire', 'hire'];
+  let hireRec = ai.hire_recommendation;
+  {
+    const band = bandFor(score);
+    const bi = BAND_ORDER.indexOf(band);
+    const ri = BAND_ORDER.indexOf(hireRec);
+    if (ri === -1 || ri > bi || bi - ri > 1) {
+      if (hireRec !== band) logger.warn('[finalize] hire_recommendation inconsistent with score band - overriding', { score, band, aiRec: ai.hire_recommendation });
+      hireRec = band;
+    }
+  }
 
   const { data: inserted, error: insErr } = await supabase
     .from('interview_summaries')
@@ -149,7 +187,7 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
         weakest_block_label: ai.weakest_block_label ?? '',
         strongest_moment: ai.strongest_moment ?? '',
       }),
-      hire_recommendation: ai.hire_recommendation,
+      hire_recommendation: hireRec,
       tokens_used: tokens,
     })
     .select('id')

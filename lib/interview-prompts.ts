@@ -52,14 +52,14 @@ PERSONA TONE:
 FOLLOW-UP STYLE:
 - Hint-shaped, not adversarial. "Good - now imagine instead the company is private. What changes?"
 - One additional layer at a time. You are not stress-testing, you are checking depth.
-- If they confidently nail the concept, close the block on a positive note even before max follow-ups.
+- Even when they nail the concept, keep the tone confirming - the block still runs its full follow-up depth per the decision rule.
 
 REPLY (clarification) STYLE:
 - 1-2 short sentences. Pick a typical setting and tell them to keep going. Always end with "Take it from here." or equivalent.
 
-WHAT MAKES YOU CLOSE EARLY:
-- Clear concept articulated cleanly -> close with A or A-, no need to drill.
-- Total non-answer / "I don't know" -> close with F immediately, brief feedback.
+WHAT YOU REWARD (grading emphasis - the decision rule alone decides when the block closes):
+- Clear concept articulated cleanly -> top of the intern bar on correctness and structure; use the remaining follow-ups to test the ceiling, not to manufacture doubt.
+- Total non-answer / "I don't know" -> score it below the advance threshold and close with brief, honest feedback.
 `,
 
   analyst: `You are a busy staffing-VP between two live deals. You are running a structured technical screen. You have 30 minutes and you want to know if this person could survive on a deal team next Monday.
@@ -79,10 +79,10 @@ REPLY (clarification) STYLE:
 - One short sentence. Pick the standard assumption and move on. "Assume a US public mid-cap, no NOLs, standard cap structure. Take it from here."
 - If they ask you to reveal structure, refuse with the standard refusal line.
 
-WHAT MAKES YOU CLOSE EARLY:
-- They got the mechanics AND handled at least one edge case cleanly -> close with A or A-.
-- They got the textbook framework but no edge cases AND you have already pushed once -> close with B/B+.
-- Wrong on mechanics that an analyst MUST own -> close with C-/D, no further drilling.
+WHAT YOU REWARD (grading emphasis - the decision rule alone decides when the block closes):
+- Mechanics AND at least one edge case handled cleanly -> top of the analyst bar.
+- Textbook framework with no edge cases -> mid-bar; use the follow-ups to give them their edge-case shot.
+- Wrong on mechanics an analyst MUST own -> bottom of the bar; a true non-answer falls below the advance threshold and the block closes.
 `,
 
   associate: `You are an MD running a final-round associate interview. The candidate is post-MBA or a senior analyst. You are checking whether you would put this person in front of your most important client tomorrow.
@@ -103,10 +103,10 @@ REPLY (clarification) STYLE:
 - One sentence. Tight scope. "Assume US public, sponsor buyer, mid-market deal, no regulatory complications." End with "Go."
 - Refuse to give framework hints. They are at associate level - they own the framing.
 
-WHAT MAKES YOU CLOSE EARLY:
-- They handled real deal context AND quantified AND addressed second-order effects -> close with A or A-.
-- Textbook-correct without deal context or numbers -> close with B-/C+, signal that this would not survive at the associate seat.
-- Cannot defend their own numbers under one round of pushback -> close with C/C-, MD-level concern.
+WHAT YOU REWARD (grading emphasis - the decision rule alone decides when the block closes):
+- Real deal context AND quantification AND second-order effects -> top of the associate bar.
+- Textbook-correct without deal context or numbers -> mid-bar at best; say in feedback that this would not survive at the associate seat.
+- Cannot defend their own numbers under one round of pushback -> bottom of the bar, an MD-level concern.
 `,
 };
 
@@ -270,6 +270,7 @@ FIT / BEHAVIORAL rubric (resume, why IB, why this bank, career goals, deal discu
 Score honestly and use the FULL range - do not cluster at 3-4. A weak block should show 0-1s on the axes it failed; a strong block earns 4s. The letter the candidate sees comes straight from these numbers, so they must match your written feedback. On any non-close turn, set every rubric axis to 0 (it is ignored).
 
 FEEDBACK RUBRIC (close_block only):
+NOTE: after you close, a dedicated grading pass writes the final candidate-facing block feedback; your close_block 'feedback', 'strengths' and 'weaknesses' are the FALLBACK if that pass fails. Keep them correct but lean - one tight sentence of feedback, 0-2 bullets per side. The rubric axes you score at close_block are still required and must be honest.
 You must produce ONE concrete coaching action in 'feedback_detail.how_to_improve' and a 1-2 sentence rolled-up 'feedback' summary, plus a CALIBRATED set of strengths/weaknesses bullets. Do not pad bullets to look balanced. A great answer can ship with zero weaknesses; a poor answer can ship with zero strengths.
 
   - feedback_detail.how_to_improve (1-2 sentences):
@@ -439,20 +440,21 @@ export const TURN_SCHEMA: Record<string, unknown> = {
 
 export type LetterGrade = '' | 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'D-' | 'F';
 
+// Mirrors TURN_SCHEMA exactly - scoring is numeric (current_answer_score);
+// letters are derived server-side (percentToLetter) and never come from the model.
 export type TurnAIResult = {
   kind: 'clarification_response' | 'follow_up' | 'close_block';
   message_type: 'answer' | 'clarification';
   reasoning: string;
   reply: string;
   follow_up_question: string;
-  grade: LetterGrade;
   feedback: string;
   feedback_detail: {
     how_to_improve: string;
   };
   strengths: string[];
   weaknesses: string[];
-  current_answer_grade: LetterGrade;
+  current_answer_score: number;
   current_answer_feedback_detail: {
     how_to_improve: string;
   };
@@ -658,7 +660,13 @@ You MUST output a hire_recommendation using exactly one of these four values, wi
 - "leaning_hire": passable; a few concerns but the fundamentals and motivation are there.
 - "hire": strong performance for this level; would advance to next round / extend offer.
 
-
+SCORE + RECOMMENDATION CONSISTENCY:
+The user message includes a SERVER-COMPUTED OVERALL SCORE - the deterministic aggregate of the per-block numeric scores. Set overall_score to EXACTLY that number; do not invent your own. Map hire_recommendation from it by these bands:
+- hire: 75-100
+- leaning_hire: 60-74
+- leaning_no_hire: 40-59
+- no_hire: 0-39
+You may go ONE band lower (never higher) than the score's band when a disqualifying moment justifies it (an integrity red flag, a total non-answer on a core technical block) - and then you MUST name that moment in final_feedback. If no SERVER-COMPUTED OVERALL SCORE line is present (legacy interview), estimate overall_score from the block grades and apply the same bands.
 
 SPECIFICITY REQUIREMENTS (final scorecard):
   - In 'overall_strengths' and 'overall_weaknesses' you MUST reference at least 2 specific blocks by their order_index ("On Block 04 (DCF), ...", "Block 09 (LBO)..."). Generic praise/criticism without block references is rejected.
@@ -675,7 +683,7 @@ export const FINALIZE_SCHEMA: Record<string, unknown> = {
   properties: {
     overall_score: {
       type: 'number',
-      description: 'Overall numeric score 0-100 reflecting the block grades and the candidate level.',
+      description: 'Echo the SERVER-COMPUTED OVERALL SCORE from the user message (0-100). Only when that line is absent (legacy interview), estimate it from the block grades.',
     },
     overall_strengths: {
       type: 'string',
@@ -692,7 +700,7 @@ export const FINALIZE_SCHEMA: Record<string, unknown> = {
     hire_recommendation: {
       type: 'string',
       enum: ['no_hire', 'leaning_no_hire', 'leaning_hire', 'hire'],
-      description: 'Final hire recommendation, must be one of: no_hire | leaning_no_hire | leaning_hire | hire. Must be consistent with overall_score per the bands in the system prompt.',
+      description: 'Final hire recommendation. Must follow the score bands in the system prompt (hire 75-100, leaning_hire 60-74, leaning_no_hire 40-59, no_hire 0-39); at most one band below the score band when a named disqualifying moment justifies it, never above.',
     },
     next_steps_plan: {
       type: 'array',

@@ -288,11 +288,11 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   if (ai.message_type === 'answer') {
     const turnMax = maxScoreForTurn(followUpsSoFar, isCase);
     // Clamp the score into [0, turnMax] just in case the model exceeded the range.
-    const rawScore = typeof (ai as any).current_answer_score === 'number'
-      ? (ai as any).current_answer_score
+    const rawScore = typeof ai.current_answer_score === 'number'
+      ? ai.current_answer_score
       : 0;
     const cas = Math.max(0, Math.min(turnMax, Math.round(rawScore)));
-    (ai as any).current_answer_score = cas;
+    ai.current_answer_score = cas;
     const pct = turnMax > 0 ? cas / turnMax : 0;
     const belowAdvance = pct < ADVANCE_THRESHOLD;
     const atLimit = followUpsSoFar >= maxFollowUps;
@@ -405,7 +405,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
 
   if (ai.kind === 'follow_up') {
     // Phase E: save the per-answer NUMERIC score for the step the candidate just answered.
-    const cas = (ai as any).current_answer_score;
+    const cas = ai.current_answer_score;
     if (typeof cas === 'number' && Number.isFinite(cas)) {
       const { error: casErr } = await supabase
         .from('interview_steps')
@@ -449,7 +449,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
 
   // close_block path (Phase E: numeric per-answer scoring + server-side aggregation)
   // 7c.1. Persist the per-answer NUMERIC score for the step the candidate just answered.
-  const lastScore = (ai as any).current_answer_score;
+  const lastScore = ai.current_answer_score;
   if (typeof lastScore === 'number' && Number.isFinite(lastScore)) {
     const { error: lastScoreErr } = await supabase
       .from('interview_steps')
