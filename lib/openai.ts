@@ -97,6 +97,41 @@ async function fetchOpenAI(url: string, init: RequestInit, attempt = 0): Promise
   }
 }
 
+// Some model families (reasoning-tier models) reject legacy sampling params:
+// `temperature` is unsupported, and `max_tokens` must be `max_completion_tokens`.
+// Rather than hardcoding a model list that will rot as OpenAI ships new tiers,
+// adapt to the API's own 400 unsupported-parameter response and retry - at most
+// twice, one adaptation per param. Makes any model safe to set via env.
+async function postChatAdaptive(apiKey: string, body: Record<string, unknown>): Promise<{ r: Response; text: string }> {
+  let current: Record<string, unknown> = { ...body };
+  for (let attempt = 0; ; attempt++) {
+    const r = await fetchOpenAI(CHAT_COMPLETIONS_URL, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(current),
+    });
+    const text = await r.text();
+    if (r.ok || r.status !== 400 || attempt >= 2) return { r, text };
+    const lower = text.toLowerCase();
+    if (lower.includes('temperature') && 'temperature' in current) {
+      console.warn('[openai] model rejected temperature - retrying without it', { model: current.model });
+      const { temperature: _drop, ...rest } = current;
+      current = rest;
+      continue;
+    }
+    if (lower.includes('max_tokens') && 'max_tokens' in current) {
+      console.warn('[openai] model rejected max_tokens - retrying with max_completion_tokens', { model: current.model });
+      const { max_tokens: mt, ...rest } = current;
+      current = { ...rest, max_completion_tokens: mt };
+      continue;
+    }
+    return { r, text };
+  }
+}
+
 export async function chatJSON<T>(opts: {
   messages: ChatMessage[];
   schema: Record<string, unknown>;
@@ -127,15 +162,7 @@ export async function chatJSON<T>(opts: {
       },
     },
   };
-  const r = await fetchOpenAI(CHAT_COMPLETIONS_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-  const text = await r.text();
+  const { r, text } = await postChatAdaptive(apiKey, body);
   if (!r.ok) {
     const parsed = parseOpenAIError(r.status, text);
     throw new OpenAIError({
@@ -185,15 +212,7 @@ export async function chatText(opts: {
     temperature: opts.temperature ?? 0.4,
     max_tokens: opts.maxTokens ?? 900,
   };
-  const r = await fetchOpenAI(CHAT_COMPLETIONS_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-  const t = await r.text();
+  const { r, text: t } = await postChatAdaptive(apiKey, body);
   if (!r.ok) {
     const parsed = parseOpenAIError(r.status, t);
     throw new OpenAIError({
