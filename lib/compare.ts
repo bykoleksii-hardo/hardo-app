@@ -28,7 +28,7 @@ export type Comparison = {
 const COMMON_ROWS = (rival: {
   format: string; grading: string; levels: string; delivery: string; modes: string; pricing: string; bestFor: string;
 }): CompareRow[] => [
-  { feature: 'Format', hardo: 'Full graded mock interview — 12 questions (technicals, behavioral, a case)', rival: rival.format },
+  { feature: 'Format', hardo: 'Full graded mock interview — 12 questions (technicals, behavioral, a case) — plus 10-minute topic sprints', rival: rival.format },
   { feature: 'Grading', hardo: 'Letter grade per answer, six-axis skill radar, follow-up depth, a hire call', rival: rival.grading },
   { feature: 'Interviewer levels', hardo: 'Three tiers — Intern, Analyst, Associate — graded to each level’s bar', rival: rival.levels },
   { feature: 'Delivery scoring', hardo: 'Yes — pace, filler and jargon hygiene scored in voice mode', rival: rival.delivery },
@@ -119,7 +119,7 @@ export function getComparison(slug: string): Comparison | undefined {
 export type Tool = { name: string; url: string; internal?: boolean; line: string };
 
 export const ROUNDUP_TOOLS: Tool[] = [
-  { name: 'HARDO', url: '/ai-investment-banking-mock-interview', internal: true, line: 'A graded mock interview rep: 12 questions across technicals, behavioral and a case, three interviewer tiers, a letter grade on every answer and delivery scored in voice mode. One free, $14.99/mo.' },
+  { name: 'HARDO', url: '/ai-investment-banking-mock-interview', internal: true, line: 'A graded mock interview rep: 12 questions across technicals, behavioral and a case (or a 10-minute topic sprint), three interviewer tiers, a letter grade on every answer and delivery scored in voice mode. One free, $14.99/mo.' },
   { name: 'Cook’d AI', url: 'https://www.cookd.ai/', line: 'An all-in-one recruiting suite — AI mock interviews plus resume help, networking and an application tracker.' },
   { name: 'Superday AI', url: 'https://www.superdayai.com/', line: 'AI mock interviews trained on real interview reports with bank-specific coverage, plus a real-time interview copilot.' },
   { name: 'IB Mock', url: 'https://www.ibmock.ai/', line: 'Voice-to-voice AI mock interviews with a large bank of curated, reported questions.' },

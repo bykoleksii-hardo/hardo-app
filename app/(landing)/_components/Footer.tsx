@@ -31,7 +31,7 @@ export default function LandingFooter({ signedIn = false, isPaid = false }: Prop
         <div className="md:col-span-2">
           <Brand size="md" />
           <p className="mt-4 max-w-sm text-ink-2 leading-relaxed">
-            AI mock interviews for investment banking. Twelve questions per session, voice or text. Graded the way a banker reviews a candidate.
+            AI mock interviews for investment banking. Full 12-question rounds or 10-minute topic sprints, voice or text. Graded the way a banker reviews a candidate.
           </p>
           <SubscribeForm />
         </div>

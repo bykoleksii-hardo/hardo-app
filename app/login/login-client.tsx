@@ -428,7 +428,7 @@ export default function LoginClient() {
 
           <ol className="anim-rise d5 space-y-6 text-sm">
             <Step n="01" title="Pick your room">Intern, Analyst, or Associate — each graded against its own bar.</Step>
-            <Step n="02" title="Run the drill">Twelve questions by voice or text. The interviewer presses back with unscripted follow-ups.</Step>
+            <Step n="02" title="Run the drill">A full twelve-question round or a three-question topic sprint, by voice or text. The interviewer presses back with unscripted follow-ups.</Step>
             <Step n="03" title="Read the scorecard">A letter grade per answer, follow-up depth, and what an MD would actually say.</Step>
           </ol>
         </div>
