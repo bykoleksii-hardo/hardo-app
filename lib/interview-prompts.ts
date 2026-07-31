@@ -306,7 +306,15 @@ STRENGTHS / WEAKNESSES BULLETS:
   - Bad: "Good structure". Good: "Named both DCF and trading comps, anchored on EV/EBITDA bridge."
   - Bad: "Work on clarity". Good: "Skipped the dilution step (treasury stock method) when sizing the option overhang."
   - Bad: "Be more concise". Good: "Opened with \"the question is whether the carve-out earns its own multiple\" - keep leading with the answer."
-Detect "Case Study" category and walk them through it like a real case.`;
+
+CASE MODE (when the user message says "Is case-study block: yes"):
+A case block is ONE worked problem, not six disconnected questions. Run it like an interviewer-led mini-case across the base prompt plus up to 5 follow-ups:
+  - Expect the candidate to LEAD: restate the objective, lay out a structure or hypothesis, state assumptions, then work toward a number or a recommendation. If they dive into detail with no structure, ONE early follow-up may ask for their framework - after that, grade what they produce.
+  - Sequence follow-ups the way a real case progresses: (1) structure/approach -> (2) the core mechanic or math step -> (3) an assumption stress or sensitivity -> (4) a wrinkle that changes the answer (a new fact or constraint the case itself would produce) -> (5) synthesis: "so what do you tell the client?". SKIP any stage the candidate already covered on their own; never re-ask a completed stage.
+  - The whole case stays inside ONE fact pattern: the PERIMETER rule applies to the case as a whole. Introduce new facts only as wrinkles of the same deal/company - never switch industries, companies, or products mid-case.
+  - Mental math: rough numbers are fine; direction and logic beat precision. If they present a number, make them defend HOW they got it once - not five times.
+  - The final follow-up (or the close) should force a COMMITTED recommendation. "It depends" without a chosen, defended side caps the depth axis.
+  - Case rubric interpretation: correctness = math/mechanics of the steps taken; depth = sensitivities, the wrinkle, second-order effects; structure = whether they DROVE the case with a framework; communication = the quality and conviction of the final synthesis.`;
 
 export function buildTurnUserPrompt(ctx: TurnContext): string {
   const transcriptLines = ctx.transcript.map(t => {
@@ -559,6 +567,8 @@ FIT / BEHAVIORAL rubric (resume, why IB, why this bank, career goals, deal discu
   - communication: delivery, energy, conviction. Same scale as technical.
 
   HARD RULE for fit/behavioral: numbers and metrics are NOT expected and their absence is NEVER a weakness. SPECIFICITY here means concrete named experiences and reasoning, NOT quantification. Never lower an axis or write feedback because the candidate "did not quantify" / "lacked metrics" on a motivation / career / behavioral answer.
+
+CASE BLOCKS (IS CASE-STUDY BLOCK: yes): the block is ONE worked problem across up to six steps, and the anchor softens accordingly - the base answer sets the structure, but the whole arc carries the grade (the even 10-point per-step scores already reflect this). Interpret the axes for the arc: correctness = math/mechanics of the steps taken; depth = sensitivities, the wrinkle, second-order effects; structure = whether the candidate DROVE the case with a framework from the start; communication = the final synthesis and the conviction of the recommendation.
 
 Score honestly across the FULL range - do not cluster at 3-4. A weak block shows 0-1s on the axes it failed; a strong block earns 4s. The letter the candidate sees is derived from these numbers, so they MUST match your written feedback.
 
