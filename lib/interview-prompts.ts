@@ -35,6 +35,10 @@ export type TurnContext = {
   // Interview-level context for opener variation
   questionNumber?: number;   // 1 = first, 2 = second, etc.
   priorTopics?: string[];    // categories already asked (e.g. ["Accounting","Valuation"])
+  // Session shape: topic sprints get brisk drill framing instead of superday pacing.
+  sessionKind?: 'standard' | 'topic' | 'deep_dive';
+  topicLabel?: string;       // display label of the sprint topic (e.g. "LBO & Private Equity")
+  totalQuestions?: number;   // base questions in the session (3 for sprints, 12 standard)
   // Confidential per-question answer key (the must-hit points a strong answer covers).
   // Used ONLY to ground the correctness axis / per-answer score by coverage — NEVER
   // surfaced to the candidate. Absent when the question has no curated key yet.
@@ -341,6 +345,9 @@ export function buildTurnUserPrompt(ctx: TurnContext): string {
     `Follow-ups remaining: ${Math.max(0, ctx.maxFollowUps - ctx.followUpsSoFar)}`,
     `When you close the block, score the rubric axes 0-4 honestly across the full range (the server derives the letter from them); do not cluster at the top.`,
     ``,
+    ctx.sessionKind === 'topic'
+      ? `SESSION: a ${ctx.topicLabel ?? 'topic'} sprint - a short focused drill of ${ctx.totalQuestions ?? 3} questions on one topic${ctx.questionNumber ? ` (this is question ${ctx.questionNumber} of ${ctx.totalQuestions ?? 3})` : ''}. Keep transitions brisk and drill-like - this is a rep, not a superday. Never call the sprint easy, partial, or a lesser interview.`
+      : ``,
     ctx.questionNumber && ctx.questionNumber > 1 ? `INTERVIEW STAGE:` : ``,
     ctx.questionNumber && ctx.questionNumber > 1 ? `This is question ${ctx.questionNumber} in the session. Questions already asked: ${ctx.priorTopics && ctx.priorTopics.length ? ctx.priorTopics.join(', ') : 'n/a'}.` : ``,
     ctx.questionNumber && ctx.questionNumber > 1 ? `Do NOT open with "Let's start with" or "Let's begin with" - this is not the first question. Use a natural transition that fits the interview flow (e.g. connect to the prior topic, shift directly into the ask, or use an interviewer-style bridge like "Moving on" / "Good - next" / "Alright," / "Let me ask you about" / simply start with the question).` : ``,
@@ -691,6 +698,9 @@ The user message includes a SERVER-COMPUTED OVERALL SCORE - the deterministic ag
 - leaning_no_hire: 40-59
 - no_hire: 0-39
 You may go ONE band lower (never higher) than the score's band when a disqualifying moment justifies it (an integrity red flag, a total non-answer on a core technical block) - and then you MUST name that moment in final_feedback. If no SERVER-COMPUTED OVERALL SCORE line is present (legacy interview), estimate overall_score from the block grades and apply the same bands.
+All four values are calibrated to the CANDIDATE'S LEVEL: "hire" for an intern means "advance this intern to the next round", not "ready for a full-time seat". Do not import a higher level's bar into the verdict.
+
+TOPIC SPRINTS: when the user message marks the session as a topic sprint, scope the verdict to that one topic - do not fault the candidate for competencies the sprint never tested. Make exactly ONE next_steps_plan item point at the logical next session on the platform: the full 12-question round, or a sprint on the weakest adjacent topic.
 
 SPECIFICITY REQUIREMENTS (final scorecard):
   - In 'overall_strengths' and 'overall_weaknesses' you MUST reference at least 2 specific blocks by their order_index ("On Block 04 (DCF), ...", "Block 09 (LBO)..."). Generic praise/criticism without block references is rejected.
@@ -791,6 +801,9 @@ export type RephraseContext = {
   profile: CandidateProfileSnapshot | null;
   questionNumber?: number;
   priorTopics?: string[];
+  sessionKind?: 'standard' | 'topic' | 'deep_dive';
+  topicLabel?: string;
+  totalQuestions?: number;
 };
 
 export type RephraseAIResult = {
@@ -869,6 +882,12 @@ export function buildRephrasePrompt(ctx: RephraseContext): string {
     '---',
     `Candidate level: ${ctx.level}`,
     `Question category: ${ctx.category}${ctx.subtopic ? ' / ' + ctx.subtopic : ''}`,
+    ...(ctx.questionNumber
+      ? [`Question number in session: ${ctx.questionNumber}${ctx.totalQuestions ? ` of ${ctx.totalQuestions}` : ''}`]
+      : []),
+    ...(ctx.sessionKind === 'topic'
+      ? [`Session type: topic sprint on ${ctx.topicLabel ?? 'one topic'} (${ctx.totalQuestions ?? 3} questions, same topic throughout). You may acknowledge the drill naturally ("Second one on valuation - ..."), and since every question shares the topic, do NOT re-introduce the topic each time. Never call the sprint easy, partial, or a warm-up for something bigger.`]
+      : []),
     '---',
     profileBlock,
     '---',
