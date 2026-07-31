@@ -18,7 +18,7 @@ export async function GET() {
     '',
     `> ${SITE_DESCRIPTION}`,
     '',
-    'HARDO runs realistic investment-banking mock interviews — twelve questions per session across technicals, behavioral, and a case, with a letter-grade scorecard at the end. The Knowledge Hub publishes the reasoning behind the questions interviewers actually ask.',
+    'HARDO runs realistic investment-banking mock interviews — full twelve-question sessions across technicals, behavioral, and a case, or ten-minute topic sprints (three questions on one chosen topic), with a letter-grade scorecard at the end. The Knowledge Hub publishes the reasoning behind the questions interviewers actually ask.',
     '',
     '## Knowledge Hub',
   ];

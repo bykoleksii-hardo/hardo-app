@@ -18,7 +18,7 @@ import { organizationLd, websiteLd, faqLd } from '@/lib/seo';
 
 export const metadata: Metadata = {
   title: 'AI Mock Interviews for Investment Banking \u2014 HARDO',
-  description: 'Practice investment banking mock interviews against the bar \u2014 twelve questions per session, voice or text, graded with a real scorecard at the end.',
+  description: 'Practice investment banking mock interviews against the bar \u2014 full 12-question rounds or 10-minute topic sprints, voice or text, graded with a real scorecard at the end.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -65,7 +65,7 @@ function AnonHero() {
             <span className="text-gold">.</span>
           </h1>
           <p className="anim-rise d3 mt-6 text-[17px] text-ink-2 leading-relaxed max-w-xl">
-            Twelve questions per session. Technicals, behavioral, a case. Voice or text. A real scorecard at the end {'\u2014'} graded the way a real banker reviews a candidate, then the model answer you were measured against.
+            Twelve questions per session {'\u2014'} or a ten-minute topic sprint when you're drilling one weakness. Technicals, behavioral, a case. Voice or text. A real scorecard at the end, graded the way a real banker reviews a candidate, then the model answer you were measured against.
           </p>
           <div className="anim-rise d4 mt-9 flex flex-wrap items-center gap-4">
             <Link
@@ -79,7 +79,7 @@ function AnonHero() {
           <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Email + password. Verification code on first sign-up.</p>
           <div className="anim-rise d6 mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>No card required</span>
-            <span>{'\u00b7'} 12 questions / session</span>
+            <span>{'\u00b7'} 12-question rounds {'\u00b7'} 10-min sprints</span>
             <span>{'\u00b7'} 1 room</span>
             <span>{'\u00b7'} Letter grade per answer</span>
             <span>{'\u00b7'} Model answer per Q</span>
@@ -128,7 +128,7 @@ function FreeHero({ remaining }: { remaining: number }) {
           <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Voice or text. Same scorecard, same model answers.</p>
           <div className="anim-rise d6 mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>{left}/1 free room left</span>
-            <span>{'\u00b7'} 12 questions / session</span>
+            <span>{'\u00b7'} 12-question rounds {'\u00b7'} 10-min sprints</span>
             <span>{'\u00b7'} Letter grade per answer</span>
           </div>
         </div>
@@ -167,7 +167,7 @@ function PaidHero() {
           <p className="anim-rise d5 mt-3 text-[13px] text-[color:var(--muted)]">Voice answers with an editable Whisper transcript. Real banker rubric at the end.</p>
           <div className="anim-rise d6 mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] font-mono uppercase tracking-widest text-[color:var(--muted)]">
             <span>Unlimited rooms</span>
-            <span>{'\u00b7'} 12 questions / session</span>
+            <span>{'\u00b7'} 12-question rounds {'\u00b7'} 10-min sprints</span>
             <span>{'\u00b7'} Letter grade per answer</span>
             <span>{'\u00b7'} Delivery score</span>
           </div>
