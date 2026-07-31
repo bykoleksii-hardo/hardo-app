@@ -226,6 +226,30 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
     if (blockDelivery) deliverySummary = formatDeliveryForPrompt(blockDelivery);
   } catch { /* delivery is optional grounding */ }
 
+  // 4d. Timer context for the step being answered - computed BEFORE the AI
+  // call for two reasons: (a) the model should know a cut-off answer is the
+  // timer's doing, and (b) measuring elapsed here keeps the AI call's own
+  // latency out of the candidate's clock (it was previously measured after the
+  // call, silently charging the candidate several seconds of model time).
+  let stepCreatedAt: string | null = step.created_at;
+  let stepIsFollowUp = false;
+  if (currentStepId !== baseStepId) {
+    const cs = children.find(c => c.id === currentStepId);
+    if (cs && cs.created_at) stepCreatedAt = cs.created_at;
+    stepIsFollowUp = true;
+  }
+  const inputMode: 'text' | 'voice' = step.interviews?.input_mode === 'voice' ? 'voice' : 'text';
+  const limitSec = getTimeLimitSeconds({ category, isFollowUp: stepIsFollowUp, inputMode });
+  let elapsedSec: number | null = null;
+  if (stepCreatedAt) {
+    const startMs = new Date(stepCreatedAt).getTime();
+    const nowMs = Date.now();
+    if (Number.isFinite(startMs) && nowMs > startMs) {
+      elapsedSec = Math.round((nowMs - startMs) / 1000);
+    }
+  }
+  const overtime = elapsedSec !== null && elapsedSec > limitSec;
+
   // 5. Call OpenAI with structured output.
   let ai: TurnAIResult;
   try {
@@ -242,6 +266,8 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
           followUpsSoFar, maxFollowUps,
           maxScoreForThisTurn: maxScoreForTurn(followUpsSoFar, isCase),
           question: baseQuestion,
+          inputMode,
+          wasOvertime: overtime,
           transcript,
           candidateMessage: message,
           deliverySummary,
@@ -338,25 +364,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   if (candAnsErr) console.error('[turn] failed to insert candidate answer', candAnsErr);
   // For real answers also mark the step's user_answer/answered_at via submit_answer-equivalent update.
   if (candidateAnswerType === 'answer') {
-    // Resolve created_at of the actual step we are answering (base step or last unanswered follow-up).
-    let stepCreatedAt: string | null = step.created_at;
-    let stepCategory: string = category;
-    let stepIsFollowUp = false;
-    if (currentStepId !== baseStepId) {
-      const cs = children.find(c => c.id === currentStepId);
-      if (cs && cs.created_at) stepCreatedAt = cs.created_at;
-      stepIsFollowUp = true;
-    }
-    const limitSec = getTimeLimitSeconds({ category: stepCategory, isFollowUp: stepIsFollowUp, inputMode: (step.interviews?.input_mode === 'voice' ? 'voice' : 'text') });
-    let elapsedSec: number | null = null;
-    if (stepCreatedAt) {
-      const startMs = new Date(stepCreatedAt).getTime();
-      const nowMs = Date.now();
-      if (Number.isFinite(startMs) && nowMs > startMs) {
-        elapsedSec = Math.round((nowMs - startMs) / 1000);
-      }
-    }
-    const overtime = elapsedSec !== null && elapsedSec > limitSec;
+    // Timer values (limitSec / overtime) were computed pre-AI-call in 4d.
     await supabase
       .from('interview_steps')
       .update({
@@ -461,7 +469,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   // 7c.2. Aggregate per-answer scores across the whole block (base + all follow-ups).
   const { data: blockSteps } = await supabase
     .from('interview_steps')
-    .select('id, is_follow_up, parent_step_id, order_index, score_numeric, created_at, user_answer, custom_question')
+    .select('id, is_follow_up, parent_step_id, order_index, score_numeric, created_at, user_answer, custom_question, was_overtime')
     .or(`id.eq.${baseStepId},parent_step_id.eq.${baseStepId}`)
     .order('created_at', { ascending: true });
 
@@ -517,15 +525,17 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
       score: orderedScores[0] ?? null,
       maxScore: maxScoreForTurn(0, isCase),
       isFollowUp: false,
+      wasOvertime: Boolean((baseRow as { was_overtime?: boolean | null }).was_overtime),
     });
   }
-  fuRows.forEach((fu: { user_answer?: string | null; custom_question?: string | null }, i: number) => {
+  fuRows.forEach((fu: { user_answer?: string | null; custom_question?: string | null; was_overtime?: boolean | null }, i: number) => {
     gradeTurns.push({
       question: fu.custom_question ?? '',
       answer: fu.user_answer ?? '',
       score: orderedScores[(baseRow ? 1 : 0) + i] ?? null,
       maxScore: maxScoreForTurn(i + 1, isCase),
       isFollowUp: true,
+      wasOvertime: Boolean(fu.was_overtime),
     });
   });
 
@@ -557,6 +567,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
           turns: gradeTurns,
           keyPoints,
           deliverySummary: blockDelivery ? formatDeliveryForPrompt(blockDelivery) : undefined,
+          inputMode,
         }) },
       ],
     });
