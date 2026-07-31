@@ -10,6 +10,7 @@ import {
   aggregateBlockScore,
   type FinalizeAIResult,
 } from '@/lib/interview-prompts';
+import { TOPIC_LABELS } from '@/lib/interview/topics';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -28,7 +29,7 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
 
   const { data: interview } = await supabase
     .from('interviews')
-    .select('id, candidate_level, status, total_questions')
+    .select('id, candidate_level, status, total_questions, kind, topic_category')
     .eq('id', body.interviewId)
     .eq('user_id', user.id)
     .maybeSingle();
@@ -77,6 +78,9 @@ export const POST = withLogging('POST /api/interview/finalize', async (req: Requ
   const lines: string[] = [
     `Candidate level: ${interview.candidate_level}`,
     `Total base questions: ${baseSteps.length}`,
+    ...(interview.kind === 'topic'
+      ? [`Session type: TOPIC SPRINT on ${TOPIC_LABELS[String(interview.topic_category)] ?? interview.topic_category} - ${baseSteps.length} questions on one topic (apply the TOPIC SPRINTS rule)`]
+      : []),
     ``,
     `PER-BLOCK BREAKDOWN:`,
   ];

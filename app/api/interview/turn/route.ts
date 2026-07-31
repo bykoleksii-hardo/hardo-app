@@ -23,6 +23,7 @@ import {
   type TurnContext,
 } from '@/lib/interview-prompts';
 import { getTimeLimitSeconds } from '@/lib/timer-config';
+import { TOPIC_LABELS } from '@/lib/interview/topics';
 import { sanitizeDelivery, aggregateDelivery, formatDeliveryForPrompt, type DeliveryMetrics } from '@/lib/delivery';
 import { withLogging } from '@/lib/observability';
 import { rateLimitTake, rateLimitSubject, rateLimitedResponse } from '@/lib/rate-limit';
@@ -49,7 +50,7 @@ type StepRow = {
     subtopic: string | null;
     difficulty: number | null;
   } | null;
-  interviews: { candidate_level: string; total_questions: number | null; input_mode: string | null; kind: string | null; user_id: string } | null;
+  interviews: { candidate_level: string; total_questions: number | null; input_mode: string | null; kind: string | null; topic_category: string | null; user_id: string } | null;
 };
 
 type AnswerRow = {
@@ -97,7 +98,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   //    If it is itself a follow-up, walk up to its parent so we always grade at the block root.
   const { data: rawStep, error: stepErr } = await supabase
     .from('interview_steps')
-    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind, user_id)')
+    .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind, topic_category, user_id)')
     .eq('id', body.stepId)
     .maybeSingle();
   if (stepErr || !rawStep) {
@@ -111,7 +112,7 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
   if (step.is_follow_up && step.parent_step_id) {
     const { data: parent } = await supabase
       .from('interview_steps')
-      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind, user_id)')
+      .select('id, interview_id, is_follow_up, parent_step_id, custom_question, order_index, created_at, questions(id, question, category, subtopic, difficulty), interviews(candidate_level, total_questions, input_mode, kind, topic_category, user_id)')
       .eq('id', step.parent_step_id)
       .maybeSingle();
     if (parent) step = parent as unknown as StepRow;
@@ -268,6 +269,9 @@ export const POST = withLogging('POST /api/interview/turn', async (req: Request,
           question: baseQuestion,
           inputMode,
           wasOvertime: overtime,
+          sessionKind: (step.interviews?.kind ?? 'standard') as TurnContext['sessionKind'],
+          topicLabel: step.interviews?.topic_category ? (TOPIC_LABELS[step.interviews.topic_category] ?? step.interviews.topic_category) : undefined,
+          totalQuestions: step.interviews?.total_questions ?? undefined,
           transcript,
           candidateMessage: message,
           deliverySummary,

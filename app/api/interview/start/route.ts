@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { withLogging, logger } from '@/lib/observability';
 import { chatJSON } from '@/lib/openai';
-import { isTopicKey } from '@/lib/interview/topics';
+import { isTopicKey, TOPIC_LABELS } from '@/lib/interview/topics';
 import {
   REPHRASE_SYSTEM_PROMPT,
   REPHRASE_SCHEMA,
@@ -134,7 +134,12 @@ export const POST = withLogging('POST /api/interview/start', async (req: Request
     // client falls back to questions.question when delivered_question is null.
     if (typeof data === 'string') {
       try {
-        await rephraseBaseQuestions(supabase, data, level as Level, user.id);
+        await rephraseBaseQuestions(
+          supabase, data, level as Level, user.id,
+          mode === 'topic'
+            ? { kind: 'topic', topicLabel: TOPIC_LABELS[topicCategoryRaw as string] ?? String(topicCategoryRaw) }
+            : { kind: 'standard' },
+        );
       } catch (e) {
         // Non-fatal: client falls back to raw question text.
         logger.error('start: rephrase orchestration failed (non-fatal)', e);
@@ -161,6 +166,7 @@ async function rephraseBaseQuestions(
   interviewId: string,
   level: Level,
   userId: string,
+  session: { kind: 'standard' | 'topic'; topicLabel?: string },
 ): Promise<void> {
   // 1. Pull base steps (is_follow_up = false) with the FK question.
   const { data: stepsRaw, error: stepsErr } = await supabase
@@ -220,6 +226,10 @@ async function rephraseBaseQuestions(
                 subtopic: st.questions!.subtopic,
                 question: st.questions!.question,
                 profile,
+                questionNumber: st.order_index,
+                totalQuestions: steps.length,
+                sessionKind: session.kind,
+                topicLabel: session.topicLabel,
               }),
             },
           ],
