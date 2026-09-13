@@ -145,6 +145,10 @@ export function normalizeSubscriptionStatus(lsStatus: string | null | undefined)
     case 'expired':
       return 'expired';
     default:
-      return s;
+      // Unknown vocabulary (e.g. an invoice status like "paid" leaking in, or a
+      // future LS status) must not pass through: apply_lemonsqueezy_event
+      // resolves any unrecognized status to plan "free", which downgrades the
+      // user. Returning null lets the webhook route skip the event instead.
+      return null;
   }
 }
