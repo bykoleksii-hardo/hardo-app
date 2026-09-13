@@ -48,7 +48,25 @@ export const POST = withLogging('POST /api/billing/webhook', async (req: Request
   const userId = payload.meta?.custom_data?.user_id;
   const attrs = (payload.data?.attributes ?? {}) as Record<string, unknown>;
 
-  if (!userId || !eventName?.startsWith('subscription_')) {
+  // Subscription-OBJECT events only. LemonSqueezy's subscription_payment_*
+  // events also start with "subscription_" but carry a subscription-INVOICE
+  // object whose status vocabulary ("paid", "refunded", ...) is not a
+  // subscription status. One of them downgraded a fresh subscriber seconds
+  // after checkout: invoice status "paid" fell through normalization into
+  // apply_lemonsqueezy_event's else-branch, which resolves plan to "free".
+  // Invoice events carry no entitlement signal we need - the subscription
+  // object events cover every lifecycle transition - so they are skipped.
+  const SUBSCRIPTION_OBJECT_EVENTS = new Set([
+    'subscription_created',
+    'subscription_updated',
+    'subscription_cancelled',
+    'subscription_resumed',
+    'subscription_expired',
+    'subscription_paused',
+    'subscription_unpaused',
+    'subscription_plan_changed',
+  ]);
+  if (!userId || !eventName || !SUBSCRIPTION_OBJECT_EVENTS.has(eventName)) {
     return NextResponse.json({ ok: true, ignored: true, event: eventName });
   }
 
@@ -66,6 +84,12 @@ export const POST = withLogging('POST /api/billing/webhook', async (req: Request
 
   const lsStatus = (attrs['status'] as string | undefined) ?? null;
   const status = normalizeSubscriptionStatus(lsStatus);
+  // Defence in depth: a status we don't recognize must never reach the RPC -
+  // its plan resolution treats anything unknown as "free" (a downgrade).
+  if (!status) {
+    logger.warn('lemonsqueezy webhook: unrecognized subscription status - skipped', { requestId: ctx.requestId, event: eventName, lsStatus });
+    return NextResponse.json({ ok: true, ignored: true, event: eventName, reason: 'unknown_status' });
+  }
   const lsCustomerId = attrs['customer_id'];
   const lsSubscriptionId = payload.data?.id ?? null;
   const renewsAt = (attrs['renews_at'] as string | undefined) ?? null;
